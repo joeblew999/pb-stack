@@ -2,6 +2,8 @@
 
 https://github.com/joeblew999/pb-stack
 
+Gerard Webb
+
 Describes a Stack based on Pocketbase.
 
 A Forward engineering stack where:
