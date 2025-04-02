@@ -10,15 +10,31 @@ Describes a Stack based on Pocketbase that where:
 
 2. Authentication and Authorisation is 100% controlled by the database.
 
-3. GUI is 100% controlled using the HTMX principles.  Web and Native ( Desktop and  app ) is based off the same code, using WebViews and DeepLinks to align the Web with Native.
+3. GUI is 100% controlled using the HTMX principles.  Web and Native ( Desktop and  app ) is based off the same code, using WebViews and DeepLinks to align the Web with Native. DataStar and Webviews does this.
 
-4. Both Cloud and On Premise so that Organisations can control their own data. 
+4. Both Cloud and On Premise so that Organisations can control their own data. Marmot and Cloud Flare tunnel does this.
+
+You do not have to use all the stack. Its a composition where you can pick what you want.
+
+## Repo Structure
+
+I use this folder structure.
+
+- Root has the task files only.
+
+- Modules folder with a sub folder for each Stack part, and a sub folder for each experiment.
+
+- Projects folder, with a sub folder for each Project.
+
 
 ## Stack
 
-The following is what i currently use.
+The following is what i currently use for all projects.
 
-I am currently porting the Makefiles to Taskfiles.
+I am currently porting the Makefiles to Taskfiles, because its just so much better.
+
+I develop by experimenting with each layer, and then work back to refactor. to make this easier i use a mono repo with a folder per layer of the Stack, with mini experiments in sub folders.
+
 
 ### Process Compose ( PC ) 
 
@@ -96,6 +112,8 @@ TODO:
 
 https://github.com/maxpert/marmot 
 
+Example: https://github.com/maxpert/marmot-pocketbase-flyio
+
 Provides Synchronisation of the Pocketbase DB and Files in a master / master approach. 
 
 Marmot runs as a side car ( using PC ). 
@@ -107,6 +125,10 @@ Features:
 - Scale out - The Load balancer automatically forwards any request to the nearest Data Center.
 
 - Network failure tolerant - The NATS Cluster will ensure any PB will catchup. 
+
+TODO
+
+- A PB Schema change requires a global "stop the world and sync " to be co-ordinated. Write a basic CLI to do this, which will be put into PC and later used by TOFU to make it automatic.
 
 ### DataStar ( DS )
 
@@ -171,11 +193,14 @@ TODO:
 
 ### STEP 4 - DATASTAR WEB GUI
 
-- Generate the DataStar, so that developers can easily write DS Web GUI.
+We might then want to add code generation of the standard things like:
 
-Once we get into it we will see obvious things to code generator like:
+- View a Table:  https://data-star.dev/examples/infinite_scroll
 
-1. Each PB Table needs a real time editor: 
+- Edit a Row in a Table: https://data-star.dev/examples/click_to_edit
+
+- Delete a row in a table: https://data-star.dev/examples/bulk_update
+
 
 
 
