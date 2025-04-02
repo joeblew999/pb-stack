@@ -13,6 +13,48 @@ Task files are used:
 
 task --list-all
 
+task: Available tasks for this project:
+* build:                                       
+* css:                                         
+* default:                                     
+* deploy:                                      
+* idiomorph:                                   
+* kill:                                        
+* libpub:                                      
+* library:                                     
+* qtc:                                         
+* sdktspub:                                    
+* site:                                        build and run site
+* support:                                     
+* templ:                                       
+* test:                                        
+* test-all:                                    
+* tools:                                       
+* version:                                     
+* base:default:                                      (aliases: base)
+* git:default:                                       (aliases: git)
+* remote:docker-compose:down:                  Stop and remove containers, networks
+* remote:docker-compose:up:                    Create and start containers
+* remote:security:sast:checkov:scanner:        Infrastructure as code static analysis
+* remote:security:sast:grype:scanner:          A vulnerability scanner for container images, filesystems, and SBOMs
+* remote:security:sast:trivy:aws:              [EXPERIMENTAL] Scan AWS account
+* remote:security:sast:trivy:config:           Scan config files for misconfigurations
+* remote:security:sast:trivy:filesystem:       Scan local filesystem
+* remote:security:sast:trivy:image:            Scan a container image
+* remote:security:sast:trivy:kubernetes:       [EXPERIMENTAL] Scan kubernetes cluster
+* remote:security:sast:trivy:repository:       Scan a repository
+* remote:security:sast:trivy:rootfs:           Scan rootfs
+* remote:security:sast:trivy:sbom:             Scan SBOM for vulnerabilities and licenses
+* remote:security:sast:trivy:vm:               [EXPERIMENTAL] Scan a virtual machine image
+* remote:terraform:apply:                      terraform apply -auto-approve
+* remote:terraform:destroy:                    terraform destroy
+* remote:terraform:doc:                        terraform-docs markdown table
+* remote:terraform:fmt:                        terraform fmt
+* remote:terraform:init:                       terraform init
+* remote:terraform:plan:                       terraform plan
+* remote:terraform:terrascan:                  Terrascan static code analyzer
+* remote:terraform:tflint:                     tflint
+* remote:terraform:validate:                   terraform validate
 
 
 ```
