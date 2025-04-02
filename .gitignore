@@ -28,4 +28,4 @@ go.work.sum
 .task
 
 # site root with all other Apps inside.
-#site
+site
