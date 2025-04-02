@@ -16,16 +16,15 @@ You do not have to use all the stack. Its a composition where you can pick what 
 
 ## Repo Structure
 
-I use mono repos, cause life is short.
+I use mono repos, cause life is short. Long story.
 
-Other developers have the exact same structure and can cross share.
+Fellow developers have the exact same structure. 
 
-- Root has the common task files. Modules and Projects have Task files that include the common task files.
+- Root has the common task files. Modules and Projects have Task files that reference the common task files. 
 
 - Modules folder with a sub folder for each Stack part and Task file for running it. Sub folders are for experiments because you need a playground to try things out, and then refactor back.
 
 - Projects folder, with a sub folder for each Project / PlayGround.  These of course use the Modules compositionally.
-
 
 Each PlayGround has these dot folders that the common task file interacts with.
 
@@ -33,7 +32,10 @@ Each PlayGround has these dot folders that the common task file interacts with.
 - .dep for consumed binaries.
 - .pack for packing of everything for deployment.
 
+Task files do 2 things:
 
+- Build the binary of what they represent.
+- Run the binary of what they represent. 
 
 
 ## Stack
