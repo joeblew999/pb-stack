@@ -23,19 +23,21 @@ You do not have to use all the stack. Its a composition where you can pick what 
 
 I use mono repos, cause life is short. Long story.
 
-Fellow developers have the exact same structure. 
+Users and Developers have the exact same structure, but Users will not have the Modules, unless they are developing their Own. 
 
-- Root has the common task files. Modules and Projects have Task files that reference the common task files. 
+So as you might have guessed this is Git OPS based, where each user has Git on their Desktop. 
 
-- MOD ( Modules )  folder with a sub folder for each Stack part and Task file for running it. Sub folders are for experiments because you need a playground to try things out, and then refactor back.
+- Root has the common TASK files. Modules and Projects have Task files that reference the common task files. 
 
-- PROJ ( Projects ) folder, with a sub folder for each Project / PlayGround.  These of course use the Modules compositionally.
+- MOD ( Modules ) has folders for each Stack part and a TASK file for running it. 
 
-## Playgrounds
+- PROJ ( Projects ) has folders for each Project / PlayGround.  These of course using the Modules compositionally based on the TASK file of each Project.
+
+## Project Structure.
 
 A Playground is a Project or Module experiment.
 
-Each PlayGround has these dot folders that the common task file interacts with.
+Each PlayGround has a TASK file, with the common TASK file manipulating these git folder:
 
 - .bin for produced binaries.
 - .dep for consumed binaries.
@@ -48,13 +50,7 @@ Task files do 2 things:
 - Run the binary of what they represent. 
 
 
-## Stack
-
-The following is what i currently use for all projects.
-
-I am currently porting the Makefiles to Taskfiles, because its just so much better.
-
-I develop by experimenting with each layer, and then work back to refactor. to make this easier i use a mono repo with a folder per layer of the Stack, with mini experiments in sub folders.
+## Stack of Modules
 
 
 ### Process Compose ( PC ) 
