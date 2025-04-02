@@ -2,7 +2,7 @@
 
 https://github.com/joeblew999/pb-stack
 
-A Stack based on Pocketbase that where:
+A Stack based on Pocketbase where:
 
 1. Server Golang Code is generated as much as possible, so that developers are not hand writing code causing bugs and security leaks, allowing rapid extension of the system. A Fix only requires a change to the generator allowing rapid remediation.
 
