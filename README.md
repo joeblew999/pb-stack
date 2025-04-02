@@ -1,5 +1,7 @@
 # pb-stack
 
+https://github.com/joeblew999/pb-stack
+
 Describes a Stack based on Pocketbase.
 
 A Forward engineering stack where:
@@ -10,10 +12,11 @@ A Forward engineering stack where:
 
 3. GUI is 100% controlled using the HTMX principles, with Web, Desktop and Mobile is based off the same code, so development is rapid, security is highest possible. 
 
-
 ## Stack
 
 This describes all parts to build a system that allows both Cloud and On Premise so that Organisations can control their own data. 
+
+This is what i currently use, and have Makefiles for. I am porting them to Task files currently.
 
 ### Process Compose ( PC ) 
 
