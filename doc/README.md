@@ -29,7 +29,7 @@ Users and Developers have the exact same structure, but Users will not have the 
 
 So as you might have guessed this is Git OPS based, where each user has Git on their Desktop. 
 
-- Root has the common TASK files. 
+- Root has the root TASK file that dictates everything else.
 
 - MOD ( Modules ) has folders for each Stack part and a TASK file for running it.  You can make PlayGround here too to experiment and refactor.
 
