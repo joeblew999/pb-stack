@@ -26,11 +26,16 @@ Fellow developers have the exact same structure.
 
 - Projects folder, with a sub folder for each Project / PlayGround.  These of course use the Modules compositionally.
 
+## Playgrounds
+
+A Playground is a Project or Module experiment.
+
 Each PlayGround has these dot folders that the common task file interacts with.
 
 - .bin for produced binaries.
 - .dep for consumed binaries.
 - .pack for packing of everything for deployment.
+- .src for source code.
 
 Task files do 2 things:
 
