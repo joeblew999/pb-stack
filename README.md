@@ -4,21 +4,21 @@ https://github.com/joeblew999/pb-stack
 
 Gerard Webb
 
-Describes a Stack based on Pocketbase.
+Describes a Stack based on Pocketbase that where:
 
-A Forward engineering stack where:
+1. Server Golang Code is generated as much as possible, so that developers are not hand writing code causing bugs and security leaks, allowing rapid extension of the system. A Fix only requires a change to the generator allowing rapid remediation.
 
-1. Server Golang Code is generated as much as possible, so that developers are not hand writing code causing bugs and security leaks, and allowing rapid extension of the system. This makes security audits much easier because its the code generator that is determining the security of the system. A Fix only requires a change to the generator allowing rapid remediation.
+2. Authentication and Authorisation is 100% controlled by the database.
 
-2. Authentication and Authorisation is 100% controlled by the database, so that its highly secure.
+3. GUI is 100% controlled using the HTMX principles.  Web and Native ( Desktop and  app ) is based off the same code, using WebViews and DeepLinks to align the Web with Native.
 
-3. GUI is 100% controlled using the HTMX principles, with Web, Desktop and Mobile is based off the same code, so development is rapid, security is highest possible. 
+4. Both Cloud and On Premise so that Organisations can control their own data. 
 
 ## Stack
 
-This describes all parts to build a system that allows both Cloud and On Premise so that Organisations can control their own data. 
+The following is what i currently use.
 
-This is what i currently use, and have Makefiles for. I am porting them to Task files currently.
+I am currently porting the Makefiles to Taskfiles.
 
 ### Process Compose ( PC ) 
 
@@ -96,25 +96,41 @@ TODO:
 
 https://github.com/maxpert/marmot 
 
-Provides Synchronisation of the Pocketbase DB and Files in a master / master approach using CRDT. 
+Provides Synchronisation of the Pocketbase DB and Files in a master / master approach. 
 
-This uses NATS Jetstream.
+Marmot runs as a side car ( using PC ). 
+
+A Global NATS Jetstream cluster is the central rendezvous point.
+
+Features:
+
+- Scale out - The Load balancer automatically forwards any request to the nearest Data Center.
+
+- Network failure tolerant - The NATS Cluster will ensure any PB will catchup. 
 
 ### DataStar ( DS )
 
 https://github.com/starfederation/datastar
 
+Datastar brings the functionality provided by libraries like Alpine.js (frontend reactivity) and htmx (backend reactivity) together, into one cohesive solution. It’s a lightweight, extensible framework that allows you to:
+
+Manage state and build reactivity into your frontend using HTML attributes.
+
+Modify the DOM and state by sending events from your backend.
+
+With Datastar, you can build any UI that a full-stack framework like React, Vue.js or Svelte can, but with a much simpler, hypermedia-driven approach.
+
+
 It reached API stability on 1st April, 2024: https://github.com/starfederation/datastar/releases/tag/v1.0.0-beta.11
 
-It has proper tests, which HTMX does not.: https://data-star.dev/tests/aliased
+Tests: https://data-star.dev/tests
 
-It is 100% based on SSE, which is the way forward. 
+Bundler: https://data-star.dev/bundler
 
-Standard HTMX requires alpine.js in order to have client side features, but DS is a single JS for everything.
+Examples: https://data-star.dev/examples
 
-Its works with NATS Jetstream, allowing many PB systems to be composed together globally.
 
-- NATS CLI can be used to interact with it.
+NATS Jetstream ( and the NATS CLI ) can make calls into it, allowing many PB systems to be easily composed together globally.
 
 ## Code generation
 
@@ -132,7 +148,7 @@ Generate the golang code off the PB system.
 
 https://github.com/Snonky/pocketbase-gogen
 
-### STEP 2
+### STEP 2 - Open API M2M
 
 Generate the Open API, so that the system can be used for M2M use cases.
 
@@ -144,7 +160,7 @@ TODO
 
 We do not know yet how far we can take this ... Lets find out.
 
-### STEP 3
+### STEP 3 - Open API DATASTAR
 
 Generate an OpenAPI that incorporates SSE, so that is can be used with DS.
 
@@ -152,11 +168,18 @@ TODO:
 
 1. Use https://github.com/ogen-go/ogen/issues/1375#issuecomment-2766653824 as a reference as it shows the that Open API can works with SSE. 
 
+
+### STEP 4 - DATASTAR WEB GUI
+
 - Generate the DataStar, so that developers can easily write DS Web GUI.
 
-Once we get into it we will see obvious pattern like:
+Once we get into it we will see obvious things to code generator like:
 
-1. Each PB Tables needs a real time editor: 
+1. Each PB Table needs a real time editor: 
+
+
+
+
 
 
 
