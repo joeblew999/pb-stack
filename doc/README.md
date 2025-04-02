@@ -2,6 +2,11 @@
 
 https://github.com/joeblew999/pb-stack
 
+This project came about due to the need for Developers to be Users and Users to be Developers. 
+
+Hopefully the way things work will make sense to you based on this need.
+
+
 A Stack based on Pocketbase where:
 
 1. Server Golang Code is generated as much as possible, so that developers are not hand writing code causing bugs and security leaks, allowing rapid extension of the system. A Fix only requires a change to the generator allowing rapid remediation.
