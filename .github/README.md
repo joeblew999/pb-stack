@@ -4,7 +4,7 @@
 
 Read the Docs for now to get a feel for the intent. Ask questions if something seems off.
 
-The scaffolds for the task files and tofu are going in currently. We need this to rapidly develop.
+The scaffolds for the  [TASK](../mod/task/README.md) files and TOFO are going in currently. We need this to rapidly develop.
 
 Then simple examples / playgrounds, so we can work up the code generator.
 
