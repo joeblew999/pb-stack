@@ -1,16 +1,18 @@
 # github workflows
 
-Its a mono repo, driven by TASK files, so its easy to deploy as many projects as you want from this repo with a single setup.
+Its a mono repo, driven by TASK files, so its easy to deploy as many projects as you want from this repo with a single setup. 
+
+Tests for all platforms are also easy.
 
 ## CI
 
 Builds whatever is configured by the Root TASK file.
 
-The binaries are stored in <github> but not signed for Apple or Microsoft, and so the Pack manifest will call the OS to ask for them to be run.
+The binaries are stored in github but not signed, so the Pack manifest will call the OS to ask for them to be run the first time. 
 
-TODO
+TODO:
 
-- Signing use Apple Creds in .env
+- Sign use Apple Creds from .env file.
 
 ## CD 
 

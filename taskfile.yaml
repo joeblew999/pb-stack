@@ -29,6 +29,7 @@ tasks:
     cmds:
       - go install github.com/go-task/task/v3/cmd/task@latest
       - go install github.com/a-h/templ/cmd/templ@latest
+      - go install github.com/valyala/quicktemplate/qtc@latest
 
       - platforms: [linux/amd64]
         cmd: test -f site/tailwindcli || wget -O site/tailwindcli https://github.com/dobicinaitis/tailwind-cli-extra/releases/download/v1.7.21/tailwindcss-extra-linux-x64
@@ -52,7 +53,7 @@ tasks:
         cmd: test -f site/tailwindcli || (echo "#!/bin/sh" > site/tailwindcli  && echo "tailwindcss $@" >> site/tailwindcli)
 
       - chmod +x site/tailwindcli
-      - go install github.com/valyala/quicktemplate/qtc@latest
+      
 
   version:
     cmds:
