@@ -1,0 +1,10 @@
+---
+version: '3'
+
+includes:
+  trivy:
+    taskfile: ./Trivy.yml
+  checkov:
+    taskfile: ./Checkov.yml
+  grype:
+    taskfile: ./Grype.yml

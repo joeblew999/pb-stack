@@ -1,0 +1,94 @@
+---
+version: '3'
+
+tasks:
+  up:
+    summary: |
+      Create and start containers
+
+      Task supports following vars:
+      . GLOABAL_FLAGS (optional) - Docker compose options
+      . FLAGS         (optional) - Docker compose up options
+      . SERVICE       (optional) - Service name
+
+      Usage:
+      ---
+      includes:
+        docker-compose:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/docker-compose/Taskfile.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '--no-build --detach'
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --no-build --detach"
+    desc: Create and start containers
+    preconditions:
+      - sh: docker ps
+        msg: Docker must be running
+    silent: true
+    cmds:
+      - >
+        docker compose
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{end}} up
+        {{if .FLAGS}}{{.FLAGS}}{{else}}--detach{{end}}
+        {{.SERVICE}}
+
+  down:
+    summary: |
+      Stop and remove containers, networks
+
+      Task supports following vars:
+      . GLOBAL_FLAGS  (optional) - Docker compose options
+      . FLAGS         (optional) - Docker compose down options
+      . SERVICE       (optional) - Service name
+
+      Usage:
+      ---
+      includes:
+        docker-compose:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/docker-compose/Taskfile.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '--remove-orphans --volumes'
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --remove-orphans --volumes"
+    desc: Stop and remove containers, networks
+    silent: true
+    cmds:
+      - docker compose {{.GLOBAL_FLAGS}} down {{.FLAGS}} {{.SERVICE}}

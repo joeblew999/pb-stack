@@ -1,0 +1,604 @@
+---
+preconditions:
+  - &TASK_RUNTIME_VAR
+    sh: '{{if eq .TASK_RUNTIME "docker"}}which docker && docker ps{{else}}which trivy{{end}}'
+    msg: |
+      {{if eq .TASK_RUNTIME "docker"}}
+      Please make sure that docker is installed and running
+      {{else}}
+      Please make sure that trivy have been installed
+      https://github.com/aquasecurity/trivy
+      {{end}}
+  - &TARGET_VAR
+    sh: '{{if and .TARGET (gt (.TARGET | len) 0) }}exit 0{{else}}exit 1{{end}}'
+    msg: The TARGET variables must be set
+
+version: '3'
+
+vars:
+  TASK_RUNTIME:
+    sh: echo "${TASK_RUNTIME:-devbox}"
+  TRIVY_IMAGE_TAG: "0.51.1"
+
+tasks:
+  aws:
+    summary: |
+      Scan an AWS account for misconfigurations.
+      Trivy uses the same authentication methods as the AWS CLI.
+      See https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
+
+      Task supports following vars:
+      . TASK_RUNTIME (optional) - [docker/devbox(default)]
+      . GLOBAL_FLAGS (optional) - Trivy global flags '--format json'
+      . FLAGS        (optional) - Trivy aws flags
+
+      Task requires following envs:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_DEFAULT_REGION
+
+      The following services are supported:
+      - accessanalyzer
+      - api-gateway
+      - athena
+      - cloudfront
+      - cloudtrail
+      - cloudwatch
+      - codebuild
+      - documentdb
+      - dynamodb
+      - ec2
+      - ecr
+      - ecs
+      - efs
+      - eks
+      - elasticache
+      - elasticsearch
+      - elb
+      - emr
+      - iam
+      - kinesis
+      - kms
+      - lambda
+      - mq
+      - msk
+      - neptune
+      - rds
+      - redshift
+      - s3
+      - sns
+      - sqs
+      - ssm
+      - workspaces
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '--region us-east-1 --service s3 --service ec2'
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format string --debug'
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --region us-east-1 --service s3 --service ec2"
+
+    desc: "[EXPERIMENTAL] Scan AWS account"
+    preconditions:
+      - *TASK_RUNTIME_VAR
+    requires:
+      vars: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION]
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{.USER_WORKING_DIR}}:/project aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        aws {{.FLAGS}}
+        {{else}}
+        trivy
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        config {{.FLAGS}}
+        {{end}}
+
+  config:
+    summary: |
+      Scan config files for misconfigurations
+
+      Task supports following vars:
+      . TASK_RUNTIME (optional) - [docker/devbox(default)]
+      . GLOBAL_FLAGS (optional) - Trivy global flags '--format github'
+      . FLAGS        (optional) - Trivy config flags
+      . TARGET       (optional) - Directory path if not defined will be used work dir
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format json --debug'
+                FLAGS: '--skip-dirs /dir --file-patterns *.yml'
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --skip-dirs /dir --file-patterns *.yml"
+    desc: Scan config files for misconfigurations
+    preconditions:
+      - *TASK_RUNTIME_VAR
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{if .TARGET}}{{.TARGET}}{{else}}{{.USER_WORKING_DIR}}{{end}}:/project
+        aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        config {{.FLAGS}} project
+        {{else}}
+        trivy
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        config {{.FLAGS}}
+        {{if .TARGET}}{{.TARGET}}{{else}}{{.USER_WORKING_DIR}}{{end}}
+        {{end}}
+
+  filesystem:
+    summary: |
+      Scan local filesystem
+
+      Task supports following vars:
+      . TASK_RUNTIME (optional) - [docker/devbox(default)]
+      . GLOBAL_FLAGS (optional) - Trivy global flags '--format github'
+      . FLAGS        (optional) - Trivy filesystem flags
+      . TARGET       (optional) - Filesystem path if not defined will be used work dir
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format json --debug'
+                FLAGS: '--skip-dirs /dir --file-patterns *.yml'
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --offline-scan --severity HIGH"
+    desc: Scan local filesystem
+    preconditions:
+      - *TASK_RUNTIME_VAR
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{if .TARGET}}{{.TARGET}}{{else}}{{.USER_WORKING_DIR}}{{end}}:/project
+        aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        filesystem {{.FLAGS}} project
+        {{else}}
+        trivy
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        filesystem {{.FLAGS}}
+        {{if .TARGET}}{{.TARGET}}{{else}}{{.USER_WORKING_DIR}}{{end}}
+        {{end}}
+
+  sbom:
+    summary: |
+      Scan SBOM for vulnerabilities and licenses
+
+      Task supports following vars:
+      . TASK_RUNTIME (optional) - [docker/devbox(default)]
+      . GLOBAL_FLAGS (optional) - Trivy global flags '--format github'
+      . FLAGS        (optional) - Trivy sbom flags
+      . TARGET       (required) - SBOM path
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format json --debug'
+                FLAGS: '--offline-scan'
+                TARGET: report.cdx
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TARGET: report.cdx
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --offline-scan --severity HIGH --scanners vuln,license"
+    desc: Scan SBOM for vulnerabilities and licenses
+    preconditions:
+      - *TASK_RUNTIME_VAR
+      - *TARGET_VAR
+    requires:
+      vars: [TARGET]
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{.TARGET}}:/project
+        aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        sbom {{.FLAGS}} project
+        {{else}}
+        trivy
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        sbom {{.FLAGS}} {{.TARGET}}
+        {{end}}
+
+  image:
+    summary: |
+      Scan a container image
+
+      NOTE: This task does not support running via docker
+
+      Task supports following vars:
+      . GLOBAL_FLAGS (optional) - Trivy global flags '--format json'
+      . FLAGS        (optional) - Trivy image flags
+      . TARGET       (required) - Image name
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format json --debug'
+                FLAGS: '--severity HIGH,CRITICAL'
+                TARGET: alpine:3.15
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TARGET: alpine:3.15
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --offline-scan --severity HIGH,CRITICAL --scanners vuln,misconfig"
+    desc: Scan a container image
+    preconditions:
+      - *TASK_RUNTIME_VAR
+      - *TARGET_VAR
+    requires:
+      vars: [TARGET]
+    cmds:
+      - >
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        image {{.FLAGS}} {{.TARGET}}
+
+  rootfs:
+    summary: |
+      Scan unpacked filesystem
+
+      Task supports following vars:
+      . TASK_RUNTIME (optional) - [docker/devbox(default)]
+      . GLOBAL_FLAGS (optional) - Trivy global flags '--format github'
+      . FLAGS        (optional) - Trivy rootfs flags
+      . TARGET       (required) - Root dir
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format string --debug'
+                FLAGS: '--severity HIGH,CRITICAL'
+                TARGET: /tmp/rootfs
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TARGET: /tmp/rootfs
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --offline-scan --parallel 5 --scanners vuln,misconfig,secret,license"
+    desc: Scan rootfs
+    preconditions:
+      - *TASK_RUNTIME_VAR
+      - *TARGET_VAR
+    requires:
+      vars: [TARGET]
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{.TARGET}}:/project
+        aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        rootfs {{.FLAGS}} project
+        {{else}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        rootfs {{.FLAGS}} {{.TARGET}}
+        {{end}}
+
+  repository:
+    summary: |
+      Scan a repository
+
+      Task supports following vars:
+      . TASK_RUNTIME (optional) - [docker/devbox(default)]
+      . GLOBAL_FLAGS (optional) - Trivy global flags '--format github'
+      . FLAGS        (optional) - Trivy repository flags
+      . TARGET       (required) - Repo path or repo url
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format string --debug'
+                FLAGS: '--severity HIGH,CRITICAL --tag v.0.1.0'
+                TARGET: /path/to/your/repository
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TARGET: https://github.com/knqyf263/trivy-ci-test
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --tag v.0.1.0 --severity HIGH,CRITICAL"
+    desc: Scan a repository
+    preconditions:
+      - *TASK_RUNTIME_VAR
+      - *TARGET_VAR
+    requires:
+      vars: [TARGET]
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{.TARGET}}:/project
+        aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        repository {{.FLAGS}} project
+        {{else}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        repository {{.FLAGS}} {{.TARGET}}
+        {{end}}
+
+  kubernetes:
+    summary: |
+      Scan kubernetes cluster
+
+      Task supports following vars:
+      . TASK_RUNTIME   (optional) - [docker/devbox(default)]
+      . GLOBAL_FLAGS   (optional) - Trivy global flags '--format github'
+      . FLAGS          (optional) - Trivy kubernetes flags
+      . TARGET         (optional) - Kubernetes context. Default context in kube configuration will be used unless specified
+      . KUBECONFIG_DIR (optional) - Directory path with kubernetes configuration file. Required when TASK_RUNTIME == docker
+
+      NOTE: When running via docker, kube config directory or file must be mounted
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format string --debug'
+                FLAGS: '--report summary'
+                TARGET: stage1
+                TASK_RUNTIME: devbox
+                KUBECONFIG_DIR: ~/.kube/stage
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TARGET: main
+                TASK_RUNTIME: devbox
+                KUBECONFIG_DIR: ~/.kube/prod
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --include-namespaces kube-system --report summary"
+    desc: "[EXPERIMENTAL] Scan kubernetes cluster"
+    preconditions:
+      - *TASK_RUNTIME_VAR
+      - sh: '{{if and (eq .TASK_RUNTIME "docker") (and .KUBECONFIG_DIR (gt (.KUBECONFIG_DIR | len) 0))}}exit 0{{else}}exit 1{{end}}'
+        msg: The KUBECONFIG_DIR variables must be set when TASK_RUNTIME == docker
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{.KUBECONFIG_DIR}}:/project
+        aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        kubernetes {{.FLAGS}} {{.TARGET}}
+        {{else}}
+        trivy
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        kubernetes {{.FLAGS}} {{.TARGET}}
+        {{end}}
+
+  vm:
+    summary: |
+      Scan a virtual machine image
+
+      Task supports following vars:
+      . TASK_RUNTIME (optional)  - [docker/devbox(default)]
+      . GLOBAL_FLAGS (optional)  - Trivy global flags '--format github'
+      . FLAGS        (optional)  - Trivy vm flags
+      . TARGET       (required)  - Virtual machine image
+
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Trivy.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                GLOBAL_FLAGS: '--format string --debug'
+                FLAGS: '--scanners vuln'
+                TARGET: ami:${your_ami_id}
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TARGET: ebs:${your_ebs_snapshot_id}
+                TASK_RUNTIME: devbox
+
+      Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --offline-scan --parallel 5"
+
+    desc: "[EXPERIMENTAL] Scan a virtual machine image"
+    preconditions:
+      - *TASK_RUNTIME_VAR
+      - *TARGET_VAR
+    requires:
+      vars: [TARGET]
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run -v {{.USER_WORKING_DIR}}:/project aquasec/trivy:{{.TRIVY_IMAGE_TAG}}
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        vm {{.FLAGS}} {{.TARGET}}
+        {{else}}
+        trivy
+        {{if .GLOBAL_FLAGS}}{{.GLOBAL_FLAGS}}{{else}}--format github{{end}}
+        vm {{.FLAGS}} {{.TARGET}}
+        {{end}}

@@ -1,0 +1,10 @@
+---
+version: '3'
+
+includes:
+  security:
+    taskfile: ./security/Taskfile.yml
+  docker-compose:
+    taskfile: ./docker-compose/Taskfile.yml
+  terraform:
+    taskfile: ./terraform/Taskfile.yml

@@ -1,0 +1,93 @@
+---
+version: '3'
+
+vars:
+  TASK_RUNTIME:
+    sh: echo "${TASK_RUNTIME:-devbox}"
+  CHECKOV_IMAGE_TAG: "3.2.92"
+
+tasks:
+  scanner:
+    summary: |
+      Infrastructure as code static analysis
+
+      Task supports following vars:
+      . TASK_RUNTIME                      (optional) - [docker/devbox(default)]
+      . TARGET                            (optional) - Directory path to analyse
+      . CKV_FRAMEWORK                     (optional) - Filter scan to run only on specific infrastructure code frameworks
+      . CKV_CHECK                         (optional) - Checks to run; any other checks will be skipped. Enter one or more items separated by commas
+      . CKV_SKIP_CHECK                    (optional) - Checks to skip; any other checks will not be run. Enter one or more items separated by commas
+      . BC_API_KEY                        (optional) - Prisma Cloud Access Key
+      . PRISMA_API_URL                    (optional) - The Prisma Cloud API URL
+      . DOWNLOAD_EXTERNAL_MODULES         (optional) - Download external terraform modules from public git repositories and terraform registry
+      . EXTERNAL_MODULES_DIR              (optional) - Set the path for the download external terraform modules
+      . CKV_EVAL_VARS                     (optional) - Evaluate the values of variables and locals EVALUATE_VARIABLES
+      . BC_CA_BUNDLE                      (optional) - Custom CA certificate (bundle) file CA_CERTIFICATE
+      . RENDER_EDGES_DUPLICATE_ITER_COUNT (optional) - Set the threshold to break out of calculating duplicate edges in the graph.
+      Usage:
+      ---
+      includes:
+        trivy:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Checkov.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                CKV_FRAMEWORK: gitlab_ci
+                FLAGS: '--file .gitlab-ci.yml --output junitxml --output-file-path results.xml'
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                CKV_FRAMEWORK: gitlab_ci
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TASK_RUNTIME: devbox
+
+        Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --file .gitlab-ci.yml --output junitxml --output-file-path results.xml"
+    desc: Infrastructure as code static analysis
+    env:
+      CKV_FRAMEWORK: '{{if .CKV_FRAMEWORK}}{{.CKV_FRAMEWORK}}{{end}}'
+      CKV_CHECK: '{{if .CKV_CHECK}}{{.CKV_CHECK}}{{end}}'
+      CKV_SKIP_CHECK: '{{if .CKV_SKIP_CHECK}}{{.CKV_SKIP_CHECK}}{{end}}'
+      BC_API_KEY: '{{if .BC_API_KEY}}{{.BC_API_KEY}}{{end}}'
+      PRISMA_API_URL: '{{if .PRISMA_API_URL}}{{.PRISMA_API_URL}}{{end}}'
+      DOWNLOAD_EXTERNAL_MODULES: '{{if .DOWNLOAD_EXTERNAL_MODULES}}{{.DOWNLOAD_EXTERNAL_MODULES}}{{end}}'
+      EXTERNAL_MODULES_DIR: '{{if .EXTERNAL_MODULES_DIR}}{{.EXTERNAL_MODULES_DIR}}{{end}}'
+      CKV_EVAL_VARS: '{{if .CKV_EVAL_VARS}}{{.CKV_EVAL_VARS}}{{end}}'
+      BC_CA_BUNDLE: '{{if .BC_CA_BUNDLE}}{{.BC_CA_BUNDLE}}{{end}}'
+      RENDER_EDGES_DUPLICATE_ITER_COUNT: '{{if .RENDER_EDGES_DUPLICATE_ITER_COUNT}}{{.RENDER_EDGES_DUPLICATE_ITER_COUNT}}{{else}}4{{end}}'
+    preconditions:
+      - sh: '{{if eq .TASK_RUNTIME "docker"}}which docker && docker ps{{else}}which checkov{{end}}'
+        msg: |
+          {{if eq .TASK_RUNTIME "docker"}}
+          Please make sure that docker is installed and running
+          {{else}}
+          Please make sure that checkov have been installed
+          https://github.com/bridgecrewio/checkov
+          {{end}}
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run --tty
+        -v {{if .TARGET}}{{.TARGET}}{{else}}{{.USER_WORKING_DIR}}{{end}}:/project
+        --workdir /project
+        bridgecrew/checkov:{{.CHECKOV_IMAGE_TAG}}
+        {{if .FLAGS}}{{.FLAGS}}{{else}}--directory /project{{end}}
+        {{else}}
+        if [ -z "${CKV_CHECK}" ]; then unset CKV_CHECK; fi;
+        if [ -z "${CKV_SKIP_CHECK}" ]; then unset CKV_SKIP_CHECK; fi;
+        checkov {{.FLAGS}}
+        {{if .TARGET}}--directory {{.TARGET}}{{else}}--directory {{.USER_WORKING_DIR}}{{end}}
+        {{end}}

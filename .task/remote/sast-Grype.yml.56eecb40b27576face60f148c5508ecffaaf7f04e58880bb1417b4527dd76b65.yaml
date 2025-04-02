@@ -1,0 +1,168 @@
+---
+version: '3'
+
+vars:
+  TASK_RUNTIME:
+    sh: echo "${TASK_RUNTIME:-devbox}"
+  GRYPE_IMAGE_TAG: "v0.77.4"
+
+tasks:
+  scanner:
+    summary: |
+      A vulnerability scanner for container images, filesystems, and SBOMs
+
+      Task supports following vars:
+      . TASK_RUNTIME                                       (optional) - [docker/devbox(default)]
+      . FLAGS                                              (optional) - Grype cli flags
+      . TARGET                                             (optional) - Docker tar, OCI tar, OCI directory, SIF container, or generic filesystem directory
+      . GRYPE_LOG_QUIET                                    (optional) - Suppress all logging output
+      . GRYPE_LOG_VERBOSITY                                (optional) - Increase verbosity
+      . GRYPE_LOG_LEVEL                                    (optional) - Explicitly set the logging level
+      . GRYPE_LOG_FILE                                     (optional) - File path to write logs to
+      . GRYPE_OUTPUT                                       (optional) - Report output formatter, formats=[json table cyclonedx cyclonedx-json sarif template]
+      . GRYPE_FILE                                         (optional) - File to write the default report output to
+      . GRYPE_DISTRO                                       (optional) - Distro to match against in the format: <distro>:<version>
+      . GRYPE_ADD_CPES_IF_NONE                             (optional) - Generate CPEs for packages with no CPE data
+      . GRYPE_OUTPUT_TEMPLATE_FILE                         (optional) - Specify the path to a Go template file
+      . GRYPE_CHECK_FOR_APP_UPDATE                         (optional) - Check for app update
+      . GRYPE_ONLY_FIXED                                   (optional) - Ignore matches for vulnerabilities that are not fixed
+      . GRYPE_ONLY_NOTFIXED                                (optional) - Ignore matches for vulnerabilities that are fixed
+      . GRYPE_IGNORE_WONTFIX                               (optional) - Ignore matches for vulnerabilities with specified comma separated fix states, options=[fixed not-fixed unknown wont-fix]
+      . GRYPE_PLATFORM                                     (optional) - Sn optional platform specifier for container image sources (e.g. 'linux/arm64', 'linux/arm64/v8', 'arm64', 'linux')
+      . GRYPE_SEARCH_SCOPE                                 (optional) - Selection of layers to analyze, options=[Squashed AllLayers]
+      . GRYPE_SEARCH_UNINDEXED_ARCHIVES                    (optional) - Unindexed archives
+      . GRYPE_SEARCH_INDEXED_ARCHIVES                      (optional) - Indexed archives
+      . GRYPE_EXCLUDE                                      (optional) - Exclude paths from being scanned using a glob expression
+      . GRYPE_DB_UPDATE_URL                                (optional) - Grype database update url
+      . GRYPE_DB_CA_CERT                                   (optional) - Grype database update url CA cert
+      . GRYPE_DB_AUTO_UPDATE                               (optional) - Update database on start
+      . GRYPE_DB_VALIDATE_BY_HASH_ON_START                 (optional) - Validate by hash on start
+      . GRYPE_DB_VALIDATE_AGE                              (optional) - Validate age
+      . GRYPE_DB_MAX_ALLOWED_BUILT_AGE                     (optional) - Max allowed built age
+      . GRYPE_EXTERNAL_SOURCES_ENABLE                      (optional) - Enable external storage
+      . GRYPE_EXTERNAL_SOURCES_MAVEN_SEARCH_MAVEN_UPSTREAM (optional) - Enable search maven upstream
+      . GRYPE_EXTERNAL_SOURCES_MAVEN_BASE_URL              (optional) - Search maven upstrean URL
+      . GRYPE_MATCH_JAVA_USING_CPES                        (optional) - Using JAVA specs
+      . GRYPE_MATCH_DOTNET_USING_CPES                      (optional) - Using Dotnet specs
+      . GRYPE_MATCH_GOLANG_USING_CPES                      (optional) - Using Golang specs
+      . GRYPE_MATCH_JAVASCRIPT_USING_CPES                  (optional) - Using Javascript specs
+      . GRYPE_MATCH_PYTHON_USING_CPES                      (optional) - Using Python specs
+      . GRYPE_MATCH_RUBY_USING_CPES                        (optional) - Using Ruby specs
+      . GRYPE_MATCH_RUST_USING_CPES                        (optional) - Using Rust specs
+      . GRYPE_MATCH_STOCK_USING_CPES                       (optional) - Using stock specs
+      . GRYPE_FAIL_ON_SEVERITY                             (optional) - set the return code to 1 if a vulnerability is found with a severity >= the given severity, options=[negligible low medium high critical]
+      . GRYPE_REGISTRY_INSECURE_SKIP_TLS_VERIFY            (optional) - Skip registry TLS verfiy
+      . GRYPE_REGISTRY_INSECURE_USE_HTTP                   (optional) - Use insecure HTTP
+      . GRYPE_REGISTRY_CA_CERT                             (optional) - Registry CA cert
+      . GRYPE_SHOW_SUPPRESSED                              (optional) - Show suppressed/ignored vulnerabilities in the output (only supported with table output format)
+      . GRYPE_BY_CVE                                       (optional) - Orient results by CVE instead of the original vulnerability ID when possible
+      . GRYPE_NAME                                         (optional) - Set the name of the target being analyzed
+      . GRYPE_DEFAULT_IMAGE_PULL_SOURCE                    (optional) - Set default image pull source
+      . GRYPE_VEX_DOCUMENTS                                (optional) - A list of VEX documents to consider when producing scanning results
+      . GRYPE_VEX_ADD                                      (optional) - Vex address
+      . GRYPE_DELETE                                       (optional) - Delete downloaded databases after diff occurs
+      . GRYPE_CVE_IDS                                      (optional) - CVE IDs to explain
+
+      NOTE: GRYPE_ variables not applicable to Grype running into container. For container use FLAGS with configuration file.
+
+      Usage:
+      ---
+      includes:
+        grype:
+          taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/main/security/sast/Grype.yml
+          internal: true
+
+      tasks:
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic:
+          desc: "Basic"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '--output json'
+                TASK_RUNTIME: devbox
+
+        root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}*:
+          desc: "Wildcard call"
+          cmds:
+            - task: {{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join ":"}}{{else}}{{.TASK}}{{end}}
+              vars:
+                FLAGS: '{{`{{.MATCH | join " "}}`}}'
+                TASK_RUNTIME: devbox
+
+        Examples:
+        # basic
+        task root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}}-basic
+
+        # wildcard
+        task "root:{{if gt (len (splitList ":" .TASK)) 2}}{{slice (splitList ":" .TASK) 1 | join "-"}}{{else}}{{.TASK}}{{end}} --output json --scope AllLayers"
+    desc: A vulnerability scanner for container images, filesystems, and SBOMs
+    env:
+      GRYPE_LOG_QUIET: '{{if .GRYPE_LOG_QUIET}}{{.GRYPE_LOG_QUIET}}{{else}}false{{end}}'
+      GRYPE_LOG_VERBOSITY: '{{if .GRYPE_LOG_VERBOSITY}}{{.GRYPE_LOG_VERBOSITY}}{{else}}0{{end}}'
+      GRYPE_LOG_LEVEL: '{{if .GRYPE_LOG_LEVEL}}{{.GRYPE_LOG_LEVEL}}{{else}}warn{{end}}'
+      GRYPE_LOG_FILE: '{{if .GRYPE_LOG_FILE}}{{.GRYPE_LOG_FILE}}{{end}}'
+      GRYPE_FILE: '{{if .GRYPE_FILE}}{{.GRYPE_FILE}}{{end}}'
+      GRYPE_OUTPUT: '{{if .GRYPE_OUTPUT }}{{.GRYPE_OUTPUT}}{{else}}json{{end}}'
+      GRYPE_DISTRO: '{{if .GRYPE_DISTRO}}{{.GRYPE_DISTRO}}{{end}}'
+      GRYPE_ADD_CPES_IF_NONE: '{{if .GRYPE_ADD_CPES_IF_NONE}}{{.GRYPE_ADD_CPES_IF_NONE}}{{else}}false{{end}}'
+      GRYPE_OUTPUT_TEMPLATE_FILE: '{{if .GRYPE_OUTPUT_TEMPLATE_FILE}}{{.GRYPE_OUTPUT_TEMPLATE_FILE}}{{end}}'
+      GRYPE_CHECK_FOR_APP_UPDATE: '{{if .GRYPE_CHECK_FOR_APP_UPDATE}}{{.GRYPE_CHECK_FOR_APP_UPDATE}}{{else}}false{{end}}'
+      GRYPE_ONLY_FIXED: '{{if .GRYPE_ONLY_FIXED}}{{.GRYPE_ONLY_FIXED}}{{else}}false{{end}}'
+      GRYPE_ONLY_NOTFIXED: '{{if .GRYPE_ONLY_NOTFIXED}}{{.GRYPE_ONLY_NOTFIXED}}{{else}}false{{end}}'
+      GRYPE_IGNORE_WONTFIX: '{{if .GRYPE_IGNORE_WONTFIX}}{{.GRYPE_IGNORE_WONTFIX}}{{end}}'
+      GRYPE_PLATFORM: '{{if .GRYPE_PLATFORM}}{{.GRYPE_PLATFORM}}{{end}}'
+      GRYPE_SEARCH_SCOPE: '{{if .GRYPE_SEARCH_SCOPE }}{{.GRYPE_SEARCH_SCOPE}}{{else}}Squashed{{end}}'
+      GRYPE_SEARCH_UNINDEXED_ARCHIVES: '{{if .GRYPE_SEARCH_UNINDEXED_ARCHIVES}}{{.GRYPE_SEARCH_UNINDEXED_ARCHIVES}}{{else}}false{{end}}'
+      GRYPE_SEARCH_INDEXED_ARCHIVES: '{{if .GRYPE_SEARCH_INDEXED_ARCHIVES}}{{.GRYPE_SEARCH_INDEXED_ARCHIVES}}{{else}}true{{end}}'
+      GRYPE_EXCLUDE: '{{if .GRYPE_EXCLUDE}}{{.GRYPE_EXCLUDE}}{{end}}'
+      GRYPE_DB_UPDATE_URL: '{{if .GRYPE_DB_UPDATE_URL}}{{.GRYPE_DB_UPDATE_URL}}{{else}}https://toolbox-data.anchore.io/grype/databases/listing.json{{end}}'
+      GRYPE_DB_CA_CERT: '{{if .GRYPE_DB_CA_CERT}}{{.GRYPE_DB_CA_CERT}}{{end}}'
+      GRYPE_DB_AUTO_UPDATE: '{{if .GRYPE_DB_AUTO_UPDATE}}{{.GRYPE_DB_AUTO_UPDATE}}{{else}}false{{end}}'
+      GRYPE_DB_VALIDATE_BY_HASH_ON_START: '{{if .GRYPE_DB_VALIDATE_BY_HASH_ON_START}}{{.GRYPE_DB_VALIDATE_BY_HASH_ON_START}}{{else}}false{{end}}'
+      GRYPE_DB_VALIDATE_AGE: '{{if .GRYPE_DB_VALIDATE_AGE}}{{.GRYPE_DB_VALIDATE_AGE}}{{else}}true{{end}}'
+      GRYPE_DB_MAX_ALLOWED_BUILT_AGE: '{{if .GRYPE_DB_MAX_ALLOWED_BUILT_AGE}}{{.GRYPE_DB_MAX_ALLOWED_BUILT_AGE}}{{else}}120h0m0s{{end}}'
+      GRYPE_EXTERNAL_SOURCES_ENABLE: '{{if .GRYPE_EXTERNAL_SOURCES_ENABLE}}{{.GRYPE_EXTERNAL_SOURCES_ENABLE}}{{else}}false{{end}}'
+      GRYPE_EXTERNAL_SOURCES_MAVEN_SEARCH_MAVEN_UPSTREAM: '{{if .GRYPE_EXTERNAL_SOURCES_MAVEN_SEARCH_MAVEN_UPSTREAM}}{{.GRYPE_EXTERNAL_SOURCES_MAVEN_SEARCH_MAVEN_UPSTREAM}}{{else}}true{{end}}'
+      GRYPE_EXTERNAL_SOURCES_MAVEN_BASE_URL: '{{if .GRYPE_EXTERNAL_SOURCES_MAVEN_BASE_URL}}{{.GRYPE_EXTERNAL_SOURCES_MAVEN_BASE_URL}}{{else}}https://search.maven.org/solrsearch/select{{end}}'
+      GRYPE_MATCH_JAVA_USING_CPES: '{{if .GRYPE_MATCH_JAVA_USING_CPES}}{{.GRYPE_MATCH_JAVA_USING_CPES}}{{else}}false{{end}}'
+      GRYPE_MATCH_DOTNET_USING_CPES: '{{if .GRYPE_MATCH_DOTNET_USING_CPES}}{{.GRYPE_MATCH_DOTNET_USING_CPES}}{{else}}false{{end}}'
+      GRYPE_MATCH_GOLANG_USING_CPES: '{{if .GRYPE_MATCH_GOLANG_USING_CPES}}{{.GRYPE_MATCH_GOLANG_USING_CPES}}{{else}}false{{end}}'
+      GRYPE_MATCH_JAVASCRIPT_USING_CPES: '{{if .GRYPE_MATCH_JAVASCRIPT_USING_CPES}}{{.GRYPE_MATCH_JAVASCRIPT_USING_CPES}}{{else}}false{{end}}'
+      GRYPE_MATCH_PYTHON_USING_CPES: '{{if .GRYPE_MATCH_PYTHON_USING_CPES}}{{.GRYPE_MATCH_PYTHON_USING_CPES}}{{else}}false{{end}}'
+      GRYPE_MATCH_RUBY_USING_CPES: '{{if .GRYPE_MATCH_RUBY_USING_CPES}}{{.GRYPE_MATCH_RUBY_USING_CPES}}{{else}}false{{end}}'
+      GRYPE_MATCH_RUST_USING_CPES: '{{if .GRYPE_MATCH_RUST_USING_CPES}}{{.GRYPE_MATCH_RUST_USING_CPES}}{{else}}false{{end}}'
+      GRYPE_MATCH_STOCK_USING_CPES: '{{if .GRYPE_MATCH_STOCK_USING_CPES}}{{.GRYPE_MATCH_STOCK_USING_CPES}}{{else}}true{{end}}'
+      GRYPE_FAIL_ON_SEVERITY: '{{if .GRYPE_FAIL_ON_SEVERITY}}{{.GRYPE_FAIL_ON_SEVERITY}}{{end}}'
+      GRYPE_REGISTRY_INSECURE_SKIP_TLS_VERIFY: '{{if .GRYPE_REGISTRY_INSECURE_SKIP_TLS_VERIFY}}{{.GRYPE_REGISTRY_INSECURE_SKIP_TLS_VERIFY}}false{{end}}'
+      GRYPE_REGISTRY_INSECURE_USE_HTTP: '{{if .GRYPE_REGISTRY_INSECURE_USE_HTTP}}{{.GRYPE_REGISTRY_INSECURE_USE_HTTP}}{{else}}false{{end}}'
+      GRYPE_REGISTRY_CA_CERT: '{{if .GRYPE_REGISTRY_CA_CERT}}{{.GRYPE_REGISTRY_CA_CERT}}{{end}}'
+      GRYPE_SHOW_SUPPRESSED: '{{if .GRYPE_SHOW_SUPPRESSED}}{{.GRYPE_SHOW_SUPPRESSED}}{{else}}false{{end}}'
+      GRYPE_BY_CVE: '{{if .GRYPE_BY_CVE}}{{.GRYPE_BY_CVE}}{{else}}false{{end}}'
+      GRYPE_NAME: '{{if .GRYPE_NAME}}{{.GRYPE_NAME}}{{end}}'
+      GRYPE_DEFAULT_IMAGE_PULL_SOURCE: '{{if .GRYPE_DEFAULT_IMAGE_PULL_SOURCE}}{{.GRYPE_DEFAULT_IMAGE_PULL_SOURCE}}{{end}}'
+      GRYPE_VEX_DOCUMENTS: '{{if .GRYPE_VEX_DOCUMENTS}}{{.GRYPE_VEX_DOCUMENTS}}{{end}}'
+      GRYPE_VEX_ADD: '{{if .GRYPE_VEX_ADD}}{{.GRYPE_VEX_ADD}}{{end}}'
+      GRYPE_DELETE: '{{if .GRYPE_DELETE}}{{.GRYPE_DELETE}}{{else}}false{{end}}'
+      GRYPE_CVE_IDS: '{{if .GRYPE_CVE_IDS}}{{.GRYPE_CVE_IDS}}{{end}}'
+    preconditions:
+      - sh: '{{if eq .TASK_RUNTIME "docker"}}which docker && docker ps{{else}}which checkov{{end}}'
+        msg: |
+          {{if eq .TASK_RUNTIME "docker"}}
+          Please make sure that docker is installed and running
+          {{else}}
+          Please make sure that checkov have been installed
+          https://github.com/bridgecrewio/checkov
+          {{end}}
+    cmds:
+      - >
+        {{if eq .TASK_RUNTIME "docker"}}
+        docker run --tty
+        -v {{if .TARGET}}{{.TARGET}}{{else}}{{.USER_WORKING_DIR}}{{end}}:/project
+        --workdir /project
+        anchore/grype:{{.GRYPE_IMAGE_TAG}}
+        {{.FLAGS}} /project
+        {{else}}
+        grype {{.FLAGS}}
+        {{if .TARGET}}{{.TARGET}}{{else}}{{.USER_WORKING_DIR}}{{end}}
+        {{end}}
+      # - ./show-task-env.sh 'GRYPE_'
