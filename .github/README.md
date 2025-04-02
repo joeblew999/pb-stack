@@ -4,13 +4,13 @@
 
 Read the Docs for now to get a feel for the intent. Ask questions if something seems off.
 
-The scaffolds for the task files and tofu are going in.
+The scaffolds for the task files and tofu are going in currently. We need this to rapidly develop.
+
 Then simple examples / playgrounds, so we can work up the code generator.
 
-## Doc
+## Documentation
 
 See [Doc](../doc/README.md) folder for Project Info.
-
 
 
 ## Task
