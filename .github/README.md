@@ -7,14 +7,17 @@ Read the Docs for now to get a feel for the intent. Ask questions if something s
 The scaffolds for the task files and tofu are going in.
 Then simple examples / playgrounds, so we can work up the code generator.
 
+## Doc
+
+See Doc folder for Project Info.
 
 ## Task
 
-Task files are used:
+TASK files are used:
 
 1. Locally for dev.
 
-2. In Github Actions for CI and CD.
+2. In Github Actions for CI and CD, along with TOFO files.
 
 3. In Production for Upgrades, along with Tofu files.
 
@@ -68,7 +71,3 @@ task: Available tasks for this project:
 
 
 ```
-
-## Docs
-
-See Doc folder for Project Info.
