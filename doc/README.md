@@ -8,7 +8,7 @@ A Stack based on Pocketbase where:
 
 2. Authentication and Authorisation is 100% controlled by the database.
 
-3. GUI is 100% controlled using the HTMX principles.  Web and Native ( Desktop and  app ) is based off the same code, using WebViews and DeepLinks to align the Web with Native. DataStar and Webviews does this.
+3. GUI is 100% controlled using the HTMX principles, using DataStar.  Web and Native ( Desktop and  app ) is based off the same code, using WebViews and DeepLinks to align the Web with Native. DataStar and Webviews does this.
 
 4. Both Cloud and On Premise so that Organisations can control their own data. Marmot and Cloud Flare tunnel does this.
 
