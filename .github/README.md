@@ -4,7 +4,7 @@
 
 Read the Docs for now to get a feel for the intent. Ask questions if something seems off.
 
-The scaffolds for the [TASK](../mod/task/README.md) files and [TOFO](../mod/tofo/README.md) are going in currently. We need this to rapidly develop. Next will be the [GitHub Actions for CI and CD](../.github/workflows/README.md)
+The scaffolds for the [TASK](../mod/task/README.md) files and [TOFU](../mod/tofu/README.md) are going in currently. We need this to rapidly develop. Next will be the [GitHub Actions for CI and CD](../.github/workflows/README.md)
 
 Then simple examples / playgrounds, so we can work up the code generator.
 
@@ -19,7 +19,7 @@ TASK files are used:
 
 1. Locally for dev.
 
-2. In Github Actions for CI and CD, along with TOFO files.
+2. In Github Actions for CI and CD, along with TOFU files.
 
 3. In Production for Upgrades, along with Tofu files.
 

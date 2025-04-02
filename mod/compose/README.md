@@ -3,7 +3,7 @@
 TODO
 
 - TASK file 
-- TOFO file for automating this.
+- TOFU file for automating this.
 
 ## process-compose
 

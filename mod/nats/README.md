@@ -4,7 +4,7 @@ TODO:
 
 - TASK files for all.
 - https://github.com/synadia-io/nex/blob/main/Taskfile.yaml
-- TOFO files for Deploying Server, Cluster and Marmot.
+- TOFU files for Deploying Server, Cluster and Marmot.
 
 
 ## Server

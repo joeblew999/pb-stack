@@ -7,7 +7,7 @@ When we run pocketbase with Marmot, Sqlite is Serverless because we can get the 
 TODO
 
 - TASK file for minio
-- TOFO file for minio
+- TOFU file for minio
   - https://github.com/aminueza/terraform-provider-minio
   - https://docs.hetzner.com/storage/object-storage/getting-started/creating-a-bucket-minio-terraform/
 
