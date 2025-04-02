@@ -1,2 +1,209 @@
-# taskfile
 
+# https://taskfile.dev
+
+version: "3"
+
+interval: 1000ms
+
+includes:
+  base: ./mod/base.taskfile.yaml
+  git: ./mod/git.taskfile.yaml
+  remote:
+    # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
+    taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+    vars:
+      TASK_RUNTIME:
+        sh: echo "${TASK_RUNTIME:-devbox}"
+
+vars:
+  VERSION:
+    sh: cat VERSION
+
+tasks:
+  tools:
+    platforms: [windows, linux, darwin/arm64, darwin/amd64, openbsd, dragonfly, freebsd, netbsd]
+    cmds:
+      - go install github.com/go-task/task/v3/cmd/task@latest
+      - go install github.com/a-h/templ/cmd/templ@latest
+
+      - platforms: [linux/amd64]
+        cmd: test -f site/tailwindcli || wget -O site/tailwindcli https://github.com/dobicinaitis/tailwind-cli-extra/releases/download/v1.7.21/tailwindcss-extra-linux-x64
+
+      - platforms: [linux/arm64]
+        cmd: test -f site/tailwindcli || wget -O site/tailwindcli https://github.com/dobicinaitis/tailwind-cli-extra/releases/download/v1.7.21/tailwindcss-extra-linux-arm64
+
+      - platforms: [darwin/arm64]
+        cmd: test -f site/tailwindcli || wget -O site/tailwindcli https://github.com/dobicinaitis/tailwind-cli-extra/releases/download/v1.7.21/tailwindcss-extra-macos-arm64
+
+      - platforms: [darwin/amd64]
+        cmd: test -f site/tailwindcli || wget -O site/tailwindcli https://github.com/dobicinaitis/tailwind-cli-extra/releases/download/v1.7.21/tailwindcss-extra-macos-x64
+
+      - platforms: [windows]
+        cmd: test -f site/tailwindcli || wget -O site/tailwindcli https://github.com/dobicinaitis/tailwind-cli-extra/releases/download/v1.7.21/tailwindcss-extra-windows-x64.exe
+
+      - platforms: [openbsd, dragonfly, freebsd, netbsd]
+        cmd: pnpm add tailwindcss @tailwindcss/container-queries @tailwindcss/typography daisyui
+
+      - platforms: [openbsd, dragonfly, freebsd, netbsd]
+        cmd: test -f site/tailwindcli || (echo "#!/bin/sh" > site/tailwindcli  && echo "tailwindcss $@" >> site/tailwindcli)
+
+      - chmod +x site/tailwindcli
+      - go install github.com/valyala/quicktemplate/qtc@latest
+
+  version:
+    cmds:
+      - echo {{.VERSION}}
+
+  qtc:
+    sources:
+      - "**/*.qtpl"
+    generates:
+      - "**/*.qtpl.go"
+    cmds:
+      - qtc
+
+  build:
+    deps:
+      - qtc
+    sources:
+      - VERSION
+      - "**/*.qtpl"
+      - "**/package.json"
+      - "**/*.ts"
+    generates:
+      - "bundles/**/*"
+    cmds:
+      - go run build/cmd/build/main.go
+      - cp -r bundles/* site/static/js/
+      - mkdir -p library/dist/
+      - cp -r bundles/* library/dist/
+      - mkdir -p site/static/librarySource
+      - rm -rf site/static/librarySource/*
+      - cp -r library/src/* site/static/librarySource/
+
+  library:
+    dir: library
+    requires:
+      vars: [VERSION]
+    sources:
+      - "**/*.ts"
+      - "**/*.js"
+      - "**/*.json"
+    generates:
+      - "dist/**/*"
+    cmds:
+      - pnpm i
+      - pnpm build
+
+  libpub:
+    dir: library
+    requires:
+      vars: [VERSION]
+    deps:
+      - build
+      - library
+    cmds:
+      - git push origin
+      - git tag v{{.VERSION}}
+      - git push origin --tags
+      - npm publish --access public
+      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/bundles/datastar.js
+      - git push origin --tags
+      - GOPROXY=proxy.golang.org go list -m github.com/starfederation/datastar@v{{.VERSION}}
+      - task: deploy
+
+  sdktspub:
+    dir: sdk/typescript
+    requires:
+      vars: [VERSION]
+    cmds:
+      - git push origin
+      - git tag sdktsv{{.VERSION}}
+      - git push origin --tags
+      - deno run -A build.ts {{.VERSION}}
+      - cd npm && npm publish --access public
+      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/sdk/typescript/npm/esm/web/serverSentEventGenerator.js
+      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/sdk/typescript/npm/esm/abstractServerSentEventGenerator.js
+      - curl https://purge.jsdelivr.net/gh/starfederation/datastar/sdk/typescript/npm/esm/node/serverSentEventGenerator.js
+      - git push origin --tags
+
+  idiomorph:
+    dir: library/src/vendored
+    cmds:
+      - wget -O idiomorph.esm.js https://raw.githubusercontent.com/bigskysoftware/idiomorph/refs/heads/main/dist/idiomorph.esm.js
+      - npx -p typescript tsc *.js --declaration --allowJs --emitDeclarationOnly --outDir .
+  css:
+    dir: site
+    sources:
+      - "**/*.templ"
+      - "**/*.md"
+      - "**/*.go"
+    generates:
+      - "static/css/site.css"
+
+    cmds:
+      - ./tailwindcli build -i src/css/site.css -o static/css/site.css
+
+  templ:
+    env:
+      TEMPL_EXPERIMENT: rawgo
+    # deps:
+    #   - library
+    generates:
+      - "**/*_templ.go"
+    sources:
+      - "**/*.templ"
+    cmds:
+      - templ generate .
+
+  kill:
+    method: none
+    cmds:
+      - fuser -k 8080/tcp > /dev/null 2>&1 || true
+
+  support:
+    sources:
+      - "**/*.templ"
+      - "**/*.go"
+      - "**/*.md"
+      - site/static/**/*
+    generates:
+      - ./datastar-website
+    deps:
+      - kill
+      - build
+      - templ
+      - css
+
+  site:
+    method: none
+    desc: build and run site
+    deps:
+      - support
+    cmds:
+      - go mod tidy
+      - go build -o ./datastar-website "site/cmd/site/main.go"
+
+  deploy:
+    method: none
+    deps:
+      - support
+    cmds:
+      - fly deploy --local-only
+
+  test:
+    deps:
+      - support
+    cmds:
+      - go test -v github.com/starfederation/datastar/site/smoketests -run '^TestUnit' -count=1 -timeout=1m
+
+  test-all:
+    deps:
+      - support
+    cmds:
+      - go test -v github.com/starfederation/datastar/site/smoketests -count=1 -timeout=1m
+
+  default:
+    cmds:
+      - task: site
+      - ./datastar-website

@@ -1,4 +1,0 @@
-# Projects
-
-Folder per Project.
-

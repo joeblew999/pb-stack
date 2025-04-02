@@ -22,9 +22,9 @@ Fellow developers have the exact same structure.
 
 - Root has the common task files. Modules and Projects have Task files that reference the common task files. 
 
-- Modules folder with a sub folder for each Stack part and Task file for running it. Sub folders are for experiments because you need a playground to try things out, and then refactor back.
+- MOD ( Modules )  folder with a sub folder for each Stack part and Task file for running it. Sub folders are for experiments because you need a playground to try things out, and then refactor back.
 
-- Projects folder, with a sub folder for each Project / PlayGround.  These of course use the Modules compositionally.
+- PROJ ( Projects ) folder, with a sub folder for each Project / PlayGround.  These of course use the Modules compositionally.
 
 ## Playgrounds
 
