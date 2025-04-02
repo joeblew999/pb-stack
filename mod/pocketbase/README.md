@@ -12,11 +12,19 @@ https://github.com/pocketbase/pocketbase
 
 https://github.com/Snonky/pocketbase-gogen
 
-## rodydavis
+## ERD
+
+https://github.com/joeblew999/sqlite-schema-viz
+
+Generates a ERD. Its not useful for Pocketbase, because pocketbase has no relations between tables.
+
+## AI embedding
 
 https://github.com/rodydavis/rodydavis/blob/master/main.go
 
-His pocketbase blog with SQLite AI doing recommendations. We need this.
+His pocketbase blog with SQLite AI doing recommendations. We need this and can add this to Pocketbase.
+
+It will allow Developer sand Users to use AI tooling but maintain their own Data Sovereignty.
 
 
 
