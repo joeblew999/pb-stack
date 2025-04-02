@@ -1,5 +1,15 @@
 # Github
 
+! STATUS !
+
+Read the Docs for now to get a feel for the intent. Ask questions if something seems off.
+
+The scaffolds for the task files and tofu are going in.
+Then simple examples / playgrounds, so we can work up the code generator.
+
+
+## Task
+
 Task files are used:
 
 1. Locally for dev.
