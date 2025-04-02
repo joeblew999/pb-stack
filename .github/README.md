@@ -8,6 +8,15 @@ Task files are used:
 
 3. In Production for Upgrades, along with Tofu files.
 
+
+```sh
+
+task --list-all
+
+
+
+```
+
 ## Docs
 
 See Doc folder for Project Info.
