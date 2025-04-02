@@ -7,15 +7,17 @@ This project came about due to the need for Developers to be Users and Users to 
 Hopefully the way things work will make sense to you based on this need.
 
 
-A Stack based on Pocketbase where:
+A Stack based on Pocketbase ( PB )  where:
 
 1. Server Golang Code is generated as much as possible, so that developers are not hand writing code causing bugs and security leaks, allowing rapid extension of the system. A Fix only requires a change to the generator allowing rapid remediation.
 
-2. Authentication and Authorisation is 100% controlled by the database.
+2. Authentication and Authorisation is 100% controlled by the PB database. All in one place.
 
 3. GUI is 100% controlled using the HTMX principles, using DataStar.  Web and Native ( Desktop and  app ) is based off the same code, using WebViews and DeepLinks to align the Web with Native. DataStar and Webviews does this.
 
-4. Both Cloud and On Premise so that Organisations can control their own data. Marmot and Cloud Flare tunnel does this.
+4. Both Cloud and On Premise so that Organisations can control their own data. Cloud Flare tunnel does this.
+
+5. Each Developer and / or User can pick a Data Center within their region for GDPR, and then choose other regions for replication. Marmot does this.
 
 You do not have to use all the stack. Its a composition where you can pick what you want.
 
