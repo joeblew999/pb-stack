@@ -25,15 +25,15 @@ You do not have to use all the stack. Its a composition where you can pick what 
 
 I use mono repos, cause life is short. Long story.
 
-Users and Developers have the exact same structure, but Users will not have the Modules, unless they are developing their Own. 
+Users and Developers have the exact same structure, but Users will not have the Modules, unless they are developing their own Modules of course.
 
 So as you might have guessed this is Git OPS based, where each user has Git on their Desktop. 
 
-- Root has the common TASK files. Modules and Projects have Task files that reference the common task files. 
+- Root has the common TASK files. 
 
-- MOD ( Modules ) has folders for each Stack part and a TASK file for running it. 
+- MOD ( Modules ) has folders for each Stack part and a TASK file for running it.  You can make PlayGround here too to experiment and refactor.
 
-- PROJ ( Projects ) has folders for each Project / PlayGround.  These of course using the Modules compositionally based on the TASK file of each Project.
+- PROJ ( Projects ) has folders for each Project / PlayGround.  These use the Modules via the TASK files.
 
 ## Project Structure.
 
