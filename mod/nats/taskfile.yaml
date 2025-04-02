@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from nats !
+  GREETING: Hello, from NATS !
 
 tasks:
   default:

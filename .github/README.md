@@ -24,6 +24,13 @@ TASK files are used:
 
 ```sh
 
+task --experiments
+* GENTLE_FORCE:     on (1)
+* REMOTE_TASKFILES: on (1)
+* MAP_VARIABLES:    on (2)
+* ENV_PRECEDENCE:   on (1)
+
+
 task --list-all
 
 task: Available tasks for this project:

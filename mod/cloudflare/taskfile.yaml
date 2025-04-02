@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from cloudflare !
+  GREETING: Hello, from CLOUDFLARE !
 
 tasks:
   default:

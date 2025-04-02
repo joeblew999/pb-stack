@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from base!
+  GREETING: Hello, from BASE dot files manager!
 
 tasks:
   default:

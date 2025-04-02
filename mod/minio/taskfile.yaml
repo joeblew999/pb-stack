@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from minio !
+  GREETING: Hello, from MINIO !
 
 tasks:
   default:

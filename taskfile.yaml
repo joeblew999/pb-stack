@@ -1,13 +1,16 @@
 
 # https://taskfile.dev
 
-version: "3"
+
+version: '3'
 
 interval: 1000ms
 
 includes:
   base: ./mod/base.taskfile.yaml
   git: ./mod/git.taskfile.yaml
+  caddy: ./mod/caddy/taskfile.yaml
+  cloudflare: ./mod/cloudflare/taskfile.yaml
   reck: ./mod/reck/taskfile.yaml
   remote:
     # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0

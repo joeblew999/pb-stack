@@ -1,2 +1,12 @@
-# taskfile
+# https://taskfile.dev
 
+version: '3'
+
+vars:
+  GREETING: Hello, from POCKETBASE!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true

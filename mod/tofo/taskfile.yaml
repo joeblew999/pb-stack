@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from tofo !
+  GREETING: Hello, from TOFU !
 
 tasks:
   default:

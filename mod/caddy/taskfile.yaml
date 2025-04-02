@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from kamal !
+  GREETING: Hello, from CADDY !
 
 tasks:
   default:

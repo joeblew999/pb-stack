@@ -26,5 +26,16 @@ https://github.com/wongfei2009/harmonylite is the new Marmot
 
 Also has nats cluster setup.
 
+## Registry
+
+https://github.com/eddieraa/registry
+
+So that each PB project is well known, via NATS.
+
+This will allow  PB Projects to be able to call into other PB Projects.
+
+Since we use Marmot anyways, this will be automatic.
+
+
 
 
