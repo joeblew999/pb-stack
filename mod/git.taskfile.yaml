@@ -3,7 +3,7 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from base!
+  GREETING: Hello, from git!
 
 tasks:
   default:

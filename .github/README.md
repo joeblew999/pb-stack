@@ -70,4 +70,11 @@ task: Available tasks for this project:
 * remote:terraform:validate:                   terraform validate
 
 
+pb-stack % task git
+Hello, from base!
+
+pb-stack % task git
+Hello, from git!
+
+
 ```
