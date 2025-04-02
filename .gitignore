@@ -26,3 +26,6 @@ go.work.sum
 
 # task file cache
 .task
+
+# site root with all other Apps inside.
+#site
