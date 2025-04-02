@@ -9,9 +9,9 @@ Then simple examples / playgrounds, so we can work up the code generator.
 
 ## Doc
 
-See Doc folder for Project Info.
+See [Doc](../doc/README.md) folder for Project Info.
 
-[Doc](../doc/README.md)
+
 
 ## Task
 
