@@ -2,9 +2,7 @@
 
 https://github.com/joeblew999/pb-stack
 
-Gerard Webb
-
-Describes a Stack based on Pocketbase that where:
+A Stack based on Pocketbase that where:
 
 1. Server Golang Code is generated as much as possible, so that developers are not hand writing code causing bugs and security leaks, allowing rapid extension of the system. A Fix only requires a change to the generator allowing rapid remediation.
 
@@ -18,13 +16,18 @@ You do not have to use all the stack. Its a composition where you can pick what 
 
 ## Repo Structure
 
+I use mono repos, cause life is short.
+
 I use this folder structure.
 
-- Root has the task files only.
+- Root has the TaskFiles only.
 
 - Modules folder with a sub folder for each Stack part, and a sub folder for each experiment.
 
-- Projects folder, with a sub folder for each Project.
+- Projects folder, with a sub folder for each Project. 
+
+Other developers have the exact same structure allows cross links.
+
 
 
 ## Stack
@@ -64,13 +67,18 @@ TODO:
 
 https://github.com/go-task/task
 
-Provide an alternative to Makefiles that runs on all Desktops and Servers.
+Provides an alternative to Makefiles that runs on all Desktops and Servers.
 
-This augments what PC does, allowing commands to be run. 
+Augments what PC does, allowing commands to be run. 
 
-It has a Web GUI and Terminal GUI. 
+Has a Web GUI and Terminal GUI. 
 
 The Web GUI reflects the commands into a Web GUI, allowing a Web based provisioning system to aid with debugging. The Web GUI is not needed once TOFU takes over and drives the provisions and configuration.
+
+Used locally and in github actions. Single source of truth.
+
+Can be shared across repositories using Remote Task files.
+
 
 TODO:
 
