@@ -4,9 +4,11 @@
 
 Read the Docs for now to get a feel for the intent. Ask questions if something seems off.
 
-The scaffolds for the [TASK](../mod/task/README.md) files and [TOFU](../mod/tofu/README.md) are going in currently. We need this to rapidly develop. Next will be the [GitHub Actions for CI and CD](../.github/workflows/README.md)
+The scaffolds for the [TASK](../mod/task/README.md) files and [TOFU](../mod/tofu/README.md) are going in currently. We need this to rapidly develop. 
 
-Then simple examples / playgrounds, so we can work up the code generator.
+Next will be the [GitHub Actions for CI and CD](../.github/workflows/README.md) round-tripping to your own Desktop.
+
+Then simple examples / playgrounds, so we can work up the code generator against real projects. Its the only way for others to understand how to develop this.
 
 ## Documentation
 
