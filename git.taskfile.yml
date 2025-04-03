@@ -95,7 +95,7 @@ tasks:
       - task git:sign-set
       - echo "Pushing ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am 'more stuff. Needs to be a var passed in.'
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am 'init ...'
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push .
 
   sign-del:
