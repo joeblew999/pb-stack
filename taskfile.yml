@@ -7,13 +7,14 @@ version: '3'
 dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  # base stuff
+  # base for devtime
   base: ./base.taskfile.yml
   git: ./git.taskfile.yml
   go: ./go.taskfile.yml
+  vscode: ./vscode.taskfile.yml
 
   
-  # modules
+  # modules for runtime
   caddy: ./mod/caddy/taskfile.yml
   cloudflare: ./mod/cloudflare/taskfile.yml
   compose: ./mod/compose/taskfile.yml

@@ -1,0 +1,23 @@
+# https://taskfile.dev
+
+# vscode 
+
+
+version: "3"
+
+vars:
+  VSCODE_BIN_NAME: "code" 
+  VSCODE_BIN_WHICH:
+    sh: "command -v {{.VSCODE_BIN_NAME}}"
+  VSCODE_BIN_VERSION:
+    sh: "{{.VSCODE_BIN_NAME}} --version"
+
+tasks:
+  default:
+    desc: vscode print
+    cmds:
+      - echo ""
+      - echo "- bin"
+      - echo "VSCODE_BIN_NAME:"                 {{.VSCODE_BIN_NAME}}
+      - echo "VSCODE_BIN_WHICH:"                {{.VSCODE_BIN_WHICH}}
+      - echo "VSCODE_BIN_VERSION:"              {{.VSCODE_BIN_VERSION}}
