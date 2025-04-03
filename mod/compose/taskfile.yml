@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+# compose
+
+version: '3'
+
+vars:
+  COMPOSE_GREETING: Hello, from COMPOSE !
+
+tasks:
+  print:
+    cmds:
+      - echo "{{.COMPOSE_GREETING}}"
+    silent: true

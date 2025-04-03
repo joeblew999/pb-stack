@@ -15,7 +15,16 @@ Then simple examples / playgrounds, so we can work up the code generator against
 See [Doc](../doc/README.md) folder for Project Info.
 
 
+
+## Make
+
+This is just a helper, until everything is converted to Task files.
+
+We need task and golang installed and this does that check for now.
+
 ## Task
+
+https://taskfile.dev/reference/
 
 TASK files are used:
 
@@ -34,29 +43,41 @@ task --experiments
 * MAP_VARIABLES:    on (2)
 * ENV_PRECEDENCE:   on (1)
 
-
-task --list-all
-
+task --list-all --verbose
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml] Fetched remote copy
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/docker-compose/Taskfile.yml] Fetched remote copy
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/terraform/Taskfile.yml] Fetched remote copy
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/security/Taskfile.yml] Fetched remote copy
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/security/sast/Taskfile.yml] Fetched remote copy
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/security/sast/Checkov.yml] Fetched remote copy
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/security/sast/Grype.yml] Fetched remote copy
+task: [https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/security/sast/Trivy.yml] Fetched remote copy
 task: Available tasks for this project:
-* build:                                       
-* css:                                         
-* default:                                     
-* deploy:                                      
-* idiomorph:                                   
-* kill:                                        
-* libpub:                                      
-* library:                                     
-* qtc:                                         
-* sdktspub:                                    
-* site:                                        build and run site
-* support:                                     
-* templ:                                       
-* test:                                        
-* test-all:                                    
-* tools:                                       
-* version:                                     
-* base:default:                                      (aliases: base)
-* git:default:                                       (aliases: git)
+* base:dep:                                    base dep, installs shell level components.
+* base:print:                                  base print
+* caddy:dep:                                   caddy install
+* caddy:print:                                 caddy print
+* cloudflare:print:                            cloudflare print
+* compose:print:                               
+* datastar:build:                              
+* datastar:css:                                
+* datastar:deploy:                             
+* datastar:idiomorph:                          
+* datastar:kill:                               
+* datastar:libpub:                             
+* datastar:library:                            
+* datastar:print:                              
+* datastar:qtc:                                
+* datastar:sdktspub:                           
+* datastar:site:                               build and run site
+* datastar:support:                            
+* datastar:templ:                              
+* datastar:test:                               
+* datastar:test-all:                           
+* datastar:tools:                              
+* datastar:version:                            
+* git:print:                                   git print
+* go:print:                                    go print
 * remote:docker-compose:down:                  Stop and remove containers, networks
 * remote:docker-compose:up:                    Create and start containers
 * remote:security:sast:checkov:scanner:        Infrastructure as code static analysis
@@ -79,13 +100,23 @@ task: Available tasks for this project:
 * remote:terraform:terrascan:                  Terrascan static code analyzer
 * remote:terraform:tflint:                     tflint
 * remote:terraform:validate:                   terraform validate
+* todo:print:                                  todo print
 
 
-pb-stack % task git
-Hello, from base!
+task base:print --silent
+BASE_SHELL_OS_NAME: darwin
+BASE_SHELL_OS_ARCH: arm64
+BASE_OS_NAME: darwin
+BASE_OS_ARCH: arm64
 
-pb-stack % task git
-Hello, from git!
+
+
+task git:print
+task: [git:print] echo "GIT_NAME:"       /opt/homebrew/opt/git/libexec/git-core/git
+GIT_NAME: /opt/homebrew/opt/git/libexec/git-core/git
+task: [git:print] echo "GIT_VERSION:"    git version 2.49.0
+
+
 
 
 ```

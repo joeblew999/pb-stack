@@ -1,33 +1,24 @@
 
-# https://taskfile.dev
+# https://taskfile.dev 
 
+# datastar
 
 version: '3'
 
 interval: 1000ms
 
-includes:
-  base: ./mod/base.taskfile.yaml
-  git: ./mod/git.taskfile.yaml
-  caddy: ./mod/caddy/taskfile.yaml
-  cloudflare: ./mod/cloudflare/taskfile.yaml
-  reck: ./mod/reck/taskfile.yaml
-  remote:
-    # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
-    taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
-    vars:
-      TASK_RUNTIME:
-        sh: echo "${TASK_RUNTIME:-devbox}"
-
 vars:
-  VERSION:
-    sh: cat VERSION
+  DATASTAR_GREETING: Hello, from DATASTAR !
 
 tasks:
+  print:
+    cmds:
+      - echo "{{.DATASTAR_GREETING}}"
+    silent: true
+
   tools:
     platforms: [windows, linux, darwin/arm64, darwin/amd64, openbsd, dragonfly, freebsd, netbsd]
     cmds:
-      - go install github.com/go-task/task/v3/cmd/task@latest
       - go install github.com/a-h/templ/cmd/templ@latest
       - go install github.com/valyala/quicktemplate/qtc@latest
 
@@ -208,7 +199,4 @@ tasks:
     cmds:
       - go test -v github.com/starfederation/datastar/site/smoketests -count=1 -timeout=1m
 
-  default:
-    cmds:
-      - task: site
-      - ./datastar-website
+  

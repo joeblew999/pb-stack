@@ -1,0 +1,20 @@
+# https://taskfile.dev
+
+# caddy
+
+version: '3'
+
+vars:
+  CADDY_GREETING: Hello, from CADDY !
+
+tasks:
+  print:
+    desc: caddy print
+    cmds:
+      - echo "{{.CADDY_GREETING}}"
+    silent: true
+  dep:
+    desc: caddy install
+    cmds:
+      - echo "{{.CADDY_GREETING}}"
+    silent: true

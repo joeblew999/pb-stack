@@ -1,0 +1,15 @@
+# https://taskfile.dev
+
+# cloudflare
+
+version: '3'
+
+vars:
+  CLOUDFLARE_GREETING: Hello, from CLOUDFLARE !
+
+tasks:
+  print:
+    desc: cloudflare print
+    cmds:
+      - echo "{{.CLOUDFLARE_GREETING}}"
+    silent: true

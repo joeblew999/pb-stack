@@ -1,0 +1,16 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  GIT_NAME:
+    sh: which git
+  GIT_VERSION:
+    sh: git --version
+tasks:
+  print:
+    desc: git print
+    cmds:
+      - echo "GIT_NAME:"       {{.GIT_NAME}}
+      - echo "GIT_VERSION:"    {{.GIT_VERSION}}
+   

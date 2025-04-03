@@ -1,0 +1,28 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  BASE_SHELL_OS_NAME:
+    sh: uname -s | tr A-Z a-z
+  BASE_SHELL_OS_ARCH:
+    sh: uname -m | tr A-Z a-z
+  BASE_GOOS_NAME:
+    sh: go env GOOS
+  BASE_GOOS_ARCH:
+    sh: go env GOARCH
+
+tasks:
+  print:
+    desc: base print
+    cmds:
+      - echo "BASE_SHELL_OS_NAME:"    {{.BASE_SHELL_OS_NAME}}
+      - echo "BASE_SHELL_OS_ARCH:"    {{.BASE_SHELL_OS_ARCH}}
+      - echo "BASE_GOOS_NAME:"        {{.BASE_GOOS_NAME}}
+      - echo "BASE_GOOS_ARCH:"        {{.BASE_GOOS_ARCH}}
+
+  dep:
+    desc: base dep, installs shell level components.
+    cmds:
+      - echo ""
+    silent: true

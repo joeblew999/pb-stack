@@ -1,0 +1,15 @@
+# https://taskfile.dev
+
+# todo
+
+version: '3'
+
+vars:
+  TODO: Hello, from todo project !
+
+tasks:
+  print:
+    desc: todo print
+    cmds:
+      - echo "{{.TODO}}"
+    silent: true

@@ -1,0 +1,30 @@
+
+# https://taskfile.dev
+
+
+version: '3'
+
+interval: 1000ms
+
+includes:
+  # base stuff
+  base: ./base.taskfile.yml
+  git: ./git.taskfile.yml
+  go: ./go.taskfile.yml
+
+  # modules
+  caddy: ./mod/caddy/taskfile.yml
+  cloudflare: ./mod/cloudflare/taskfile.yml
+  compose: ./mod/compose/taskfile.yml
+  datastar: ./mod/datastar/taskfile.yml
+  #reck: ./mod/reck/taskfile.yml
+  remote:
+    # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
+    taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+    vars:
+      TASK_RUNTIME:
+        sh: echo "${TASK_RUNTIME:-devbox}"
+
+  ### projects
+  todo: ./proj/todo/taskfile.yml
+
