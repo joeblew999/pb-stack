@@ -22,7 +22,7 @@ go.work
 go.work.sum
 
 # task env file
-#.env
+.env
 
 # task file cache folder
 .task
