@@ -61,7 +61,7 @@ tasks:
       - echo "GIT_GITROOT_VERSION:"          {{.GIT_GITROOT_VERSION}}
 
   run-dep:
-    desc: git run dep
+    desc: git run any deps needed ...
     cmds:
       - task git:ssh-set
       - task git:sign-set
@@ -76,9 +76,6 @@ tasks:
     cmds:
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
       
-  
-      
-
   clone:
     desc: git clone
     cmds:
@@ -95,22 +92,54 @@ tasks:
   push:
     desc: git push
     vars:
-      GIT_PUSH_COMMIT_MESSAGE:  
-
+      GIT_PUSH_COMMIT_MESSAGE: "init ..."
     cmds:
       - task git:run-dep
       - echo "Pushing ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am 'init ...'
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push
+  
 
-  ssh-set:
-    desc: git ssh
+  ### ssh 
+
+
+  ssh-del:
+    desc: deletes ssh keys and their config. Tricky to be idempotent
+    cmd:
+      #- rm {{.GIT_SIGNING_KEY_PRIV}}
+      #- rm {{.GIT_SIGNING_KEY}}
+  
+
+  ssh-create:
+    desc: git ssh creation. Only once of it not there.
     cmds:
-      - echo "setting up ssh ..."
+      - echo "Creating up ssh keys and config ..."
+      # 1. create ssh keys 
+      # https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+      #- ssh-keygen -t ed25519 -C "gedw99_github.com" -f  {{.GIT_SIGNING_KEY_PRIV}}
+      
+      - echo "... the pub and private will be generated ..."
+      # ~/.ssh/gedw99_github.com
+      - echo "{{.GIT_SIGNING_KEY_PRIV}}"
+      # ~/.ssh/gedw99_github.com.pub
+      - echo "{{.GIT_SIGNING_KEY}}"
+
+      # 2. Add ssh key to the ssh config. This is tricky to be idempotent.
+      # ssh-add ~/.ssh/gedw99_github.com
+      #- echo "... adding to OS Identity Provider ..."
+      #- ssh-add {{.GIT_SIGNING_KEY_PRIV}}
+      
+      
+  ssh-set:
+    desc: git ssh setup. Part of run-dep.
+    cmds:
+      - echo "Adding the ssh keys to the ssh agent ..."
       - ssh-add -l
       - ssh-add {{.GIT_SIGNING_KEY_PRIV}}
       - ssh-add -l
+
+  ### sign 
 
   sign-del:
     desc: git sign delete, to delete the signing up in your git config.
