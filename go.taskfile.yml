@@ -26,4 +26,5 @@ tasks:
 
       - echo ""
       - echo "- var"
+    silent: true
    

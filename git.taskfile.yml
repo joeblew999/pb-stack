@@ -59,6 +59,7 @@ tasks:
       - echo "- var"
       - echo "GIT_GITROOT:"                  {{.GIT_GITROOT}}
       - echo "GIT_GITROOT_VERSION:"          {{.GIT_GITROOT_VERSION}}
+    silent: true
 
   run-dep:
     desc: git run any deps needed ...

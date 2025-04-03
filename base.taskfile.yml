@@ -59,7 +59,7 @@ tasks:
       - echo "BASE_SRC:"              {{.BASE_SRC}}
       - echo "BASE_DEP:"              {{.BASE_DEP}}
       - echo "BASE_BIN:"              {{.BASE_BIN}}
-     
+    silent: true
 
       
 
@@ -67,4 +67,5 @@ tasks:
     desc: base dep, installs shell level components.
     cmds:
       - echo ""
+      - echo "installing base shell tools ..."
     silent: true

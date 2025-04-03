@@ -19,6 +19,7 @@ includes:
   cloudflare: ./mod/cloudflare/taskfile.yml
   compose: ./mod/compose/taskfile.yml
   datastar: ./mod/datastar/taskfile.yml
+  pocketbase: ./mod/pocketbase/taskfile.yml
   #reck: ./mod/reck/taskfile.yml
   remote:
     # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
