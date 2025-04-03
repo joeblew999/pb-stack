@@ -8,7 +8,7 @@ vars:
   CLOUDFLARE_GREETING: Hello, from CLOUDFLARE !
 
 tasks:
-  print:
+  default:
     desc: cloudflare print
     cmds:
       - echo "{{.CLOUDFLARE_GREETING}}"

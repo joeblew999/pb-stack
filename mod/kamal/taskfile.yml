@@ -3,10 +3,10 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from KAMAL !
+  KAMAL_GREETING: Hello, from KAMAL !
 
 tasks:
   default:
     cmds:
-      - echo "{{.GREETING}}"
+      - echo "{{.KAMAL_GREETING}}"
     silent: true

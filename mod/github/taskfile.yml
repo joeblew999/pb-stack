@@ -1,0 +1,34 @@
+# https://taskfile.dev
+
+# github
+
+version: '3'
+
+vars:
+  
+  # https://github.com/cli/cli
+  # https://github.com/cli/cli/releases/tag/v2.69.0
+  GH_BIN_NAME: cli
+  GH_BIN_VERSION: v2.69.0
+
+
+tasks:
+  default:
+    cmds:
+      - echo ""
+      - echo "GH_BIN_NAME:"           {{.GH_BIN_NAME}}
+      - echo "GH_BIN_VERSION:"        {{.GH_BIN_VERSION}}
+
+      - echo "GH_GEN_BIN_NAME:"       {{.GH_GEN_BIN_NAME}}
+      - echo "GH_GEN_BIN_VERSION:"    {{.GH_GEN_BIN_VERSION}}
+      - echo ""
+    silent: true
+
+  dep-pb:
+    desc: install pb
+    cmds:
+      - '{{.GO_BIN_NAME}} install github.com/pocketbase/pocketbase/examples/base@{{.GH_BIN_VERSION}}'
+  dep-pb-gen:
+    desc: install pb gen
+    cmds:
+      - '{{.GO_BIN_NAME}} install github.com/Snonky/pocketbase-gogen@@{{.GH_GEN_BIN_VERSION}}'

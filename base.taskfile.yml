@@ -13,10 +13,20 @@ vars:
     sh: go env GOARCH
 
   BASE_HOME: "{{.HOME}}"
+
   # Our dot folders.
   BASE_SRC: '{{.USER_WORKING_DIR}}'
-  BASE_DEP: '{{.BASE_SRC}}./../{{.DEP}}.dep'
-  BASE_BIN: '{{.BASE_SRC}}./../{{.DEP}}.bin'
+  
+  BASE_BIN: '{{.BASE_SRC}}/{{.DEP}}.bin'
+  BASE_DEP: '{{.BASE_SRC}}/{{.DEP}}.dep'
+  BASE_PACK: '{{.BASE_SRC}}/{{.DEP}}.pack'
+
+  
+
+env:
+  # export Path to include our .bin and .dep
+  #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
+  PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
     
 tasks:
   default:
@@ -55,16 +65,22 @@ tasks:
       - echo ""
       - echo "BASE_HOME:"             {{.BASE_HOME}}
       - echo ""
+      - echo "BASE_PATH:"             {{.PATH}}
+      - echo ""
       - echo "BASE_SRC:"              {{.BASE_SRC}}
-      - echo "BASE_DEP:"              {{.BASE_DEP}}
       - echo "BASE_BIN:"              {{.BASE_BIN}}
+      - echo "BASE_DEP:"              {{.BASE_DEP}}
+      - echo "BASE_PACK:"             {{.BASE_PACK}}
+      - echo ""
     silent: true
 
-      
 
   dep:
     desc: base dep, installs shell level components.
     cmds:
       - echo ""
       - echo "installing base shell tools ..."
-    silent: true
+      - mkdir -p {{.BASE_BIN}}
+      - mkdir -p {{.BASE_DEP}}
+      - mkdir -p {{.BASE_PACK}}
+    silent: false

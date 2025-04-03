@@ -3,10 +3,10 @@
 version: '3'
 
 vars:
-  GREETING: Hello, from MINIO !
+  MINIO_GREETING: Hello, from MINIO !
 
 tasks:
   default:
     cmds:
-      - echo "{{.GREETING}}"
+      - echo "{{.MINIO_GREETING}}"
     silent: true

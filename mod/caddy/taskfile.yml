@@ -8,7 +8,7 @@ vars:
   CADDY_GREETING: Hello, from CADDY !
 
 tasks:
-  print:
+  default:
     desc: caddy print
     cmds:
       - echo "{{.CADDY_GREETING}}"

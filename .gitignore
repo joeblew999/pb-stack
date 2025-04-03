@@ -21,11 +21,17 @@
 go.work
 go.work.sum
 
-# env file
+# task env file
 #.env
 
-# task file cache
+# task file cache folder
 .task
+
+# dot folder we use for standardisation
+.dep
+.bin
+.pack
+
 
 # site root with all other Apps inside.
 site

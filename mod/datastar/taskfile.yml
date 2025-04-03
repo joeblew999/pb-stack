@@ -11,7 +11,7 @@ vars:
   DATASTAR_GREETING: Hello, from DATASTAR !
 
 tasks:
-  print:
+  default:
     cmds:
       - echo "{{.DATASTAR_GREETING}}"
     silent: true

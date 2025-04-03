@@ -8,7 +8,7 @@ vars:
   COMPOSE_GREETING: Hello, from COMPOSE !
 
 tasks:
-  print:
+  default:
     cmds:
       - echo "{{.COMPOSE_GREETING}}"
     silent: true

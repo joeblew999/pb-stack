@@ -1,18 +1,20 @@
 # https://taskfile.dev
 
+# pocketbase - pb
+
 version: '3'
 
 vars:
   # https://github.com/pocketbase/pocketbase
-  PB_BIN_NAME: pb
   # https://github.com/pocketbase/pocketbase/releases/tag/v0.26.6
+  PB_BIN_NAME: pb
   PB_BIN_VERSION: v0.26.6
 
-
   # https://github.com/Snonky/pocketbase-gogen
-  PB_GEN_BIN_NAME: pocketbase-gogen
   # https://github.com/Snonky/pocketbase-gogen/releases/tag/v0.6.1
+  PB_GEN_BIN_NAME: pb-gen
   PB_GEN_BIN_VERSION: v0.6.1
+  #PB_GEN_BIN_VERSION: latest
 
 tasks:
   default:
@@ -21,16 +23,26 @@ tasks:
       - echo "PB_BIN_NAME:"           {{.PB_BIN_NAME}}
       - echo "PB_BIN_VERSION:"        {{.PB_BIN_VERSION}}
 
+      - echo ""
       - echo "PB_GEN_BIN_NAME:"       {{.PB_GEN_BIN_NAME}}
       - echo "PB_GEN_BIN_VERSION:"    {{.PB_GEN_BIN_VERSION}}
       - echo ""
     silent: true
 
-  dep-pb:
+  dep:
     desc: install pb
     cmds:
-      - '{{.GO_BIN_NAME}} install github.com/pocketbase/pocketbase/examples/base@{{.PB_BIN_VERSION}}'
-  dep-pb-gen:
-    desc: install pb gen
+      - task base:dep
+      - echo ""
+      - echo "- pb dep"
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/pocketbase/pocketbase/examples/base@{{.PB_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/base {{.BASE_DEP}}/{{.PB_BIN_NAME}}
+      - echo ""
+      - echo "- pb gen dep"
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/snonky/pocketbase-gogen@{{.PB_GEN_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/pocketbase-gogen {{.BASE_DEP}}/{{.PB_GEN_BIN_NAME}}
+  run:
     cmds:
-      - '{{.GO_BIN_NAME}} install github.com/Snonky/pocketbase-gogen@@{{.PB_GEN_BIN_VERSION}}'
+      - '{{.PB_BIN_NAME}} -h'
+
+

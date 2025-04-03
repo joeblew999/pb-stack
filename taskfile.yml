@@ -6,6 +6,7 @@ version: '3'
 # MUST have this ONLY in root for env variables to work.
 dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
+
 includes:
   # base for devtime
   base: ./base.taskfile.yml
@@ -19,7 +20,10 @@ includes:
   cloudflare: ./mod/cloudflare/taskfile.yml
   compose: ./mod/compose/taskfile.yml
   datastar: ./mod/datastar/taskfile.yml
-  pocketbase: ./mod/pocketbase/taskfile.yml
+  github: ./mod/github/taskfile.yml
+  kamal: ./mod/kamal/taskfile.yml
+  minio: ./mod/minio/taskfile.yml
+  pb: ./mod/pocketbase/taskfile.yml
   #reck: ./mod/reck/taskfile.yml
   remote:
     # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
@@ -30,3 +34,7 @@ includes:
   ### projects
   todo: ./proj/todo/taskfile.yml
 
+
+vars:
+  #PB_GEN_BIN_VERSION: latest
+  PB_GEN_BIN_VERSION: latest
