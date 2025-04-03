@@ -96,7 +96,7 @@ tasks:
       - echo "Pushing ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am 'init ...'
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push .
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push
 
   sign-del:
     desc: git sign delete, to delete the signing up in your git config.
