@@ -4,9 +4,9 @@ version: "3"
 
 vars:
   BASE_SHELL_OS_NAME:
-    sh: uname -s | tr A-Z a-z
+    #sh: uname -s | tr A-Z a-z
   BASE_SHELL_OS_ARCH:
-    sh: uname -m | tr A-Z a-z
+    #sh: uname -m | tr A-Z a-z
   BASE_GOOS_NAME:
     sh: go env GOOS
   BASE_GOOS_ARCH:

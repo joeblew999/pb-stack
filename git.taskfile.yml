@@ -90,20 +90,21 @@ tasks:
       - echo "Pulling ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} pull --rebase
 
+  
   push:
     desc: git push
     vars:
-      GIT_PUSH_COMMIT_MESSAGE: "init ..."
+      #GIT_PUSH_COMMIT_MESSAGE: ''
     cmds:
       - task git:run-dep
       - echo "Pushing ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am 'init ...'
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am '{{.GIT_PUSH_COMMIT_MESSAGE}}'
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push
   
 
-  ### ssh 
 
+  ### ssh 
 
   ssh-del:
     desc: deletes ssh keys and their config. Tricky to be idempotent
@@ -139,6 +140,8 @@ tasks:
       - ssh-add -l
       - ssh-add {{.GIT_SIGNING_KEY_PRIV}}
       - ssh-add -l
+
+
 
   ### sign 
 
