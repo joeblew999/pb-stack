@@ -1,16 +1,125 @@
 # https://taskfile.dev
 
+# git 
+
+
+### TODO: 
+
+# If else for git name, depending on OS.
+
+# Check git is installed.
+
+# Can pass in COMMIT Message useing "ENV_VAR="commandline" task main" . https://medium.com/@TianchenW/demystification-of-taskfile-variables-29b751950393
+
+# Make some of this a golang AMP that base installs.
+
+
 version: "3"
 
 vars:
-  GIT_NAME:
-    sh: which git
-  GIT_VERSION:
-    sh: git --version
+  GIT_BIN_NAME: "git" 
+  GIT_BIN_WHICH:
+    sh: "command -v {{.GIT_BIN_NAME}}"
+  GIT_BIN_VERSION:
+    sh: "{{.GIT_BIN_NAME}} --version"
+
+  # env ( expected )
+  # GIT_SIGNING_USER_NAME=joeblew999
+  # GIT_SIGNING_USER_EMAIL=joeblew99@gmail.com
+  # GIT_SIGNING_KEY_PRIV=$HOME/.ssh/jowblew999_github.com
+
+  # var 
+  GIT_GITROOT:
+    sh: git rev-parse --show-toplevel
+  GIT_GITROOT_VERSION:
+    sh: git rev-parse HEAD
+  # ssh based:  https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-ssh-key
+  GIT_SIGNING_PROGRAM: "ssh"
+  GIT_SIGNING_FORMAT: "ssh"
+
 tasks:
-  print:
+  default:
     desc: git print
     cmds:
-      - echo "GIT_NAME:"       {{.GIT_NAME}}
-      - echo "GIT_VERSION:"    {{.GIT_VERSION}}
-   
+      - echo ""
+      - echo "- bin"
+      - echo "GIT_BIN_NAME:"                 {{.GIT_BIN_NAME}}
+      - echo "GIT_BIN_WHICH:"                {{.GIT_BIN_WHICH}}
+      - echo "GIT_BIN_VERSION:"              {{.GIT_BIN_VERSION}}
+      
+      - echo ""
+      - echo "- signing"
+      - echo "GIT_SIGNING_USER_NAME:"        {{.GIT_SIGNING_USER_NAME}}
+      - echo "GIT_SIGNING_USER_EMAIL:"       {{.GIT_SIGNING_USER_EMAIL}}
+      - echo "GIT_SIGNING_KEY_PRIV:"         {{.GIT_SIGNING_KEY_PRIV}}
+      - echo "GIT_SIGNING_KEY:"              {{.GIT_SIGNING_KEY}}
+      - echo "GIT_SIGNING_PROGRAM:"          {{.GIT_SIGNING_PROGRAM}}
+      - echo "GIT_SIGNING_FORMAT:"           {{.GIT_SIGNING_FORMAT}}
+      - echo ""
+      - echo "- var"
+      - echo "GIT_GITROOT:"                  {{.GIT_GITROOT}}
+      - echo "GIT_GITROOT_VERSION:"          {{.GIT_GITROOT_VERSION}}
+
+      
+
+  status:
+    desc: git status
+    cmds:
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} status
+    
+  config:
+    desc: git config
+    cmds:
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
+      
+
+  clone:
+    desc: git clone
+    cmds:
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} clone  -h
+
+  pull:
+    desc: git pull
+    cmds:
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} pull
+
+  push:
+    desc: git push
+    vars:
+      GIT_PUSH_COMMIT_MESSAGE:  
+
+    cmds:
+      - echo "Pushing ..."
+      - task git:sign-set
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am 'more stuff. Needs to be a var passed in.'
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push 
+
+  sign-del:
+    desc: git sign delete, to delete the signing up in your git config.
+    cmds:
+      - echo "Deleting signing settings in your git config ..."
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.name ""
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.email ""
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.signingkey ""
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.program ""
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.format ""
+  sign-set:
+    desc: git sign set, to set the signing up in your git config.
+    cmds:
+      - echo "Setting signing up into your git config ..."
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_SIGNING_USER_NAME}}
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.email {{.GIT_SIGNING_USER_EMAIL}}
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIV}}
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
+  sign-get:
+    desc: git sign get, to see what settings you have in your git config.
+    cmds:
+      - echo "Printing signing setup from your git config ..."
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --get user.name
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --get user.email
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.signingkey
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.program
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.format
+

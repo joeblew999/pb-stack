@@ -12,14 +12,56 @@ vars:
   BASE_GOOS_ARCH:
     sh: go env GOARCH
 
+  BASE_HOME: "{{.HOME}}"
+  # Our dot folders.
+  BASE_SRC:
+    sh: PWD
+  BASE_DEP: '{{.BASE_SRC}}./../{{.DEP}}.dep'
+  BASE_BIN: "{{.BASE_SRC}}./../{{.DEP}}.bin"
+    
 tasks:
-  print:
+  default:
     desc: base print
     cmds:
+      # https://taskfile.dev/reference/environment
+      - echo "- task defaults:"
+     
+      
+      # https://taskfile.dev/reference/templating/#special-variables
+      - echo ""
+      - echo "- task bin"
+      - echo "TASK_EXE:"              {{.TASK_EXE}}
+      - echo "TASK_VERSION:"          {{.TASK_VERSION}}
+      - echo "TASK_TEMP_DIR:"         {{.TASK_TEMP_DIR}}
+      - echo ""
+      - echo "- task vars"
+      - echo "CLI_ARGS:"              {{.CLI_ARGS}}
+      - echo "CLI_FORCE:"             {{.CLI_FORCE}}
+      - echo ""
+      - echo "- task name"
+      - echo "TASK:"                  {{.TASK}}
+      - echo "TASKFILE:"              {{.TASKFILE}}
+      - echo ""
+      - echo "- task paths"
+      - echo "USER_WORKING_DIR:"      {{.USER_WORKING_DIR}}
+      - echo "TASKFILE_DIR:"          {{.TASKFILE_DIR}}
+      - echo "TASK_DIR:"              {{.TASK_DIR}}
+      - echo "ROOT_TASKFILE:"         {{.ROOT_TASKFILE}}
+      - echo ""
+      - echo ""
       - echo "BASE_SHELL_OS_NAME:"    {{.BASE_SHELL_OS_NAME}}
       - echo "BASE_SHELL_OS_ARCH:"    {{.BASE_SHELL_OS_ARCH}}
       - echo "BASE_GOOS_NAME:"        {{.BASE_GOOS_NAME}}
       - echo "BASE_GOOS_ARCH:"        {{.BASE_GOOS_ARCH}}
+      - echo ""
+      - echo "BASE_HOME:"             {{.BASE_HOME}}
+      - echo ""
+      - echo "BASE_SRC:"              {{.BASE_SRC}}
+      - echo "BASE_DEP:"              {{.BASE_DEP}}
+      - echo "BASE_BIN:"              {{.BASE_BIN}}
+     
+
+      
 
   dep:
     desc: base dep, installs shell level components.

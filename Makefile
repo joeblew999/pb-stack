@@ -10,7 +10,6 @@ ifeq ($(MAKE_OS_NAME),windows)
 	MAKE_SHELL=$(shell COMSPEC)
 endif
 
-
 # task
 MAKE_TASK_VERSION=$(shell task --version)
 MAKE_TASK_EXP=$(shell task --experiments)
@@ -25,6 +24,9 @@ print:
 	@echo ""
 	@echo "MAKE_TASK_VERSION:    $(MAKE_TASK_VERSION)"
 	@echo "MAKE_TASK_EXP:        $(MAKE_TASK_EXP)"
+
+git-print:
+	
 
 dep-print:
 	@echo ""

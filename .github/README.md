@@ -103,6 +103,19 @@ task: Available tasks for this project:
 * todo:print:                                  todo print
 
 
+# get info about a task command:
+
+task git:push --summary
+task: git:push
+
+git push
+
+commands:
+ - echo "Pushing ..."
+ - task git:sign-set
+
+# print base info:
+
 task base:print --silent
 BASE_SHELL_OS_NAME: darwin
 BASE_SHELL_OS_ARCH: arm64
@@ -110,6 +123,7 @@ BASE_OS_NAME: darwin
 BASE_OS_ARCH: arm64
 
 
+# print git info:
 
 task git:print
 task: [git:print] echo "GIT_NAME:"       /opt/homebrew/opt/git/libexec/git-core/git

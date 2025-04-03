@@ -6,11 +6,16 @@ version: '3'
 
 interval: 1000ms
 
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
 includes:
   # base stuff
   base: ./base.taskfile.yml
   git: ./git.taskfile.yml
   go: ./go.taskfile.yml
+
+  
 
   # modules
   caddy: ./mod/caddy/taskfile.yml
@@ -20,6 +25,7 @@ includes:
   #reck: ./mod/reck/taskfile.yml
   remote:
     # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
+    # https://github.com/saydulaev/taskfile
     taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
     vars:
       TASK_RUNTIME:

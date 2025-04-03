@@ -1,5 +1,7 @@
 # github workflows
 
+REF: https://github.com/openmcp-project/mcp-operator uses TASK like we do.
+
 Its a mono repo, driven by TASK files, so its easy to deploy as many projects as you want from this repo with a single setup. 
 
 Tests for all platforms are also easy.
@@ -14,7 +16,7 @@ TODO:
 
 - Sign use Apple Creds from .env file.
 
-## CD 
+## PUBLISH 
 
 Deploys whatever is configured by the Root TASK file. 
 
