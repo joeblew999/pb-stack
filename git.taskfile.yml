@@ -9,7 +9,7 @@
 
 # Check git is installed.
 
-# Can pass in COMMIT Message useing "ENV_VAR="commandline" task main" . https://medium.com/@TianchenW/demystification-of-taskfile-variables-29b751950393
+# Can pass in COMMIT Message using "ENV_VAR="commandline" task main" . https://medium.com/@TianchenW/demystification-of-taskfile-variables-29b751950393
 
 # Make some of this a golang AMP that base installs.
 
