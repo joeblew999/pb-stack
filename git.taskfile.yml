@@ -82,6 +82,8 @@ tasks:
   pull:
     desc: git pull
     cmds:
+      - task git:sign-set
+      - echo "Pulling ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} pull --rebase
 
   push:
