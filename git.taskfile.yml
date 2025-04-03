@@ -72,6 +72,11 @@ tasks:
     cmds:
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
       
+  ssh:
+    desc: git ssh
+    cmds:
+      - ssh 
+      
 
   clone:
     desc: git clone
