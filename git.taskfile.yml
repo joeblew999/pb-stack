@@ -76,12 +76,13 @@ tasks:
   clone:
     desc: git clone
     cmds:
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} clone  -h
+      # todo: make a VAR, and let Root Task file override it.
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} clone -h
 
   pull:
     desc: git pull
     cmds:
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} pull
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} pull --rebase
 
   push:
     desc: git push
