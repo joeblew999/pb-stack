@@ -92,7 +92,7 @@ tasks:
 
   
   push:
-    desc: git push
+    desc: 'git push ( eg: GIT_PUSH_COMMIT_MESSAGE=?? task git:push )'
     vars:
       #GIT_PUSH_COMMIT_MESSAGE: ''
     cmds:
