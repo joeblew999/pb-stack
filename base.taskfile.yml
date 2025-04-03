@@ -14,8 +14,7 @@ vars:
 
   BASE_HOME: "{{.HOME}}"
   # Our dot folders.
-  BASE_SRC:
-    sh: PWD
+  BASE_SRC: '{{.USER_WORKING_DIR}}'
   BASE_DEP: '{{.BASE_SRC}}./../{{.DEP}}.dep'
   BASE_BIN: '{{.BASE_SRC}}./../{{.DEP}}.bin'
     
