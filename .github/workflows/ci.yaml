@@ -20,10 +20,10 @@ jobs:
         with:
           submodules: recursive
 
-      #- name: Set up Go
-      #  uses: actions/setup-go@v5
-      #  with:
-      #    go-version-file: go.mod
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
 
       - name: Install Task
         uses: arduino/setup-task@v2
@@ -31,8 +31,7 @@ jobs:
           version: 3.x
 
       - name: task base
-        run: |
-          task base
+        run: task base --yes
           
       - name: task git
         run: task git

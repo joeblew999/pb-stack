@@ -60,7 +60,11 @@ tasks:
       - echo "GIT_GITROOT:"                  {{.GIT_GITROOT}}
       - echo "GIT_GITROOT_VERSION:"          {{.GIT_GITROOT_VERSION}}
 
-      
+  run-dep:
+    desc: git run dep
+    cmds:
+      - task git:ssh-set
+      - task git:sign-set
 
   status:
     desc: git status
@@ -72,10 +76,7 @@ tasks:
     cmds:
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
       
-  ssh:
-    desc: git ssh
-    cmds:
-      - ssh 
+  
       
 
   clone:
@@ -87,7 +88,7 @@ tasks:
   pull:
     desc: git pull
     cmds:
-      - task git:sign-set
+      - task git:run-dep
       - echo "Pulling ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} pull --rebase
 
@@ -97,11 +98,19 @@ tasks:
       GIT_PUSH_COMMIT_MESSAGE:  
 
     cmds:
-      - task git:sign-set
+      - task git:run-dep
       - echo "Pushing ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am 'init ...'
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push
+
+  ssh-set:
+    desc: git ssh
+    cmds:
+      - echo "setting up ssh ..."
+      - ssh-add -l
+      - ssh-add {{.GIT_SIGNING_KEY_PRIV}}
+      - ssh-add -l
 
   sign-del:
     desc: git sign delete, to delete the signing up in your git config.
