@@ -17,7 +17,7 @@ vars:
   BASE_SRC:
     sh: PWD
   BASE_DEP: '{{.BASE_SRC}}./../{{.DEP}}.dep'
-  BASE_BIN: "{{.BASE_SRC}}./../{{.DEP}}.bin"
+  BASE_BIN: '{{.BASE_SRC}}./../{{.DEP}}.bin'
     
 tasks:
   default:

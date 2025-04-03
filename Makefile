@@ -25,7 +25,6 @@ print:
 	@echo "MAKE_TASK_VERSION:    $(MAKE_TASK_VERSION)"
 	@echo "MAKE_TASK_EXP:        $(MAKE_TASK_EXP)"
 
-git-print:
 	
 
 dep-print:
@@ -36,13 +35,13 @@ dep-print:
 
 dep-edit:
 	code /Users/apple/.zshrc
-	
-dep:
-	# assumes go installed
+dep-task:
+	go install github.com/go-task/task/v3/cmd/task@latest
 
 	# https://taskfile.dev/installation/	
-	env GOBIN=$(PWD)/.bin go install github.com/go-task/task/v3/cmd/task@latest
+	#env GOBIN=$(PWD)/.bin go install github.com/go-task/task/v3/cmd/task@latest
 
+dep: dep-task
 
 	# NOT recommended. Install we added a line to the .zshrc
 	# https://taskfile.dev/installation/
