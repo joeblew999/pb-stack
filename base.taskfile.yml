@@ -32,7 +32,7 @@ env:
   #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
   # https://github.com/go-task/task/issues/202
 
-  PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
+  #PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
     
 tasks:
   default:
