@@ -6,13 +6,13 @@
 # ISSUE: https://github.com/go-task/task/issues/2156
 
 # https://taskfile.dev/experiments/env-precedence
-TASK_X_ENV_PRECEDENCE=1
+#TASK_X_ENV_PRECEDENCE=1
 # https://taskfile.dev/experiments/gentle-force/
-TASK_X_GENTLE_FORCE=1
+#TASK_X_GENTLE_FORCE=1
 # https://taskfile.dev/experiments/map-variables/?proposal=2
-TASK_X_MAP_VARIABLES=2
+#TASK_X_MAP_VARIABLES=2
 # https://taskfile.dev/experiments/remote-taskfiles/
-TASK_X_REMOTE_TASKFILES=1
+#TASK_X_REMOTE_TASKFILES=1
 
 
 ### git settings
