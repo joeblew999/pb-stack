@@ -9,6 +9,10 @@ vars:
   # https://github.com/pocketbase/pocketbase/releases/tag/v0.26.6
   PB_BIN_NAME: pb
   PB_BIN_VERSION: v0.26.6
+  PB_BIN_WHICH:
+    #sh: '{{.BASE_AMP_WHICH_BIN_NAME}} {{.PB_BIN_NAME}}'
+  PB_BIN_WHICH_VERSION:
+    #sh: '{{.PB_BIN_NAME}} --version'
 
   # https://github.com/Snonky/pocketbase-gogen
   # https://github.com/Snonky/pocketbase-gogen/releases/tag/v0.6.1
@@ -22,7 +26,8 @@ tasks:
       - echo ""
       - echo "PB_BIN_NAME:"           {{.PB_BIN_NAME}}
       - echo "PB_BIN_VERSION:"        {{.PB_BIN_VERSION}}
-
+      - echo "PB_BIN_WHICH:"          {{.PB_BIN_WHICH}}
+      - echo "PB_BIN_WHICH_VERSION:"  {{.PB_BIN_WHICH_VERSION}}
       - echo ""
       - echo "PB_GEN_BIN_NAME:"       {{.PB_GEN_BIN_NAME}}
       - echo "PB_GEN_BIN_VERSION:"    {{.PB_GEN_BIN_VERSION}}
@@ -43,6 +48,7 @@ tasks:
       - mv {{.BASE_DEP}}/pocketbase-gogen {{.BASE_DEP}}/{{.PB_GEN_BIN_NAME}}
   run:
     cmds:
+      - task pb:dep
       - '{{.PB_BIN_NAME}} -h'
 
 

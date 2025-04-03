@@ -21,11 +21,17 @@ vars:
   BASE_DEP: '{{.BASE_SRC}}/{{.DEP}}.dep'
   BASE_PACK: '{{.BASE_SRC}}/{{.DEP}}.pack'
 
+  # Our base helpers
+  BASE_AMP_WHICH_BIN_NAME: amp-which
+  BASE_AMP_WHICH_BIN_VERSION: latest
+
   
 
 env:
   # export Path to include our .bin and .dep
   #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
+  # https://github.com/go-task/task/issues/202
+
   PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
     
 tasks:
@@ -83,4 +89,12 @@ tasks:
       - mkdir -p {{.BASE_BIN}}
       - mkdir -p {{.BASE_DEP}}
       - mkdir -p {{.BASE_PACK}}
-    silent: false
+      - echo "- base which dep"
+      # https://github.com/hairyhenderson/go-which/tree/main/cmd
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_AMP_WHICH_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_AMP_WHICH_BIN_NAME}}
+
+  run:
+    cmds:
+      - '{{.BASE_AMP_WHICH_BIN_NAME}} -h'
+

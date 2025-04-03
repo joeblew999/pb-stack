@@ -20,7 +20,7 @@ includes:
   cloudflare: ./mod/cloudflare/taskfile.yml
   compose: ./mod/compose/taskfile.yml
   datastar: ./mod/datastar/taskfile.yml
-  github: ./mod/github/taskfile.yml
+  gh: ./mod/github/taskfile.yml
   kamal: ./mod/kamal/taskfile.yml
   minio: ./mod/minio/taskfile.yml
   pb: ./mod/pocketbase/taskfile.yml

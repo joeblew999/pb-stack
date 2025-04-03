@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-# github
+# github - gh
 
 version: '3'
 
@@ -18,17 +18,23 @@ tasks:
       - echo ""
       - echo "GH_BIN_NAME:"           {{.GH_BIN_NAME}}
       - echo "GH_BIN_VERSION:"        {{.GH_BIN_VERSION}}
-
-      - echo "GH_GEN_BIN_NAME:"       {{.GH_GEN_BIN_NAME}}
-      - echo "GH_GEN_BIN_VERSION:"    {{.GH_GEN_BIN_VERSION}}
       - echo ""
     silent: true
 
-  dep-pb:
-    desc: install pb
+  dep:
+    desc: install gh
     cmds:
-      - '{{.GO_BIN_NAME}} install github.com/pocketbase/pocketbase/examples/base@{{.GH_BIN_VERSION}}'
-  dep-pb-gen:
-    desc: install pb gen
+      - task base:dep
+      - echo ""
+      - echo "- gh dep"
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/pocketbase/pocketbase/examples/base@{{.PB_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/base {{.BASE_DEP}}/{{.PB_BIN_NAME}}
+      - echo ""
+      - echo "- pb gen dep"
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/snonky/pocketbase-gogen@{{.PB_GEN_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/pocketbase-gogen {{.BASE_DEP}}/{{.PB_GEN_BIN_NAME}}
+  run:
     cmds:
-      - '{{.GO_BIN_NAME}} install github.com/Snonky/pocketbase-gogen@@{{.GH_GEN_BIN_VERSION}}'
+      - '{{.PB_BIN_NAME}} -h'
+
+ 
