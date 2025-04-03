@@ -21,10 +21,10 @@ includes:
   datastar: ./mod/datastar/taskfile.yml
   pocketbase: ./mod/pocketbase/taskfile.yml
   #reck: ./mod/reck/taskfile.yml
-  #remote:
+  remote:
     # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
     # https://github.com/saydulaev/taskfile
-    #taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+    taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
     
 
   ### projects
