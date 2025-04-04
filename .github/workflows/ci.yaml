@@ -43,13 +43,20 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.platform }} ${{ matrix.arch }} ${{ matrix.go-version }} 
+    name: ${{ matrix.os }} ${{ matrix.arch }} ${{ matrix.go-version }} 
     strategy:
       matrix:
         go-version: [1.24.x]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-2019]
         arch: [x64, arm64]
-    runs-on: ${{matrix.platform}}
+        include:
+          - os: ubuntu-latest
+            friendlyName: Linux
+          - os: macos-latest
+            friendlyName: Mac
+          - os: windows-2019
+            friendlyName: Windows
+    runs-on: ${{matrix.os}}
 
     steps:
       # https://github.com/actions/checkout
