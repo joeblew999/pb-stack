@@ -80,10 +80,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Check it can see all remotes...
+      # List all task commands
       - name: task 
-        run: task --list-all --yes
-
+        run: task --list-all --yes --sort alphanumeric
+      # List all task variables resolved.
       - name: task base
         run: task base
           

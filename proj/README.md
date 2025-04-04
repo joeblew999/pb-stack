@@ -6,6 +6,13 @@ We can call **task** from here to reuse the TASK files higher up: https://taskfi
 
 ## Issues
 
+```sh
+
+task init
+task: Remote taskfiles are not enabled. You can read more about this experiment and how to enable it at https://taskfile.dev/experiments/remote-taskfiles
+
+```
+
 https://github.com/go-task/task/issues/2159 
 
 It cant see the .taskrc.xml or the .env higher up .

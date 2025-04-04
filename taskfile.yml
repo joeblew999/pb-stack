@@ -6,7 +6,6 @@ version: '3'
 # MUST have this ONLY in root for env variables to work.
 dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
-
 includes:
   # base for all
   base: ./base.taskfile.yml
@@ -33,10 +32,28 @@ includes:
     taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
     
 
-  ### projects
-  todo: ./proj/todo/taskfile.yml
-
-
 vars:
   #PB_GEN_BIN_VERSION: latest
   PB_GEN_BIN_VERSION: latest
+
+tasks:
+  default:
+    desc: Welcome. 
+    cmds:
+      - echo ""
+      - task --list-all --yes --sort alphanumeric
+      #- task --list-all --yes --sort alphanumeric --json
+    silent: true
+  bin:
+    desc: Build everything.
+    cmds:
+      - echo ""
+      - echo "Building from root downwards ..."
+      
+      - cd proj/todo-empty && task go:bin
+      - cd proj/todo-with-all && task go:bin
+      - cd proj/todo-with-task && task go:bin
+      - cd proj/todo-with-task-includes && task go:bin
+      - cd proj/todo-with-taskrc && task go:bin
+    silent: true
+

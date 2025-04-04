@@ -1,0 +1,24 @@
+# https://taskfile.dev
+
+# todo
+
+version: '3'
+
+
+# MUST have this ONLY in root for env variables to work.
+#dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+vars:
+  BASE_SRC_NAME: todo
+  TODO_GREETING: Hello, from todo project !
+ 
+tasks:
+  default:
+    desc: todo print
+    cmds:
+      - echo "{{.TODO_GREETING}}"
+    silent: true
+  bin:
+    cmds:
+      - task go:bin
