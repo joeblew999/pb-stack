@@ -43,7 +43,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.os }} ${{ matrix.arch }} ${{ matrix.go-version }} 
+    name: ${{ matrix.os }} ${{ matrix.arch }} go-${{ matrix.go-version }} 
     strategy:
       matrix:
         go-version: [1.24.x]
@@ -85,3 +85,7 @@ jobs:
 
       - name: task go
         run: task go
+
+      # Now, build everything explicitly.
+      - name: task bin
+        run: task bin
