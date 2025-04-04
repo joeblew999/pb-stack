@@ -96,14 +96,14 @@ tasks:
 
   
   push:
-    desc: 'git push ( eg: GIT_PUSH_COMMIT_MESSAGE=?? task git:push )'
+    desc: 'git push ( eg: COMMIT_MESSAGE=?? task git:push )'
     vars:
-      COMMIT_MESSAGE: ''
+      COMMIT_MESSAGE: 'init'
     cmds:
       - task git:run-dep
       - echo "Pushing ..."
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am '{{.GIT_PUSH_COMMIT_MESSAGE}}'
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push
   
 
