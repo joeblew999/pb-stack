@@ -47,15 +47,8 @@ jobs:
     strategy:
       matrix:
         go-version: [1.24.x]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        arch: [x64, arm64]
-        include:
-          - os: ubuntu-latest
-            friendlyName: Linux
-          - os: macos-latest
-            friendlyName: Mac
-          - os: windows-latest
-            friendlyName: Windows
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
     runs-on: ${{matrix.os}}
 
     steps:
