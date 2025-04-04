@@ -43,7 +43,7 @@ env:
 
   #PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
   # try to make windows happy.
-  #PATH: "{{.PATH}}:{{.BASE_DEP}}"
+  PATH: "{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}"
   
 tasks:
   default:
@@ -154,5 +154,5 @@ tasks:
   run-which:
     desc: find binary.
     cmds:
-      - '{{.BASE_AMP_WHICH_BIN_NAME}} '
+      - '{{.BASE_AMP_WHICH_BIN_NAME}} {{.CLI_ARGS}}'
 
