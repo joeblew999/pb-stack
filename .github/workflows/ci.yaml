@@ -8,6 +8,40 @@ on:
     branches:
       - main
   pull_request:
+  workflow_call:
+    inputs:
+      repository:
+        default: desktop/desktop
+        required: false
+        type: string
+      ref:
+        required: true
+        type: string
+      upload-artifacts:
+        default: false
+        required: false
+        type: boolean
+      environment:
+        type: string
+        required: true
+      sign:
+        type: boolean
+        default: true
+        required: false
+    secrets:
+      AZURE_CODE_SIGNING_TENANT_ID:
+      AZURE_CODE_SIGNING_CLIENT_ID:
+      AZURE_CODE_SIGNING_CLIENT_SECRET:
+      DESKTOP_OAUTH_CLIENT_ID:
+      DESKTOP_OAUTH_CLIENT_SECRET:
+      APPLE_ID:
+      APPLE_ID_PASSWORD:
+      APPLE_TEAM_ID:
+      APPLE_APPLICATION_CERT:
+      APPLE_APPLICATION_CERT_PASSWORD:
+
+env:
+  #NODE_VERSION: 20.18.1
 
 jobs:
   build:
