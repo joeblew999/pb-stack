@@ -38,9 +38,15 @@ vars:
 env:
   # export Path to include our .bin and .dep
   #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
+  #export PATH:=$(PATH):$(BASE_PWD_BIN)
   # https://github.com/go-task/task/issues/202
 
-  PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
+  #PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
+  # try to make windows happy.
+  PATH: "{{.PATH}}:{{.BASE_DEP}}"
+  
+
+  
     
 tasks:
   default:
