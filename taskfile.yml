@@ -41,16 +41,19 @@ tasks:
     desc: Welcome. 
     cmds:
       - echo ""
-      - task --list-all --yes --sort alphanumeric
+      #- task --list-all --yes --sort alphanumeric
+      #- task --list-all --yes --sort alphanumeric
+      - task --list-all --yes --sort none
+      
       #- task --list-all --yes --sort alphanumeric --json
     silent: true
   bin:
-    desc: Build everything.
+    desc: build everything explicitly.
     cmds:
       - echo ""
       - echo "Building from root downwards ..."
       
-      - cd proj/todo-empty && task go:bin
+      #- cd proj/todo-empty && task go:bin
       - cd proj/todo-with-all && task go:bin
       - cd proj/todo-with-task && task go:bin
       - cd proj/todo-with-task-includes && task go:bin

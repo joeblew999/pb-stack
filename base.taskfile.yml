@@ -45,9 +45,6 @@ env:
   # try to make windows happy.
   #PATH: "{{.PATH}}:{{.BASE_DEP}}"
   
-
-  
-    
 tasks:
   default:
     desc: base print
@@ -150,7 +147,8 @@ tasks:
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_AMP_WHICH_BIN_VERSION}}
       - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_AMP_WHICH_BIN_NAME}}
 
-  run:
+  run-which:
+    desc: which is a cross platform **which** command.
     cmds:
       - '{{.BASE_AMP_WHICH_BIN_NAME}} -h'
 
