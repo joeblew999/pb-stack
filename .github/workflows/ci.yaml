@@ -78,14 +78,14 @@ jobs:
         run: task --list-all --yes --sort alphanumeric
       # List all task variables resolved.
       - name: task base
-        run: task base
+        run: task base --yes
           
       - name: task git
-        run: task git
+        run: task git --yes
 
       - name: task go
-        run: task go
+        run: task go --yes
 
       # Now, build everything explicitly.
       - name: task bin
-        run: task bin
+        run: task bin --yes
