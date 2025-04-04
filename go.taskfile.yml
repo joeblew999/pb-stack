@@ -8,9 +8,9 @@ version: "3"
 vars:
   GO_BIN_NAME: go
   GO_BIN_WHICH:
-    #sh: 'command -v {{.GO_BIN_NAME}}'
+    sh: 'command -v {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
-    #sh: "{{.GO_BIN_NAME}} version"
+    sh: "{{.GO_BIN_NAME}} version"
 tasks:
   default:
     desc: go print
