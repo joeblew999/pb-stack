@@ -1,12 +1,10 @@
-# todo
+# todo-no-overide
 
-Testing with a task file here.
+Testing with no task file here, but a .taskrc.yml
 
-Its needs a .taskrc.yml in order to work.
 
 ```sh
-
-task base
+todo-no-overide % task base
 
 
 - shell
@@ -24,10 +22,10 @@ BASE_PATH: ::/Users/apple/Library/pnpm:/opt/homebrew/opt/git/libexec/git-core:/o
 
 BASE_SRC_NAME: base_name
 
-BASE_SRC: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo
-BASE_BIN: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo/.bin
-BASE_DEP: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo/.dep
-BASE_PACK: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo/.pack
+BASE_SRC: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo-no-overide
+BASE_BIN: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo-no-overide/.bin
+BASE_DEP: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo-no-overide/.dep
+BASE_PACK: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo-no-overide/.pack
 
 - task
 
@@ -51,41 +49,18 @@ TASK: base:default
 The alias used for the current task, otherwise matches TASK:
 ALIAS: base
 TASK_EXE: task
-ROOT_TASKFILE: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo
-ROOT_DIR: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo
+ROOT_TASKFILE: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack
+ROOT_DIR: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack
 TASKFILE: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/base.taskfile.yml
 TASKFILE_DIR: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack
-TASK_DIR: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo
-USER_WORKING_DIR: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo
+TASK_DIR: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack
+USER_WORKING_DIR: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/proj/todo-no-overide
 CHECKSUM:
 TIMESTAMP:
 TASK_VERSION: v3.42.1
-
-``` 
-
-It does NOT see the 4 "signing (env)" values from the .env in the root. It think it should.
-
-```sh
-
-task git
-
-- bin
-GIT_BIN_NAME: git
-GIT_BIN_WHICH: /opt/homebrew/opt/git/libexec/git-core/git
-GIT_BIN_VERSION: git version 2.49.0
-
-- signing (env)
-GIT_SIGNING_USER_NAME:
-GIT_SIGNING_USER_EMAIL:
-GIT_SIGNING_KEY_PRIV:
-GIT_SIGNING_KEY:
-- signing (var)
-GIT_SIGNING_PROGRAM: ssh
-GIT_SIGNING_FORMAT: ssh
-
-- var
-GIT_GITROOT: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack
-GIT_GITROOT_VERSION: f30a4bed41a24810a7eb8c798b8e5f07420eca7e
+ITEM:
+EXIT_CODE:
 
 ```
+
 
