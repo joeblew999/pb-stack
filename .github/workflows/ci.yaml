@@ -41,13 +41,13 @@ jobs:
 
       # Check it can see all remotes...
       - name: task 
-        run: task --list-all --yes --verbose
+        run: task --list-all --yes
 
       - name: task base
-        run: task base --verbose
+        run: task base
           
       - name: task git
-        run: task git --verbose
+        run: task git
 
       - name: task go
-        run: task go --verbose
+        run: task go
