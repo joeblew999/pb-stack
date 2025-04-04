@@ -37,6 +37,9 @@ on:
       APPLE_APPLICATION_CERT_PASSWORD:
 
 
+permissions: 
+  packages: write
+  
 jobs:
   build:
     name: ${{ matrix.os }} ${{ matrix.arch }} go-${{ matrix.go-version }} 
