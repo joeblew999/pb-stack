@@ -98,7 +98,7 @@ tasks:
   push:
     desc: 'git push ( eg: COMMIT_MESSAGE=?? task git:push )'
     vars:
-      COMMIT_MESSAGE: 'init'
+      COMMIT_MESSAGE: 'ci'
     cmds:
       - task git:run-dep
       - echo "Pushing ..."

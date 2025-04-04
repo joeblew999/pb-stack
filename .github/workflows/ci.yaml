@@ -10,10 +10,6 @@ on:
   pull_request:
   workflow_call:
     inputs:
-      repository:
-        default: desktop/desktop
-        required: false
-        type: string
       ref:
         required: true
         type: string
@@ -48,8 +44,7 @@ jobs:
       matrix:
         go-version: [1.24.x]
         # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
-        #os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
-        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-latest, windows-2025]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
     runs-on: ${{matrix.os}}
 
     steps:
