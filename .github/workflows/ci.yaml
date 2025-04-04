@@ -40,8 +40,6 @@ on:
       APPLE_APPLICATION_CERT:
       APPLE_APPLICATION_CERT_PASSWORD:
 
-env:
-  #NODE_VERSION: 20.18.1
 
 jobs:
   build:
