@@ -48,11 +48,12 @@ tasks:
       - echo "GIT_BIN_VERSION:"              {{.GIT_BIN_VERSION}}
       
       - echo ""
-      - echo "- signing"
+      - echo "- signing (env)"
       - echo "GIT_SIGNING_USER_NAME:"        {{.GIT_SIGNING_USER_NAME}}
       - echo "GIT_SIGNING_USER_EMAIL:"       {{.GIT_SIGNING_USER_EMAIL}}
       - echo "GIT_SIGNING_KEY_PRIV:"         {{.GIT_SIGNING_KEY_PRIV}}
       - echo "GIT_SIGNING_KEY:"              {{.GIT_SIGNING_KEY}}
+      - echo "- signing (var)"
       - echo "GIT_SIGNING_PROGRAM:"          {{.GIT_SIGNING_PROGRAM}}
       - echo "GIT_SIGNING_FORMAT:"           {{.GIT_SIGNING_FORMAT}}
       - echo ""
@@ -82,6 +83,9 @@ tasks:
     cmds:
       # todo: make a VAR, and let Root Task file override it.
       - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} clone -h
+      # set cross platform attributes, so Windows does not screw up the line endings.
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
+      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local core.eol lf
 
   pull:
     desc: git pull

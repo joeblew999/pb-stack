@@ -27,4 +27,12 @@ tasks:
       - echo ""
       - echo "- var"
     silent: true
+
+  bin:
+    desc: go build
+    cmds:
+      - echo ""
+      - echo "bin"
+      - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} build -o {{.BASE_BIN}}/{{.BASE_SRC_NAME}}
+      - echo ""
    

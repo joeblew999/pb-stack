@@ -4,12 +4,33 @@
 
 version: '3'
 
-vars:
-  TODO: Hello, from todo project !
 
+# MUST have this ONLY in root for env variables to work.
+#dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  # base for devtime
+  base: ./../../base.taskfile.yml
+
+  git: ./../../git.taskfile.yml
+  go: ./../../go.taskfile.yml
+  #vscode: ./vscode.taskfile.yml
+
+  remote:
+    # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
+    # https://github.com/saydulaev/taskfile
+    taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+
+vars:
+  BASE_SRC_NAME: todo
+  TODO_GREETING: Hello, from todo project !
+ 
 tasks:
-  print:
+  default:
     desc: todo print
     cmds:
-      - echo "{{.TODO}}"
+      - echo "{{.TODO_GREETING}}"
     silent: true
+  bin:
+    cmds:
+      - task go:bin

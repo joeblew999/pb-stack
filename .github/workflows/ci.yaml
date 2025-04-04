@@ -28,15 +28,14 @@ jobs:
       - name: Set up Go ${{matrix.go-version}}
         uses: actions/setup-go@v5
         with:
-          go-version: ${{matrix.go-version}}
-        id: go
+          go-version: '${{matrix.go-version}}'
 
       # https://github.com/arduino/setup-task
       # TODO: Get TASK version from .env, so it single sourced.
       - name: Install Task
         uses: arduino/setup-task@v2
         with:
-          version: 3.42.1
+          version: '3.42.1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
