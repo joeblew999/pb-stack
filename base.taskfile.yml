@@ -41,7 +41,7 @@ env:
   #export PATH:=$(PATH):$(BASE_PWD_BIN)
   # https://github.com/go-task/task/issues/202
 
-  #PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
+  PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
   # try to make windows happy.
   #PATH: "{{.PATH}}:{{.BASE_DEP}}"
   
@@ -147,8 +147,12 @@ tasks:
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_AMP_WHICH_BIN_VERSION}}
       - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_AMP_WHICH_BIN_NAME}}
 
-  run-which:
+  run-which-h:
     desc: which is a cross platform **which** command.
     cmds:
       - '{{.BASE_AMP_WHICH_BIN_NAME}} -h'
+  run-which:
+    desc: find binary.
+    cmds:
+      - '{{.BASE_AMP_WHICH_BIN_NAME}} '
 

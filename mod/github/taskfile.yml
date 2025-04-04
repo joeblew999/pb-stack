@@ -5,20 +5,27 @@
 version: '3'
 
 vars:
-  
-  # https://github.com/cli/cli
+  GH_BIN_URL:    https://github.com/cli/cli
+  GH_BIN_MOD:   github.com/cli/cli/v2
+  GH_BIN_CMD:   cmd/gh
+  GH_BIN_NAME: gh
   # https://github.com/cli/cli/releases/tag/v2.69.0
-  GH_BIN_NAME: cli
-  GH_BIN_VERSION: v2.69.0
+  GH_BIN_VERSION: latest
+  #GH_BIN_VERSION: v2.69.0
 
+  GH_BIN_WHICH: task base:run-which
 
 tasks:
   default:
     cmds:
       - echo ""
-      - echo "GH_BIN_NAME:"           {{.GH_BIN_NAME}}
-      - echo "GH_BIN_VERSION:"        {{.GH_BIN_VERSION}}
+      - echo "GH_BIN_URL:"           {{.GH_BIN_URL}}
+      - echo "GH_BIN_MOD:"           {{.GH_BIN_MOD}}
+      - echo "GH_BIN_CMD:"           {{.GH_BIN_CMD}}
+      - echo "GH_BIN_NAME:"          {{.GH_BIN_NAME}}
+      - echo "GH_BIN_VERSION:"       {{.GH_BIN_VERSION}}
       - echo ""
+      - echo "GH_BIN_WHICH:"         {{.GH_BIN_WHICH}}
     silent: true
 
   dep:
@@ -27,14 +34,28 @@ tasks:
       - task base:dep
       - echo ""
       - echo "- gh dep"
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/pocketbase/pocketbase/examples/base@{{.PB_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/base {{.BASE_DEP}}/{{.PB_BIN_NAME}}
-      - echo ""
-      - echo "- pb gen dep"
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/snonky/pocketbase-gogen@{{.PB_GEN_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/pocketbase-gogen {{.BASE_DEP}}/{{.PB_GEN_BIN_NAME}}
-  run:
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install {{.GH_BIN_MOD}}/{{.GH_BIN_CMD}}@{{.GH_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/gh {{.BASE_DEP}}/{{.GH_BIN_NAME}}
+    
+  run-h:
     cmds:
-      - '{{.PB_BIN_NAME}} -h'
+      - '{{.GH_BIN_NAME}} -h'
+  run-auth-login:
+    cmds:
+      - '{{.GH_BIN_NAME}} auth login'
+  run-secret:
+    cmds:
+      - '{{.GH_BIN_NAME}} secret'
+
+  # This def should be a TOFU or a reconciler, so its set as part of git push !
+  run-secret-list:
+    cmds:
+      - '{{.GH_BIN_NAME}} secret list'
+  run-secret-set:
+    cmds:
+      - '{{.GH_BIN_NAME}} secret set'
+  run-secret-delete:
+    cmds:
+      - '{{.GH_BIN_NAME}} secret delete'
 
  
