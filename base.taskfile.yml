@@ -72,8 +72,7 @@ tasks:
       - echo "- user"
       - echo "BASE_HOME:"             {{.BASE_HOME}}
       - echo "BASE_USER:"             {{.BASE_USER}}
-      - echo ""
-      - echo "BASE_PATH:"             {{.PATH}}
+      
       - echo ""
       - echo "BASE_SRC_NAME:"         {{.BASE_SRC_NAME}}
       - echo ""
@@ -89,7 +88,9 @@ tasks:
       - echo "BASE_PACK:"             {{.BASE_PACK}}
       - echo ""
       - echo ""
-      - echo "BASE_PATH:"              {{.BASE_PATH}}
+      - echo "PATH:"                  {{.PATH}}
+      - echo ""
+      - echo "BASE_PATH:"             {{.BASE_PATH}}
       - echo ""
       - echo ""
       - echo "- task"
