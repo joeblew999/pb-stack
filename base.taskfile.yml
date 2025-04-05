@@ -20,13 +20,16 @@ vars:
   # "apple"
   BASE_USER: "{{.USER}}"
 
-  # Project 
+  # Project (always named like project root "_" cmd path), as in go projects cmd is the entry point. 
   BASE_SRC_NAME: base_name
 
   # Our dot folders.
   BASE_SRC: '{{.USER_WORKING_DIR}}'
+  # We want bins in each Proj
   BASE_BIN: '{{.BASE_SRC}}/{{.DEP}}.bin'
-  BASE_DEP: '{{.BASE_SRC}}/{{.DEP}}.dep'
+  # We want the Deps in root !
+  BASE_DEP: '{{.TASKFILE_DIR}}/.dep'
+  # We want Pack where the bins are.
   BASE_PACK: '{{.BASE_SRC}}/{{.DEP}}.pack'
 
   # Our base helpers

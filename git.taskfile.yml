@@ -71,28 +71,28 @@ tasks:
   status:
     desc: git status
     cmds:
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} status
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} status
     
   config:
     desc: git config
     cmds:
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
       
   clone:
     desc: git clone
     cmds:
       # todo: make a VAR, and let Root Task file override it.
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} clone -h
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} clone -h
       # set cross platform attributes, so Windows does not screw up the line endings.
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local core.eol lf
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local core.eol lf
 
   pull:
     desc: git pull
     cmds:
       - task git:run-dep
       - echo "Pulling ..."
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} pull --rebase
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} pull --rebase
 
   
   push:
@@ -102,9 +102,9 @@ tasks:
     cmds:
       - task git:run-dep
       - echo "Pushing ..."
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} add . 
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} push
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} add . 
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} push
   
 
 
@@ -153,27 +153,27 @@ tasks:
     desc: git sign delete, to delete the signing up in your git config.
     cmds:
       - echo "Deleting signing settings in your git config ..."
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.name ""
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.email ""
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.signingkey ""
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.program ""
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.format ""
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.name ""
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.email ""
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.signingkey ""
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.program ""
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.format ""
   sign-set:
     desc: git sign set, to set the signing up in your git config.
     cmds:
       - echo "Setting signing up into your git config ..."
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_SIGNING_USER_NAME}}
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.email {{.GIT_SIGNING_USER_EMAIL}}
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIV}}
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_SIGNING_USER_NAME}}
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.email {{.GIT_SIGNING_USER_EMAIL}}
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIV}}
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
   sign-get:
     desc: git sign get, to see what settings you have in your git config.
     cmds:
       - echo "Printing signing setup from your git config ..."
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --get user.name
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --get user.email
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local user.signingkey
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.program
-      - cd {{.BASE_SRC}} && {{.GIT_BIN_NAME}} config --local gpg.format
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --get user.name
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --get user.email
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.signingkey
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.program
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.format
 
