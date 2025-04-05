@@ -56,7 +56,7 @@ env:
 
   #PATH: '{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}'
   # try to make windows happy.
-  #PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
+  PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
   
 tasks:
   default:
@@ -157,6 +157,25 @@ tasks:
       - echo 'EXIT_CODE:'             {{.EXIT_CODE}}
     silent: true
 
+  test:
+    desc: base test, checks that base is working.
+    cmds:
+      - echo ''
+      - echo 'testing base  ...'
+      - '{{.BASE_TASK_CMD}} base:clean'
+      - '{{.BASE_TASK_CMD}} base:bin'
+      - '{{.BASE_TASK_CMD}} base:run-which-test'
+    silent: false
+
+  clean:
+    desc: base clean, cleans the base folders.
+    cmds:
+      - echo ''
+      - echo 'cleaning base  ...'
+      - rm -rf {{.BASE_BIN}}
+      - rm -rf {{.BASE_DEP}}
+      - rm -rf {{.BASE_PACK}}
+    silent: false
 
   bin:
     desc: base bin, installs shell level components.
@@ -176,7 +195,7 @@ tasks:
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_AMP_WHICH_BIN_VERSION}}
       - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_AMP_WHICH_BIN_NAME}}
       - echo ''
-      - echo ' TODO -  add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
+      - echo 'TODO - add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
 
   run-which-h:
     desc: which is a cross platform **which** command.
@@ -186,4 +205,8 @@ tasks:
     desc: find binary.
     cmds:
       - '{{.BASE_AMP_WHICH_BIN_NAME}} {{.CLI_ARGS}}'
+  run-which-test:
+    desc: find binary.
+    cmds:
+      - '{{.BASE_AMP_WHICH_BIN_NAME}} {{.TASK_EXE}}'
 
