@@ -24,13 +24,19 @@ vars:
   BASE_SRC_NAME: base_name
 
   # Our dot folders.
+  # We want this to be where the Task file is.
   BASE_SRC: '{{.USER_WORKING_DIR}}'
-  # We want bins in each Proj
-  BASE_BIN: '{{.BASE_SRC}}/{{.DEP}}.bin'
-  # We want the Deps in root !
-  BASE_DEP: '{{.TASKFILE_DIR}}/.dep'
-  # We want Pack where the bins are.
-  BASE_PACK: '{{.BASE_SRC}}/{{.DEP}}.pack'
+  # We want BINS in each Proj
+  BASE_BIN_NAME: '.bin'
+  BASE_BIN: '{{.BASE_SRC}}/{{.BASE_BIN_NAME}}'
+  
+  # We want the DEPS in root !
+  BASE_DEP_NAME: '.dep'
+  BASE_DEP: '{{.TASKFILE_DIR}}/{{.BASE_DEP_NAME}}'
+
+  # We want PACKS where the bins are.
+  BASE_PACK_NAME: '.pack'
+  BASE_PACK: '{{.BASE_SRC}}/{{.BASE_PACK_NAME}}'
 
   # Our base helpers
   BASE_AMP_WHICH_BIN_NAME: amp-which
@@ -53,6 +59,7 @@ tasks:
     desc: base print
     cmds:
       - echo ""
+      
       - echo ""
       - echo "- shell"
       - echo "BASE_SHELL:"            {{.BASE_SHELL}}
@@ -70,8 +77,14 @@ tasks:
       - echo "BASE_SRC_NAME:"         {{.BASE_SRC_NAME}}
       - echo ""
       - echo "BASE_SRC:"              {{.BASE_SRC}}
+      - echo ""
+      - echo "BASE_BIN_NAME:"         {{.BASE_BIN_NAME}}
       - echo "BASE_BIN:"              {{.BASE_BIN}}
+      - echo ""
+      - echo "BASE_DEP_NAME:"         {{.BASE_DEP_NAME}}
       - echo "BASE_DEP:"              {{.BASE_DEP}}
+      - echo ""
+      - echo "BASE_PACK_NAME:"        {{.BASE_PACK_NAME}}
       - echo "BASE_PACK:"             {{.BASE_PACK}}
       - echo ""
 
