@@ -19,7 +19,7 @@ vars:
     sh: 'command -v {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
     sh: "{{.GO_BIN_NAME}} version"
-    
+
 tasks:
   default:
     desc: go print
@@ -40,8 +40,10 @@ tasks:
   bin:
     desc: go build
     cmds:
+      - task base:bin
       - echo ""
       - echo "bin"
       - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} build -o {{.BASE_BIN}}/{{.BASE_SRC_NAME}}
       - echo ""
+    silent: false
    

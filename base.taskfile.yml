@@ -158,15 +158,18 @@ tasks:
     silent: true
 
 
-  dep:
-    desc: base dep, installs shell level components.
+  bin:
+    desc: base bin, installs shell level components.
     cmds:
       - echo ""
       - echo "installing base shell tools ..."
+      - echo ""
+      - echo "1. Creating base folders ..."
       - mkdir -p {{.BASE_BIN}}
       - mkdir -p {{.BASE_DEP}}
       - mkdir -p {{.BASE_PACK}}
-      - echo "- base which dep"
+      - echo ""
+      - echo "2. Installing base tools ..."
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_AMP_WHICH_BIN_VERSION}}
       - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_AMP_WHICH_BIN_NAME}}
