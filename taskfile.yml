@@ -55,7 +55,7 @@ tasks:
       - task go:bin
       
       #- cd proj/todo-empty && task go:bin
-      - cd proj/todo-with-all && task go:bin
+      - cd proj/todo-with-all && task go:bin --yes
       #- cd proj/todo-with-task && task go:bin
       #- cd proj/todo-with-task-includes && task go:bin
       #- cd proj/todo-with-taskrc && task go:bin
