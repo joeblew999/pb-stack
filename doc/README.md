@@ -135,7 +135,11 @@ Provides a SQLite DB and Web GUI Editor to allow developers to very quickly deve
 
 TODO: 
 
-- https://github.com/go-goyave/goyave is a good structure we can code gen into.
+- Add Generator: https://github.com/Snonky/pocketbase-gogen
+
+- Add OpenAPI: https://github.com/ogen-go/ogen/issues/1375#issuecomment-2772711703
+
+- Structure to be like https://github.com/go-goyave/goyave 
 
 - Extend so that the Admin settings are part of the API, so that TOFU can manage it.
 

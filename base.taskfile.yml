@@ -45,6 +45,9 @@ vars:
   # Lastly, calculate the OS Paths, so we do not pollute the OS.
   BASE_PATH: "{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}"
 
+  # Simple wrapper to apply defaults.
+  BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
+
 env:
   # export Path to include our .bin and .dep
   #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
@@ -91,6 +94,9 @@ tasks:
       - echo "PATH:"                  {{.PATH}}
       - echo ""
       - echo "BASE_PATH:"             {{.BASE_PATH}}
+      - echo ""
+      - echo "BASE_TASK_CMD:"         {{.BASE_TASK_CMD}}
+      
       - echo ""
       - echo ""
       - echo "- task"
