@@ -19,6 +19,7 @@ vars:
     sh: 'command -v {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
     sh: "{{.GO_BIN_NAME}} version"
+    
 tasks:
   default:
     desc: go print
