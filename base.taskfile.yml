@@ -26,23 +26,24 @@ vars:
   # Our dot folders.
   # We want this to be where the Task file is.
   BASE_SRC: '{{.USER_WORKING_DIR}}'
-  # We want BINS in each Proj
+  # We want BIN near the SRC
   BASE_BIN_NAME: '.bin'
   BASE_BIN: '{{.BASE_SRC}}/{{.BASE_BIN_NAME}}'
   
-  # We want the DEPS in root !
+  # We want DEP in root
   BASE_DEP_NAME: '.dep'
   BASE_DEP: '{{.TASKFILE_DIR}}/{{.BASE_DEP_NAME}}'
 
-  # We want PACKS where the bins are.
+  # We want PACKS near the SRC and BIN
   BASE_PACK_NAME: '.pack'
   BASE_PACK: '{{.BASE_SRC}}/{{.BASE_PACK_NAME}}'
 
-  # Our base helpers
+  # Our base helpers ( many to help with cross OS differences, cause u-root is not good enough )
   BASE_AMP_WHICH_BIN_NAME: amp-which
   BASE_AMP_WHICH_BIN_VERSION: latest
 
-  
+  # Lastly, calculate the OS Paths, so we do not pollute the OS.
+  BASE_PATH: "{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}"
 
 env:
   # export Path to include our .bin and .dep
@@ -52,7 +53,7 @@ env:
 
   #PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
   # try to make windows happy.
-  PATH: "{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}"
+  #PATH: "{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}"
   
 tasks:
   default:
@@ -87,13 +88,13 @@ tasks:
       - echo "BASE_PACK_NAME:"        {{.BASE_PACK_NAME}}
       - echo "BASE_PACK:"             {{.BASE_PACK}}
       - echo ""
-
-      
+      - echo ""
+      - echo "BASE_PATH:"              {{.BASE_PATH}}
+      - echo ""
+      - echo ""
       - echo "- task"
       - echo ""
       - echo "- task bin"
-      
-      
       - echo ""
       # https://taskfile.dev/reference/environment/
       - echo "- task env"
