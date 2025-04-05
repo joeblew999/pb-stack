@@ -1,5 +1,4 @@
-# .task-experiments.yml
-# If .env and .task-experiments.yml are present the values in the .task-experiments.yml file take precedence.
+# .taskrc.yml
 
 experiments:
   

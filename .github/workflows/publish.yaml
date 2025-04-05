@@ -35,18 +35,18 @@ jobs:
         id: version
         run: |
           VERSION=$(task version)
-          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-dev(-[0-9a-f]*)?)?$ ]]; then
-            echo "Invalid version format: $VERSION"
+          if [[ ! '$VERSION' =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-dev(-[0-9a-f]*)?)?$ ]]; then
+            echo 'Invalid version format: $VERSION'
             exit 1
           fi
-          echo "New version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_ENV
+          echo 'New version: $VERSION'
+          echo 'version=$VERSION' >> $GITHUB_ENV
 
       - name: Skip release if version is a dev version
         if: contains(env.version, '-dev')
         run: |
-          echo "Skipping development version release: ${{ env.version }}"
-          echo "SKIP=true" >> $GITHUB_ENV
+          echo 'Skipping development version release: ${{ env.version }}'
+          echo 'SKIP=true' >> $GITHUB_ENV
           exit 0
 
       - name: Set up QEMU

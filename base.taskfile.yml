@@ -1,11 +1,11 @@
 # https://taskfile.dev
 
-version: "3"
+version: '3'
 
 vars:
   # OS
-  # "/bin/zsh"  
-  BASE_SHELL: "{{.SHELL}}"
+  # '/bin/zsh'  
+  BASE_SHELL: '{{.SHELL}}'
   BASE_SHELL_OS_NAME:
     sh: uname -s | tr A-Z a-z
   BASE_SHELL_OS_ARCH:
@@ -16,11 +16,11 @@ vars:
     sh: go env GOARCH
 
   # OS User
-  BASE_HOME: "{{.HOME}}"
-  # "apple"
-  BASE_USER: "{{.USER}}"
+  BASE_HOME: '{{.HOME}}'
+  # 'apple'
+  BASE_USER: '{{.USER}}'
 
-  # Project (always named like project root "_" cmd path), as in go projects cmd is the entry point. 
+  # Project (always named like project root '_' cmd path), as in go projects cmd is the entry point. 
   BASE_SRC_NAME: base_name
 
   # Our dot folders.
@@ -43,7 +43,7 @@ vars:
   BASE_AMP_WHICH_BIN_VERSION: latest
 
   # Lastly, calculate the OS Paths, so we do not pollute the OS.
-  BASE_PATH: "{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}"
+  BASE_PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
 
   # Simple wrapper to apply defaults.
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
@@ -54,125 +54,129 @@ env:
   #export PATH:=$(PATH):$(BASE_PWD_BIN)
   # https://github.com/go-task/task/issues/202
 
-  #PATH: "{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}"
+  #PATH: '{{.BASE_BIN}}:{{.BASE_DEP}}:{{.PATH}}'
   # try to make windows happy.
-  #PATH: "{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}"
+  #PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
   
 tasks:
   default:
     desc: base print
     cmds:
-      - echo ""
+      - echo ''
       
-      - echo ""
-      - echo "- shell"
-      - echo "BASE_SHELL:"            {{.BASE_SHELL}}
-      - echo "BASE_SHELL_OS_NAME:"    {{.BASE_SHELL_OS_NAME}}
-      - echo "BASE_SHELL_OS_ARCH:"    {{.BASE_SHELL_OS_ARCH}}
-      - echo "BASE_GOOS_NAME:"        {{.BASE_GOOS_NAME}}
-      - echo "BASE_GOOS_ARCH:"        {{.BASE_GOOS_ARCH}}
-      - echo ""
-      - echo "- user"
-      - echo "BASE_HOME:"             {{.BASE_HOME}}
-      - echo "BASE_USER:"             {{.BASE_USER}}
+      - echo ''
+      - echo '- shell'
+      - echo 'BASE_SHELL:'            {{.BASE_SHELL}}
+      - echo 'BASE_SHELL_OS_NAME:'    {{.BASE_SHELL_OS_NAME}}
+      - echo 'BASE_SHELL_OS_ARCH:'    {{.BASE_SHELL_OS_ARCH}}
+      - echo 'BASE_GOOS_NAME:'        {{.BASE_GOOS_NAME}}
+      - echo 'BASE_GOOS_ARCH:'        {{.BASE_GOOS_ARCH}}
+      - echo ''
+      - echo '- user'
+      - echo 'BASE_HOME:'             {{.BASE_HOME}}
+      - echo 'BASE_USER:'             {{.BASE_USER}}
       
-      - echo ""
-      - echo "BASE_SRC_NAME:"         {{.BASE_SRC_NAME}}
-      - echo ""
-      - echo "BASE_SRC:"              {{.BASE_SRC}}
-      - echo ""
-      - echo "BASE_BIN_NAME:"         {{.BASE_BIN_NAME}}
-      - echo "BASE_BIN:"              {{.BASE_BIN}}
-      - echo ""
-      - echo "BASE_DEP_NAME:"         {{.BASE_DEP_NAME}}
-      - echo "BASE_DEP:"              {{.BASE_DEP}}
-      - echo ""
-      - echo "BASE_PACK_NAME:"        {{.BASE_PACK_NAME}}
-      - echo "BASE_PACK:"             {{.BASE_PACK}}
-      - echo ""
-      - echo ""
-      - echo "PATH:"                  {{.PATH}}
-      - echo ""
-      - echo "BASE_PATH:"             {{.BASE_PATH}}
-      - echo ""
-      - echo "BASE_TASK_CMD:"         {{.BASE_TASK_CMD}}
+      - echo ''
+      - echo 'BASE_SRC_NAME:'         {{.BASE_SRC_NAME}}
+      - echo ''
+      - echo 'BASE_SRC:'              {{.BASE_SRC}}
+      - echo ''
+      - echo 'BASE_BIN_NAME:'         {{.BASE_BIN_NAME}}
+      - echo 'BASE_BIN:'              {{.BASE_BIN}}
+      - echo ''
+      - echo 'BASE_DEP_NAME:'         {{.BASE_DEP_NAME}}
+      - echo 'BASE_DEP:'              {{.BASE_DEP}}
+      - echo ''
+      - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
+      - echo 'BASE_PACK:'             {{.BASE_PACK}}
+      - echo ''
+      - echo ''
+      - echo 'PATH:'                  {{.PATH}}
+      - echo ''
+      - echo 'BASE_PATH:'             {{.BASE_PATH}}
+      - echo ''
+      - echo 'BASE_TASK_CMD:'         {{.BASE_TASK_CMD}}
       
-      - echo ""
-      - echo ""
-      - echo "- task"
-      - echo ""
-      - echo "- task bin"
-      - echo ""
+      - echo ''
+      - echo ''
+      - echo '- task'
+      - echo ''
+      - echo '- task bin'
+      - echo ''
       # https://taskfile.dev/reference/environment/
-      - echo "- task env"
-      - echo "TASK_TEMP_DIR:"         {{.TASK_TEMP_DIR}}
-      - echo "TASK_REMOTE_DIR:"       {{.TASK_REMOTE_DIR}}
-      - echo "TASK_OFFLINE:"          {{.TASK_OFFLINE}}
-      - echo "FORCE_COLOR:"           {{.FORCE_COLOR}}
+      - echo '- task env'
+      - echo 'TASK_TEMP_DIR:'         {{.TASK_TEMP_DIR}}
+      - echo 'TASK_REMOTE_DIR:'       {{.TASK_REMOTE_DIR}}
+      - echo 'TASK_OFFLINE:'          {{.TASK_OFFLINE}}
+      - echo 'FORCE_COLOR:'           {{.FORCE_COLOR}}
       
       
-      - echo ""
+      - echo ''
       # https://taskfile.dev/reference/templating/#special-variables
-      - echo "- task vars"
+      - echo '- task vars'
       # Contain all extra arguments passed after -- when calling Task through the CLI.
-      - echo "CLI_ARGS:"              {{.CLI_ARGS}}
+      - echo 'CLI_ARGS:'              {{.CLI_ARGS}}
       # A boolean containing whether the --force or --force-all flags were set.
-      - echo "CLI_FORCE:"             {{.CLI_FORCE}}
+      - echo 'CLI_FORCE:'             {{.CLI_FORCE}}
       # A boolean containing whether the --silent flag was set.
-      - echo "CLI_SILENT:"            {{.CLI_SILENT}}
+      - echo 'CLI_SILENT:'            {{.CLI_SILENT}}
       # A boolean containing whether the --verbose flag was set.
-      - echo "CLI_VERBOSE:"           {{.CLI_VERBOSE}}
+      - echo 'CLI_VERBOSE:'           {{.CLI_VERBOSE}}
       # A boolean containing whether the --offline flag was set.
-      - echo "CLI_OFFLINE:"           {{.CLI_OFFLINE}}
-      - echo ""
+      - echo 'CLI_OFFLINE:'           {{.CLI_OFFLINE}}
+      - echo ''
       # The name of the current task.
-      - echo "The name of the current task:"  
-      - echo "TASK:"                  {{.TASK}}
+      - echo 'The name of the current task:'  
+      - echo 'TASK:'                  {{.TASK}}
       # The alias used for the current task, otherwise matches TASK.
-      - echo "The alias used for the current task, otherwise matches TASK:"  
-      - echo "ALIAS:"                 {{.ALIAS}}
+      - echo 'The alias used for the current task, otherwise matches TASK:'  
+      - echo 'ALIAS:'                 {{.ALIAS}}
       # The Task executable name or path.
-      - echo "TASK_EXE:"              {{.TASK_EXE}}
+      - echo 'TASK_EXE:'              {{.TASK_EXE}}
       # The absolute path of the root Taskfile
-      - echo "ROOT_TASKFILE:"         {{.ROOT_TASKFILE}}
+      - echo 'ROOT_TASKFILE:'         {{.ROOT_TASKFILE}}
       # The absolute path of the root Taskfile directory
-      - echo "ROOT_DIR:"              {{.ROOT_DIR}}
+      - echo 'ROOT_DIR:'              {{.ROOT_DIR}}
       # The absolute path of the included Taskfile.
-      - echo "TASKFILE:"              {{.TASKFILE}}
+      - echo 'TASKFILE:'              {{.TASKFILE}}
       # The absolute path of the included Taskfile directory.
-      - echo "TASKFILE_DIR:"          {{.TASKFILE_DIR}}
+      - echo 'TASKFILE_DIR:'          {{.TASKFILE_DIR}}
       # The absolute path of the directory where the task is executed.
-      - echo "TASK_DIR:"              {{.TASK_DIR}}
+      - echo 'TASK_DIR:'              {{.TASK_DIR}}
       # The absolute path of the directory task was called from.
-      - echo "USER_WORKING_DIR:"      {{.USER_WORKING_DIR}}
+      - echo 'USER_WORKING_DIR:'      {{.USER_WORKING_DIR}}
       # The checksum of the files listed in sources. Only available within the status prop and if method is set to checksum.
-      - echo "CHECKSUM:"              {{.CHECKSUM}}
+      - echo 'CHECKSUM:'              {{.CHECKSUM}}
       # The date object of the greatest timestamp of the files listed in sources. Only available within the status prop and if method is set to timestamp.
-      - echo "TIMESTAMP:"             {{.TIMESTAMP}}
+      - echo 'TIMESTAMP:'             {{.TIMESTAMP}}
       # The current version of task.
-      - echo "TASK_VERSION:"          {{.TASK_VERSION}}
+      - echo 'TASK_VERSION:'          {{.TASK_VERSION}}
       # The value of the current iteration when using the for property. Can be changed to a different variable name using as:.
-      - echo "ITEM:"                  {{.ITEM}}
+      - echo 'ITEM:'                  {{.ITEM}}
       # Available exclusively inside the defer: command. Contains the failed command exit code. Only set when non-zero.
-      - echo "EXIT_CODE:"             {{.EXIT_CODE}}
+      - echo 'EXIT_CODE:'             {{.EXIT_CODE}}
     silent: true
 
 
   bin:
     desc: base bin, installs shell level components.
     cmds:
-      - echo ""
-      - echo "installing base shell tools ..."
-      - echo ""
-      - echo "1. Creating base folders ..."
+      - echo ''
+      - echo 'installing base shell tools ...'
+      - echo ''
+      - echo '1. Creating base folders ...'
       - mkdir -p {{.BASE_BIN}}
       - mkdir -p {{.BASE_DEP}}
       - mkdir -p {{.BASE_PACK}}
-      - echo ""
-      - echo "2. Installing base tools ..."
+      - echo ''
+      - echo '2. Installing base tools ...'
+      - echo ''
+      - echo '- which tool ...'
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_AMP_WHICH_BIN_VERSION}}
       - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_AMP_WHICH_BIN_NAME}}
+      - echo ''
+      - echo ' TODO -  add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
 
   run-which-h:
     desc: which is a cross platform **which** command.

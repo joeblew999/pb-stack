@@ -40,7 +40,7 @@ tasks:
   default:
     desc: Welcome. 
     cmds:
-      - echo ""
+      - echo ''
       #- task --list-all --yes --sort alphanumeric
       #- task --list-all --yes --sort alphanumeric
       #- task --list-all --yes --sort none
@@ -52,8 +52,8 @@ tasks:
   bin:
     desc: build all explicitly.
     cmds:
-      - echo ""
-      - echo "Building all ..."
+      - echo ''
+      - echo 'Building all ...'
       - '{{.BASE_TASK_CMD}} go:bin'
       
       #- cd proj/todo-empty && task go:bin

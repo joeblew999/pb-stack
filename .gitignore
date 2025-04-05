@@ -32,6 +32,5 @@ go.work.sum
 .dep
 .pack
 
-
 # site root with all other Apps inside.
 site

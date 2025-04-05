@@ -11,14 +11,14 @@
 # TODO
 # Make golang builds a AMP package itself ? might make sense.
 
-version: "3"
+version: '3'
 
 vars:
   GO_BIN_NAME: go
   GO_BIN_WHICH:
     sh: 'command -v {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
-    sh: "{{.GO_BIN_NAME}} version"
+    sh: '{{.GO_BIN_NAME}} version'
 
 tasks:
   default:
@@ -27,23 +27,23 @@ tasks:
       - echo ''
       - echo '- bin'
       - echo 'GO_BIN_NAME:'       {{.GO_BIN_NAME}}
-      - echo "GO_BIN_WHICH:"      {{.GO_BIN_WHICH}}
-      - echo "GO_BIN_VERSION:"    {{.GO_BIN_VERSION}}
+      - echo 'GO_BIN_WHICH:'      {{.GO_BIN_WHICH}}
+      - echo 'GO_BIN_VERSION:'    {{.GO_BIN_VERSION}}
 
-      - echo ""
-      - echo "- env"
+      - echo ''
+      - echo '- env'
 
-      - echo ""
-      - echo "- var"
+      - echo ''
+      - echo '- var'
     silent: true
 
   bin:
     desc: go build
     cmds:
       - task base:bin
-      - echo ""
-      - echo "bin"
+      - echo ''
+      - echo 'bin'
       - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} build -o {{.BASE_BIN}}/{{.BASE_SRC_NAME}}
-      - echo ""
+      - echo ''
     silent: false
    

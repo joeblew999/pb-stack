@@ -9,15 +9,15 @@
 
 # Check git is installed.
 
-# Can pass in COMMIT Message using "ENV_VAR="commandline" task main" . https://medium.com/@TianchenW/demystification-of-taskfile-variables-29b751950393
+# Can pass in COMMIT Message using 'ENV_VAR='commandline' task main' . https://medium.com/@TianchenW/demystification-of-taskfile-variables-29b751950393
 
 # Make some of this a golang AMP that base installs.
 
 
-version: "3"
+version: '3'
 
 vars:
-  GIT_BIN_NAME: "git" 
+  GIT_BIN_NAME: 'git' 
   GIT_BIN_WHICH:
     sh: 'command -v {{.GIT_BIN_NAME}}'
   GIT_BIN_VERSION:
@@ -34,32 +34,32 @@ vars:
   GIT_GITROOT_VERSION:
     sh: git rev-parse HEAD
   # ssh based:  https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-ssh-key
-  GIT_SIGNING_PROGRAM: "ssh"
-  GIT_SIGNING_FORMAT: "ssh"
+  GIT_SIGNING_PROGRAM: 'ssh'
+  GIT_SIGNING_FORMAT: 'ssh'
 
 tasks:
   default:
     desc: git print
     cmds:
-      - echo ""
-      - echo "- bin"
-      - echo "GIT_BIN_NAME:"                 {{.GIT_BIN_NAME}}
-      - echo "GIT_BIN_WHICH:"                {{.GIT_BIN_WHICH}}
-      - echo "GIT_BIN_VERSION:"              {{.GIT_BIN_VERSION}}
+      - echo ''
+      - echo '- bin'
+      - echo 'GIT_BIN_NAME:'                 {{.GIT_BIN_NAME}}
+      - echo 'GIT_BIN_WHICH:'                {{.GIT_BIN_WHICH}}
+      - echo 'GIT_BIN_VERSION:'              {{.GIT_BIN_VERSION}}
       
-      - echo ""
-      - echo "- signing (env)"
-      - echo "GIT_SIGNING_USER_NAME:"        {{.GIT_SIGNING_USER_NAME}}
-      - echo "GIT_SIGNING_USER_EMAIL:"       {{.GIT_SIGNING_USER_EMAIL}}
-      - echo "GIT_SIGNING_KEY_PRIV:"         {{.GIT_SIGNING_KEY_PRIV}}
-      - echo "GIT_SIGNING_KEY:"              {{.GIT_SIGNING_KEY}}
-      - echo "- signing (var)"
-      - echo "GIT_SIGNING_PROGRAM:"          {{.GIT_SIGNING_PROGRAM}}
-      - echo "GIT_SIGNING_FORMAT:"           {{.GIT_SIGNING_FORMAT}}
-      - echo ""
-      - echo "- var"
-      - echo "GIT_GITROOT:"                  {{.GIT_GITROOT}}
-      - echo "GIT_GITROOT_VERSION:"          {{.GIT_GITROOT_VERSION}}
+      - echo ''
+      - echo '- signing (env)'
+      - echo 'GIT_SIGNING_USER_NAME:'        {{.GIT_SIGNING_USER_NAME}}
+      - echo 'GIT_SIGNING_USER_EMAIL:'       {{.GIT_SIGNING_USER_EMAIL}}
+      - echo 'GIT_SIGNING_KEY_PRIV:'         {{.GIT_SIGNING_KEY_PRIV}}
+      - echo 'GIT_SIGNING_KEY:'              {{.GIT_SIGNING_KEY}}
+      - echo '- signing (var)'
+      - echo 'GIT_SIGNING_PROGRAM:'          {{.GIT_SIGNING_PROGRAM}}
+      - echo 'GIT_SIGNING_FORMAT:'           {{.GIT_SIGNING_FORMAT}}
+      - echo ''
+      - echo '- var'
+      - echo 'GIT_GITROOT:'                  {{.GIT_GITROOT}}
+      - echo 'GIT_GITROOT_VERSION:'          {{.GIT_GITROOT_VERSION}}
     silent: true
 
   run-dep:
@@ -91,7 +91,7 @@ tasks:
     desc: git pull
     cmds:
       - task git:run-dep
-      - echo "Pulling ..."
+      - echo 'Pulling ...'
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} pull --rebase
 
   
@@ -101,7 +101,7 @@ tasks:
       COMMIT_MESSAGE: 'ci'
     cmds:
       - task git:run-dep
-      - echo "Pushing ..."
+      - echo 'Pushing ...'
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} add . 
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} push
@@ -120,27 +120,27 @@ tasks:
   ssh-create:
     desc: git ssh creation. Only once of it not there.
     cmds:
-      - echo "Creating up ssh keys and config ..."
+      - echo 'Creating up ssh keys and config ...'
       # 1. create ssh keys 
       # https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
-      #- ssh-keygen -t ed25519 -C "gedw99_github.com" -f  {{.GIT_SIGNING_KEY_PRIV}}
+      #- ssh-keygen -t ed25519 -C 'gedw99_github.com' -f  {{.GIT_SIGNING_KEY_PRIV}}
       
-      - echo "... the pub and private will be generated ..."
+      - echo '... the pub and private will be generated ...'
       # ~/.ssh/gedw99_github.com
-      - echo "{{.GIT_SIGNING_KEY_PRIV}}"
+      - echo '{{.GIT_SIGNING_KEY_PRIV}}'
       # ~/.ssh/gedw99_github.com.pub
-      - echo "{{.GIT_SIGNING_KEY}}"
+      - echo '{{.GIT_SIGNING_KEY}}'
 
       # 2. Add ssh key to the ssh config. This is tricky to be idempotent.
       # ssh-add ~/.ssh/gedw99_github.com
-      #- echo "... adding to OS Identity Provider ..."
+      #- echo '... adding to OS Identity Provider ...'
       #- ssh-add {{.GIT_SIGNING_KEY_PRIV}}
       
       
   ssh-set:
     desc: git ssh setup. Part of run-dep.
     cmds:
-      - echo "Adding the ssh keys to the ssh agent ..."
+      - echo 'Adding the ssh keys to the ssh agent ...'
       - ssh-add -l
       - ssh-add {{.GIT_SIGNING_KEY_PRIV}}
       - ssh-add -l
@@ -152,16 +152,16 @@ tasks:
   sign-del:
     desc: git sign delete, to delete the signing up in your git config.
     cmds:
-      - echo "Deleting signing settings in your git config ..."
-      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.name ""
-      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.email ""
-      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.signingkey ""
-      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.program ""
-      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.format ""
+      - echo 'Deleting signing settings in your git config ...'
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.name ''
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.email ''
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.signingkey ''
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.program ''
+      - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local gpg.format ''
   sign-set:
     desc: git sign set, to set the signing up in your git config.
     cmds:
-      - echo "Setting signing up into your git config ..."
+      - echo 'Setting signing up into your git config ...'
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_SIGNING_USER_NAME}}
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.email {{.GIT_SIGNING_USER_EMAIL}}
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIV}}
@@ -170,7 +170,7 @@ tasks:
   sign-get:
     desc: git sign get, to see what settings you have in your git config.
     cmds:
-      - echo "Printing signing setup from your git config ..."
+      - echo 'Printing signing setup from your git config ...'
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --get user.name
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --get user.email
       - cd {{.GIT_GITROOT}} && {{.GIT_BIN_NAME}} config --local user.signingkey

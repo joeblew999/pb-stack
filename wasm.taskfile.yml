@@ -8,14 +8,14 @@
 # tinygo - for pure go
 
 
-version: "3"
+version: '3'
 
 vars:
   WASM_BIN_NAME: go
   WASM_BIN_WHICH:
     sh: 'command -v {{.WASM_BIN_NAME}}'
   WASM_BIN_VERSION:
-    sh: "{{.WASM_BIN_NAME}} version"
+    sh: '{{.WASM_BIN_NAME}} version'
 tasks:
   default:
     desc: go print
@@ -23,21 +23,21 @@ tasks:
       - echo ''
       - echo '- bin'
       - echo 'WASM_BIN_NAME:'       {{.WASM_BIN_NAME}}
-      - echo "WASM_BIN_WHICH:"      {{.WASM_BIN_WHICH}}
-      - echo "WASM_BIN_VERSION:"    {{.WASM_BIN_VERSION}}
+      - echo 'WASM_BIN_WHICH:'      {{.WASM_BIN_WHICH}}
+      - echo 'WASM_BIN_VERSION:'    {{.WASM_BIN_VERSION}}
 
-      - echo ""
-      - echo "- env"
+      - echo ''
+      - echo '- env'
 
-      - echo ""
-      - echo "- var"
+      - echo ''
+      - echo '- var'
     silent: true
 
   bin:
     desc: wasm build
     cmds:
-      - echo ""
-      - echo "bin"
+      - echo ''
+      - echo 'bin'
       - cd {{.BASE_SRC}} && {{.WASM_BIN_NAME}} build -o {{.BASE_BIN}}/{{.BASE_SRC_NAME}}
-      - echo ""
+      - echo ''
    
