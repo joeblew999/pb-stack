@@ -51,6 +51,12 @@ Task files do 2 things:
 - Build the binary of what they represent.
 - Run the binary of what they represent. 
 
+We can embed Task in the main binary also
+
+https://github.com/hypershift-community/hyper-console
+
+We can also embed NATS.go, so that its reachable over NATS Servers, and thus eliminates SSH or HTTP for management, which is a security nightmare.
+
 
 ## Stack of Modules
 
@@ -128,6 +134,8 @@ https://github.com/pocketbase/pocketbase
 Provides a SQLite DB and Web GUI Editor to allow developers to very quickly develop a database structure.
 
 TODO: 
+
+- https://github.com/go-goyave/goyave is a good structure we can code gen into.
 
 - Extend so that the Admin settings are part of the API, so that TOFU can manage it.
 

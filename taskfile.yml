@@ -52,6 +52,7 @@ tasks:
     cmds:
       - echo ""
       - echo "Building all ..."
+      - task go:bin
       
       #- cd proj/todo-empty && task go:bin
       - cd proj/todo-with-all && task go:bin
