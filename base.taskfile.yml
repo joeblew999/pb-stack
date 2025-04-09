@@ -43,9 +43,12 @@ vars:
   BASE_AMP_WHICH_BIN_VERSION: latest
 
   # Lastly, calculate the OS Paths, so we do not pollute the OS.
+  # Windows PS its "$env:Path" get whats on the PATH
   BASE_PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
 
   # Simple wrapper to apply defaults.
+  # https://github.com/go-task/task/releases/tag/v3.42.1
+  BASE_TASK_VERSION: v3.42.1
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
 
 env:
@@ -95,6 +98,7 @@ tasks:
       - echo ''
       - echo 'BASE_PATH:'             {{.BASE_PATH}}
       - echo ''
+      - echo 'BASE_TASK_VERSION:'     {{.BASE_TASK_VERSION}}
       - echo 'BASE_TASK_CMD:'         {{.BASE_TASK_CMD}}
       
       - echo ''
@@ -156,6 +160,19 @@ tasks:
       # Available exclusively inside the defer: command. Contains the failed command exit code. Only set when non-zero.
       - echo 'EXIT_CODE:'             {{.EXIT_CODE}}
     silent: true
+
+  upgrade:
+    desc: base upgrade, upgrades task.
+    cmds:
+      - echo ''
+      - echo 'Upgrading base ...'
+      - echo ''
+      - echo '1. Installing latest Task ...'
+      # https://github.com/go-task/task/releases/tag/v3.42.1
+      #- go install github.com/go-task/task/v3/cmd/task@latest
+      - go install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION}}
+      # TODO: Flip to Winget for Windows, as all windows have it. winget install Task.Task
+    silent: false
 
   test:
     desc: base test, checks that base is working.
