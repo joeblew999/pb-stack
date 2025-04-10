@@ -339,7 +339,7 @@ tasks:
     cmds:
       - '{{.TASK_EXE}} base:shell-which -- {{.TASK_EXE}}'
   shell-which-shell: 
-    desc: finds the shell binary
+    desc: shell finds the shell binary
     cmds:
       - '{{.TASK_EXE}} base:shell-which -- {{.BASE_SHELL}}'
       

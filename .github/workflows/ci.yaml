@@ -75,8 +75,8 @@ jobs:
           cache-dependency-path: 'go.sum'
 
       # List all task commands
-      - name: task list
-        run: task --yes
+      #- name: task list
+      #  run: task --yes
 
       # List all base task commands
       - name: task base
