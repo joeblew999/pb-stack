@@ -77,7 +77,7 @@ jobs:
     
       # List all base task commands
       - name: task 
-        run: task
+        run: task --yes
 
       # Test all base task variables resolved.
       - name: task base:test
