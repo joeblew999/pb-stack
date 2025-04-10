@@ -61,6 +61,12 @@ vars:
   BASE_SHELL_WGOT_BIN_NAME: shell-wgot
   BASE_SHELL_WGOT_BIN_VERSION: latest
 
+  BASE_SHELL_REDRESS_BIN_NAME: shell-redress
+  # https://github.com/goretk/redress/releases/tag/v1.2.24
+  BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
+
+
+
 env:
   # export Path to include our .bin and .dep
   #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
@@ -236,12 +242,17 @@ tasks:
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
       - mv {{.BASE_DEP}}/tree {{.BASE_DEP}}/{{.BASE_SHELL_TREE_BIN_NAME}}
       - echo '- wgot tool ...'
-      # https://github.com/a8m/tree/cmd/tree
+      # https://github.com/bitrise-io/got
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}
       - mv {{.BASE_DEP}}/wgot {{.BASE_DEP}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+      - echo '- replace tool ...'
       # https://github.com/webdevops/go-replace
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}
       - mv {{.BASE_DEP}}/go-replace {{.BASE_DEP}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
+      - echo '- redress tool ...'
+      # https://github.com/goretk/redress
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/redress {{.BASE_DEP}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
 
       - echo ''
       - echo 'TODO - add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
@@ -258,6 +269,33 @@ tasks:
       - ls -al {{.BASE_PACK}}
     silent: false
     
+  shell-redress-h:
+    desc: redress is a cross platform **redress** command.
+    cmds:
+      - '{{.BASE_SHELL_REDRESS_BIN_NAME}} --help'
+  shell-redress-version:
+    cmds:
+      - '{{.BASE_SHELL_REDRESS_BIN_NAME}} version'
+
+  shell-redress:
+    desc: redress is a cross platform **redress** command. E.G task base:shell-redress -- task
+    cmds:
+      - '{{.BASE_SHELL_REDRESS_BIN_NAME}} version {{.CLI_ARGS}}'
+      - '{{.BASE_SHELL_REDRESS_BIN_NAME}} gomod {{.CLI_ARGS}}'
+      - '{{.BASE_SHELL_REDRESS_BIN_NAME}} info {{.CLI_ARGS}}'
+      - '{{.BASE_SHELL_REDRESS_BIN_NAME}} packages {{.CLI_ARGS}}'
+      - '{{.BASE_SHELL_REDRESS_BIN_NAME}} moduledata {{.CLI_ARGS}}'
+      #- '{{.BASE_SHELL_REDRESS_BIN_NAME}} types all {{.CLI_ARGS}}'
+      #- '{{.BASE_SHELL_REDRESS_BIN_NAME}} source {{.CLI_ARGS}}'
+
+
+  shell-redress-test:
+    cmds:
+      # The fully reflective version does not work.
+      #- '{{.TASK_EXE}} base:shell-redress -- {{.TASK_EXE}} base:shell-which {{.TASK_EXE}}'
+      - '{{.TASK_EXE}} base:shell-redress -- /Users/apple/workspace/go/bin/task'
+
+      
   shell-replace-h:
     desc: replace is a cross platform **replace** command.
     cmds:
