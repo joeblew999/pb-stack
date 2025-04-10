@@ -15,7 +15,6 @@ Then simple examples / playgrounds, so we can work up the code generator against
 See [Doc](../doc/README.md) folder for Project Info.
 
 
-
 ## Make
 
 This is just a helper, until everything is converted to Task files.
@@ -32,7 +31,7 @@ TASK files are used:
 
 2. In Github Actions for CI and CD, along with TOFU files.
 
-3. In Production for Upgrades, along with Tofu files.
+3. In Production for Upgrades, along with TOFU files.
 
 
 ```sh
