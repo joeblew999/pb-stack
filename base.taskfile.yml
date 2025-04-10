@@ -38,9 +38,6 @@ vars:
   BASE_PACK_NAME: '.pack'
   BASE_PACK: '{{.BASE_SRC}}/{{.BASE_PACK_NAME}}'
 
-  # Our base helpers ( many to help with cross OS differences, cause u-root is not good enough )
-  BASE_AMP_WHICH_BIN_NAME: amp-which
-  BASE_AMP_WHICH_BIN_VERSION: latest
 
   # Lastly, calculate the OS Paths, so we do not pollute the OS.
   # Windows PS its "$env:Path" get whats on the PATH
@@ -50,6 +47,16 @@ vars:
   # https://github.com/go-task/task/releases/tag/v3.42.1
   BASE_TASK_VERSION: v3.42.1
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
+
+  ### shell : Our base helpers ( many to help with cross OS differences, cause u-root is not good enough )
+  BASE_SHELL_WHICH_BIN_NAME: amp-which
+  BASE_SHELL_WHICH_BIN_VERSION: latest
+
+  BASE_SHELL_TREE_BIN_NAME: amp-tree
+  BASE_SHELL_TREE_BIN_VERSION: latest
+
+  BASE_SHELL_WGOT_BIN_NAME: amp-wgot
+  BASE_SHELL_WGOT_BIN_VERSION: latest
 
 env:
   # export Path to include our .bin and .dep
@@ -181,7 +188,7 @@ tasks:
       - echo 'testing base  ...'
       - '{{.BASE_TASK_CMD}} base:clean'
       - '{{.BASE_TASK_CMD}} base:bin'
-      - '{{.BASE_TASK_CMD}} base:run-which-test'
+      - '{{.BASE_TASK_CMD}} base:shell-which-test'
     silent: false
 
   clean:
@@ -189,9 +196,18 @@ tasks:
     cmds:
       - echo ''
       - echo 'cleaning base  ...'
-      - rm -rf {{.BASE_BIN}}
-      - rm -rf {{.BASE_DEP}}
-      - rm -rf {{.BASE_PACK}}
+      - rm -rf *{{.BASE_BIN}}
+      - rm -rf *{{.BASE_DEP}}
+      - rm -rf *{{.BASE_PACK}}
+    silent: false
+  clean-list:
+    desc: base clean list, lists what is cleaned from the base folders.
+    cmds:
+      - echo ''
+      - echo 'cleaning base  ...'
+      - ls -al {{.BASE_BIN}}
+      - ls -al *{{.BASE_DEP}}
+      - ls -al *{{.BASE_PACK}}
     silent: false
 
   bin:
@@ -205,25 +221,67 @@ tasks:
       - mkdir -p {{.BASE_DEP}}
       - mkdir -p {{.BASE_PACK}}
       - echo ''
-      - echo '2. Installing base tools ...'
+      - echo '2. Installing base shell tools ...'
       - echo ''
       - echo '- which tool ...'
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_AMP_WHICH_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_AMP_WHICH_BIN_NAME}}
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo ''
+      - echo '- tree tool ...'
+      # https://github.com/a8m/tree/cmd/tree
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/tree {{.BASE_DEP}}/{{.BASE_SHELL_TREE_BIN_NAME}}
+      - echo '- wgot tool ...'
+      # https://github.com/a8m/tree/cmd/tree
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/wgot {{.BASE_DEP}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+
       - echo ''
       - echo 'TODO - add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
 
-  run-which-h:
+  bin-list:
+    desc: base bin list, lists what is installed in the bin folders.
+    cmds:
+      - echo ''
+      - echo 'listing base shell tools ...'
+      - echo ''
+      - ls -al {{.BASE_BIN}}
+      - ls -al {{.BASE_DEP}}
+      - ls -al {{.BASE_PACK}}
+    silent: false
+    
+
+  shell-tree-h:
+    desc: tree is a cross platform **tree** command.
+    cmds:
+      - '{{.BASE_SHELL_TREE_BIN_NAME}} --help'
+  shell-tree:
+    desc: tree is a cross platform **tree** command.
+    cmds:
+      - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l  --dirsfirst -C'
+
+  shell-wgot-h:
+    desc: wgot is a cross platform **wget** command.
+    cmds:
+      - '{{.BASE_SHELL_WGOT_BIN_NAME}} --help'
+  shell-wgot:
+    desc: wgot is a cross platform **wget** command. E:G task base:shell-wgot -- https://example.com/file.mp4
+    cmds:
+      # https://github.com/bitrise-io/got
+      # got -o /path/to/save https://example.com/file.mp4
+      - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}}'
+
+  shell-which-h:
     desc: which is a cross platform **which** command.
     cmds:
-      - '{{.BASE_AMP_WHICH_BIN_NAME}} -h'
-  run-which:
-    desc: find binary.
+      - '{{.BASE_SHELL_WHICH_BIN_NAME}} -h'
+  shell-which:
+    desc: find binary. E.G task base:shell-which -- which
     cmds:
-      - '{{.BASE_AMP_WHICH_BIN_NAME}} {{.CLI_ARGS}}'
-  run-which-test:
-    desc: find binary.
+      - '{{.BASE_SHELL_WHICH_BIN_NAME}} {{.CLI_ARGS}}'
+  shell-which-test:
+    desc: test finds the task binary.
     cmds:
-      - '{{.BASE_AMP_WHICH_BIN_NAME}} {{.TASK_EXE}}'
+      - '{{.TASK_EXE}} base:shell-which -- {{.TASK_EXE}}'
 

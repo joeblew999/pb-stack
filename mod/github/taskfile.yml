@@ -13,7 +13,7 @@ vars:
   GH_BIN_VERSION: latest
   #GH_BIN_VERSION: v2.69.0
 
-  GH_BIN_WHICH: task base:run-which
+  GH_BIN_WHICH: task base:shell-which
 
 tasks:
   default:
