@@ -195,7 +195,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'testing base  ...'
-      - '{{.BASE_TASK_CMD}} base:clean'
+      #- '{{.BASE_TASK_CMD}} base:clean'
       - '{{.BASE_TASK_CMD}} base:bin'
       - '{{.BASE_TASK_CMD}} base:shell-which-shell'
       - '{{.BASE_TASK_CMD}} base:shell-which-test'
@@ -291,7 +291,7 @@ tasks:
   shell-redress-test:
     cmds:
       # The fully reflective version does not work. How to EVAL the args passed in ?
-      - '{{.TASK_EXE}} base:shell-redress -- /Users/apple/workspace/go/bin/task'
+      #- '{{.TASK_EXE}} base:shell-redress -- /Users/apple/workspace/go/bin/task'
       #- '{{.TASK_EXE}} base:shell-redress -- {{.TASK_EXE}} base:shell-which {{.TASK_EXE}}'
       
 

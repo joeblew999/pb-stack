@@ -74,12 +74,15 @@ jobs:
           go-version: '${{matrix.go-version}}'
           cache-dependency-path: 'go.sum'
 
-    
-      # List all base task commands
-      - name: task 
+      # List all task commands
+      - name: task list
         run: task --yes
 
-      # Test all base task variables resolved.
+      # List all base task commands
+      - name: task base
+        run: task base --yes
+
+      # Test all base tasks
       - name: task base:test
         run: task base:test --yes
         
