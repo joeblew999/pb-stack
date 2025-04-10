@@ -49,13 +49,16 @@ vars:
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
 
   ### shell : Our base helpers ( many to help with cross OS differences, cause u-root is not good enough )
-  BASE_SHELL_WHICH_BIN_NAME: amp-which
+  BASE_SHELL_WHICH_BIN_NAME: shell-which
   BASE_SHELL_WHICH_BIN_VERSION: latest
 
-  BASE_SHELL_TREE_BIN_NAME: amp-tree
+  BASE_SHELL_REPLACE_BIN_NAME: shell-replace
+  BASE_SHELL_REPLACE_BIN_VERSION: latest
+
+  BASE_SHELL_TREE_BIN_NAME: shell-tree
   BASE_SHELL_TREE_BIN_VERSION: latest
 
-  BASE_SHELL_WGOT_BIN_NAME: amp-wgot
+  BASE_SHELL_WGOT_BIN_NAME: shell-wgot
   BASE_SHELL_WGOT_BIN_VERSION: latest
 
 env:
@@ -177,7 +180,7 @@ tasks:
       - echo '1. Installing latest Task ...'
       # https://github.com/go-task/task/releases/tag/v3.42.1
       #- go install github.com/go-task/task/v3/cmd/task@latest
-      - go install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION}}
+      - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION}}'
       # TODO: Flip to Winget for Windows, as all windows have it. winget install Task.Task
     silent: false
 
@@ -236,6 +239,9 @@ tasks:
       # https://github.com/a8m/tree/cmd/tree
       - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}
       - mv {{.BASE_DEP}}/wgot {{.BASE_DEP}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+      # https://github.com/webdevops/go-replace
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/go-replace {{.BASE_DEP}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
 
       - echo ''
       - echo 'TODO - add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
@@ -246,18 +252,28 @@ tasks:
       - echo ''
       - echo 'listing base shell tools ...'
       - echo ''
+      - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_BIN}}'
       - ls -al {{.BASE_BIN}}
       - ls -al {{.BASE_DEP}}
       - ls -al {{.BASE_PACK}}
     silent: false
     
+  shell-replace-h:
+    desc: replace is a cross platform **replace** command.
+    cmds:
+      - '{{.BASE_SHELL_REPLACE_BIN_NAME}} --help'
+  shell-replace:
+    desc: replace is a cross platform **replace** command. E.G task base:shell-replace -- aa
+    cmds:
+      - '{{.BASE_SHELL_REPLACE_BIN_NAME}} {{.CLI_ARGS}}'
+      
 
   shell-tree-h:
     desc: tree is a cross platform **tree** command.
     cmds:
       - '{{.BASE_SHELL_TREE_BIN_NAME}} --help'
   shell-tree:
-    desc: tree is a cross platform **tree** command.
+    desc: tree is a cross platform **tree** command. E.G task base:shell-tree -- {{.BASE_BIN}}
     cmds:
       - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l  --dirsfirst -C'
 
