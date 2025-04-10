@@ -21,7 +21,7 @@ vars:
   BASE_USER: '{{.USER}}'
 
   # Project (always named like project root '_' cmd path), as in go projects cmd is the entry point. 
-  BASE_SRC_NAME: base_name
+  #BASE_SRC_NAME: base_name
 
   # Our dot folders.
   # We want this to be where the Task file is.
@@ -38,14 +38,16 @@ vars:
   BASE_PACK_NAME: '.pack'
   BASE_PACK: '{{.BASE_SRC}}/{{.BASE_PACK_NAME}}'
 
-
-  # Lastly, calculate the OS Paths, so we do not pollute the OS.
+  # Add .DEP and .BIN to the PATH, so we do not pollute the OS.
   # Windows PS its "$env:Path" get whats on the PATH
   BASE_PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
 
   # Simple wrapper to apply defaults.
   # https://github.com/go-task/task/releases/tag/v3.42.1
   BASE_TASK_VERSION: v3.42.1
+  # https://github.com/go-task/task/tree/recursive-config-search
+  BASE_TASK_VERSION: recursive-config-search
+
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
 
   ### shell : Our base helpers ( many to help with cross OS differences, cause u-root is not good enough )
@@ -68,14 +70,20 @@ vars:
 
 
 env:
+  # https://github.com/go-task/task/issues/202
+
   # export Path to include our .bin and .dep
   #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
   #export PATH:=$(PATH):$(BASE_PWD_BIN)
   # https://github.com/go-task/task/issues/202
 
   #PATH: '{{.BASE_PATH}}'
-  # try to make windows happy.
+  # '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
+  # mac
   PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
+  # windows
+  #PATH:
+  #  sh: '{{.BASE_DEP}};{{.BASE_BIN}}'
   
 tasks:
   default:
@@ -189,6 +197,13 @@ tasks:
       - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION}}'
       # TODO: Flip to Winget for Windows, as all windows have it. winget install Task.Task
     silent: false
+
+  experiments:
+    desc: base experiments, checks the experiments status.
+    cmds:
+      - echo ''
+      - echo 'task experiments  ...'
+      - '{{.BASE_TASK_CMD}} --experiments'
 
   test:
     desc: base test, checks that base is working.

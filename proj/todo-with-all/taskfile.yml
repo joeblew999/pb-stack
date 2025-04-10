@@ -5,6 +5,7 @@
 version: '3'
 
 
+
 # MUST have this ONLY in root for env variables to work.
 #dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
@@ -21,15 +22,18 @@ includes:
     # https://github.com/saydulaev/taskfile
     taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
 
+
 vars:
   BASE_SRC_NAME: todo
   TODO_GREETING: Hello, from todo project !
  
+
 tasks:
   default:
     desc: todo print
     cmds:
-      - echo "{{.TODO_GREETING}}"
+      - echo ''
+      - echo '{{.TODO_GREETING}}'
     silent: true
   bin:
     cmds:
