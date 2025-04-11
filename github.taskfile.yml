@@ -1,0 +1,21 @@
+# https://taskfile.dev
+
+# github
+
+version: '3'
+
+vars:
+  GITHUB_CI: '{{.GITHUB_BIN_NAME}}'
+  
+tasks:
+  default:
+    desc: github print
+    cmds:
+      - echo ''
+      - echo '- github'
+      - echo 'GITHUB_CI:'     {{.GITHUB_CI}}
+      - echo ''
+    silent: true
+
+  
+      

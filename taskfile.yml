@@ -12,6 +12,7 @@ includes:
 
   # task for devtime
   git: ./git.taskfile.yml
+  github: ./github.taskfile.yml
   go: ./go.taskfile.yml
   #vscode: ./vscode.taskfile.yml
 

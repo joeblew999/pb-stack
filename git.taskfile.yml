@@ -29,12 +29,12 @@ vars:
   # GIT_SIGNING_KEY_PRIV=$HOME/.ssh/jowblew999_github.com
 
 
-  # GIT_HUB_ORG_NAME
-  #GIT_HUB_ORG_NAME: 'joeblew999'
-  GIT_SIGNING_USER_NAME: '{{.GIT_HUB_ORG_NAME}}'
-  GIT_SIGNING_USER_EMAIL: '{{.GIT_HUB_ORG_NAME}}@gmail.com'
-  GIT_SIGNING_KEY_PRIV: '{{.HOME}}/.ssh/{{.GIT_HUB_ORG_NAME}}_github.com'
-  GIT_SIGNING_KEY: '{{.HOME}}/.ssh/{{.GIT_HUB_ORG_NAME}}_github.com'
+  # GIT_ORG_NAME
+  #GIT_ORG_NAME: 'joeblew999'
+  GIT_SIGNING_USER_NAME: '{{.GIT_ORG_NAME}}'
+  GIT_SIGNING_USER_EMAIL: '{{.GIT_ORG_NAME}}@gmail.com'
+  GIT_SIGNING_KEY_PRIV: '{{.HOME}}/.ssh/{{.GIT_ORG_NAME}}_github.com'
+  GIT_SIGNING_KEY: '{{.HOME}}/.ssh/{{.GIT_ORG_NAME}}_github.com'
 
   # var 
   GIT_GITROOT:
@@ -56,7 +56,7 @@ tasks:
       - echo 'GIT_BIN_VERSION:'              {{.GIT_BIN_VERSION}}
       - echo ''
       - echo '- github (env)'
-      - echo 'GIT_HUB_ORG_NAME:'             {{.GIT_HUB_ORG_NAME}}
+      - echo 'GIT_ORG_NAME:'             {{.GIT_ORG_NAME}}
       - echo ''
       - echo '- signing (env)'
       - echo 'GIT_SIGNING_USER_NAME:'        {{.GIT_SIGNING_USER_NAME}}
