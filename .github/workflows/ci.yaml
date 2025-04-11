@@ -56,7 +56,7 @@ jobs:
 
     steps:
       
-      - run: echo 'Check env : BASE_TASK_VERSION_ENV is : ${BASE_TASK_VERSION_ENV}'
+      - run: echo 'Check env, BASE_TASK_VERSION_ENV is ${BASE_TASK_VERSION_ENV}'
 
       # https://github.com/arduino/setup-task
       # TODO: Get TASK version from .env, so it single sourced.
