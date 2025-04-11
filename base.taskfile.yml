@@ -223,6 +223,8 @@ tasks:
       #- go install github.com/go-task/task/v3/cmd/task@latest
       - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION}}'
       # TODO: Flip to Winget for Windows, as all windows have it. winget install Task.Task
+      # TODO: upgrade all shell binaries too.
+      - echo ''
     silent: false
 
   experiments:
