@@ -3,21 +3,66 @@
 version: '3'
 
 vars:
-  # OS
-  # '/bin/zsh'  
+
+  ### task
+
+  # Task version to use.
+  # Issue: .env variable does NOT override variables.
+  # https://github.com/go-task/task/releases/tag/v3.42.1
+  BASE_TASK_VERSION: v3.42.1
+  # https://github.com/go-task/task/tree/recursive-config-search
+  #BASE_TASK_VERSION: recursive-config-search
+
+  # Simple wrapper to apply defaults.
+  BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
+
+
+  ### shell
+  
+  # E.G: '/bin/zsh'  
+  # Issue: this only works on Darwin. 
   BASE_SHELL: '{{.SHELL}}'
+
+  # E:G: 'darwin'
   BASE_SHELL_OS_NAME:
     sh: uname -s | tr A-Z a-z
+
+  # E.G: 'x86_64'
   BASE_SHELL_OS_ARCH:
     sh: uname -m | tr A-Z a-z
+
+  # help with cross OS differences, cause u-root is not good enough.
+  BASE_SHELL_WHICH_BIN_NAME: shell-which
+  BASE_SHELL_WHICH_BIN_VERSION: latest
+
+  BASE_SHELL_REPLACE_BIN_NAME: shell-replace
+  BASE_SHELL_REPLACE_BIN_VERSION: latest
+
+  BASE_SHELL_TREE_BIN_NAME: shell-tree
+  BASE_SHELL_TREE_BIN_VERSION: latest
+
+  BASE_SHELL_WGOT_BIN_NAME: shell-wgot
+  BASE_SHELL_WGOT_BIN_VERSION: latest
+
+  BASE_SHELL_REDRESS_BIN_NAME: shell-redress
+  # https://github.com/goretk/redress/releases/tag/v1.2.24
+  BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
+
+
+  ### binary
+  BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
+  
+
+  ### goos
   BASE_GOOS_NAME:
     sh: go env GOOS
   BASE_GOOS_ARCH:
     sh: go env GOARCH
 
   # OS User
+  # E.G: '/Users/apple'
   BASE_HOME: '{{.HOME}}'
-  # 'apple'
+  # E.G: 'apple'
   BASE_USER: '{{.USER}}'
 
   # Project (always named like project root '_' cmd path), as in go projects cmd is the entry point. 
@@ -26,6 +71,7 @@ vars:
   # Our dot folders.
   # We want this to be where the Task file is.
   BASE_SRC: '{{.USER_WORKING_DIR}}'
+
   # We want BIN near the SRC
   BASE_BIN_NAME: '.bin'
   BASE_BIN: '{{.BASE_SRC}}/{{.BASE_BIN_NAME}}'
@@ -42,30 +88,6 @@ vars:
   # Windows PS its "$env:Path" get whats on the PATH
   BASE_PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
 
-  # Simple wrapper to apply defaults.
-  # https://github.com/go-task/task/releases/tag/v3.42.1
-  BASE_TASK_VERSION: v3.42.1
-  # https://github.com/go-task/task/tree/recursive-config-search
-  BASE_TASK_VERSION: recursive-config-search
-
-  BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
-
-  ### shell : Our base helpers ( many to help with cross OS differences, cause u-root is not good enough )
-  BASE_SHELL_WHICH_BIN_NAME: shell-which
-  BASE_SHELL_WHICH_BIN_VERSION: latest
-
-  BASE_SHELL_REPLACE_BIN_NAME: shell-replace
-  BASE_SHELL_REPLACE_BIN_VERSION: latest
-
-  BASE_SHELL_TREE_BIN_NAME: shell-tree
-  BASE_SHELL_TREE_BIN_VERSION: latest
-
-  BASE_SHELL_WGOT_BIN_NAME: shell-wgot
-  BASE_SHELL_WGOT_BIN_VERSION: latest
-
-  BASE_SHELL_REDRESS_BIN_NAME: shell-redress
-  # https://github.com/goretk/redress/releases/tag/v1.2.24
-  BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
 
 
 
@@ -96,6 +118,11 @@ tasks:
       - echo 'BASE_SHELL:'            {{.BASE_SHELL}}
       - echo 'BASE_SHELL_OS_NAME:'    {{.BASE_SHELL_OS_NAME}}
       - echo 'BASE_SHELL_OS_ARCH:'    {{.BASE_SHELL_OS_ARCH}}
+      - echo ''
+      - echo '- binary'
+      - echo 'BASE_BINARY_EXTENSION:' {{.BASE_BINARY_EXTENSION}}
+      - echo ''
+      - echo '- goos'
       - echo 'BASE_GOOS_NAME:'        {{.BASE_GOOS_NAME}}
       - echo 'BASE_GOOS_ARCH:'        {{.BASE_GOOS_ARCH}}
       - echo ''
@@ -340,21 +367,37 @@ tasks:
       # got -o /path/to/save https://example.com/file.mp4
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}}'
 
+
+
+  shell-which-dep:
+    desc: installs which, if not present.
+    cmds:
+      - echo '- which tool dep ...'
+      
+      # https://github.com/hairyhenderson/go-which/tree/main/cmd
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
+      - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo ''
+  shell-which-dep-del:
+    desc: deletes which
+    cmds:
+      - echo '- which tool del ...'
+      - rm -rf {{.BASE_DEP}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo ''
   shell-which-h:
     desc: which is a cross platform **which** command.
     cmds:
       - '{{.BASE_SHELL_WHICH_BIN_NAME}} -h'
-
   shell-which:
     desc: find binary. E.G task base:shell-which -- which
     cmds:
       - '{{.BASE_SHELL_WHICH_BIN_NAME}} {{.CLI_ARGS}}'
   shell-which-test:
-    desc: test finds the task binary.
+    desc: which test finds the task binary.
     cmds:
       - '{{.TASK_EXE}} base:shell-which -- {{.TASK_EXE}}'
   shell-which-shell: 
-    desc: shell finds the shell binary
+    desc: which shell finds the shell binary.
     cmds:
       - '{{.TASK_EXE}} base:shell-which -- {{.BASE_SHELL}}'
       

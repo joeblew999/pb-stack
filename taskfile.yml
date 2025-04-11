@@ -55,7 +55,9 @@ tasks:
       - echo ''
       - echo 'Building all ...'
       - '{{.BASE_TASK_CMD}} go:bin'
-      
+      # mod
+      - cd mod/caddy && {{.BASE_TASK_CMD}} go:bin
+      # proj
       - cd proj/todo-empty && {{.BASE_TASK_CMD}} go:bin
       - cd proj/todo-with-all && {{.BASE_TASK_CMD}} go:bin
       #- cd proj/todo-with-task && task go:bin

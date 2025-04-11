@@ -5,7 +5,9 @@
 version: '3'
 
 vars:
+  BASE_SRC_NAME: caddy
   CADDY_GREETING: Hello, from CADDY !
+
 
 tasks:
   default:
@@ -18,3 +20,9 @@ tasks:
     cmds:
       - echo "{{.CADDY_GREETING}}"
     silent: true
+  bin:
+    desc: caddy build
+    cmds:
+      - task go:bin
+    silent: true
+  
