@@ -9,9 +9,19 @@ vars:
   # Task version to use.
   # Issue: .env variable does NOT override variables.
   # https://github.com/go-task/task/releases/tag/v3.42.1
+
   BASE_TASK_VERSION: v3.42.1
-  # https://github.com/go-task/task/tree/recursive-config-search
-  #BASE_TASK_VERSION: recursive-config-search
+  
+# .env ( do not uncomment)
+  #BASE_TASK_VERSION_ENV: v3.42.1
+
+  # evaluated, ONLY if task is installed.
+  BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
+    #sh: '{{.BASE_TASK_EXE}} --version'
+    #sh: 
+
+  
+
 
   # Simple wrapper to apply defaults.
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
@@ -89,8 +99,6 @@ vars:
   BASE_PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
 
 
-
-
 env:
   # https://github.com/go-task/task/issues/202
 
@@ -129,8 +137,8 @@ tasks:
       - echo '- user'
       - echo 'BASE_HOME:'             {{.BASE_HOME}}
       - echo 'BASE_USER:'             {{.BASE_USER}}
-      
       - echo ''
+      - echo '- dot folders'
       - echo 'BASE_SRC_NAME:'         {{.BASE_SRC_NAME}}
       - echo ''
       - echo 'BASE_SRC:'              {{.BASE_SRC}}
@@ -144,20 +152,24 @@ tasks:
       - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
       - echo 'BASE_PACK:'             {{.BASE_PACK}}
       - echo ''
-      - echo ''
+      - echo '- env path'
       - echo 'PATH:'                  {{.PATH}}
       - echo ''
       - echo 'BASE_PATH:'             {{.BASE_PATH}}
       - echo ''
-      - echo 'BASE_TASK_VERSION:'     {{.BASE_TASK_VERSION}}
-      - echo 'BASE_TASK_CMD:'         {{.BASE_TASK_CMD}}
-      
       - echo ''
       - echo ''
       - echo '- task'
       - echo ''
-      - echo '- task bin'
+      # So we can upgrade task on the fly.
+      - echo 'BASE_TASK_VERSION:'         {{.BASE_TASK_VERSION}}
+      - echo 'BASE_TASK_VERSION_ENV:'     {{.BASE_TASK_VERSION_ENV}}
+      - echo 'BASE_TASK_VERSION_WHICH:'   {{.BASE_TASK_VERSION_WHICH}}
       - echo ''
+      - echo 'BASE_TASK_CMD:'         {{.BASE_TASK_CMD}}
+      - echo ''
+      # Task allows you to configure some behavior using environment variables. 
+      # This lists all the environment variables that Task supports.
       # https://taskfile.dev/reference/environment/
       - echo '- task env'
       - echo 'TASK_TEMP_DIR:'         {{.TASK_TEMP_DIR}}
@@ -265,7 +277,7 @@ tasks:
     silent: false
 
   bin:
-    desc: base bin, installs shell level components.
+    desc: base:bin, installs shell level components.
     cmds:
       - echo ''
       - echo 'installing base shell tools ...'
