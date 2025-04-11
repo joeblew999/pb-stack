@@ -1,0 +1,28 @@
+# https://taskfile.dev
+
+# caddy
+
+version: '3'
+
+vars:
+  BASE_SRC_NAME: dns
+  DNS_GREETING: Hello, from DNS !
+
+
+tasks:
+  default:
+    desc: print
+    cmds:
+      - echo "{{.DNS_GREETING}}"
+    silent: true
+  dep:
+    desc: dep
+    cmds:
+      
+    silent: true
+  bin:
+    desc: build
+    cmds:
+      - task go:bin
+    silent: true
+  
