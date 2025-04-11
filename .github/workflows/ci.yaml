@@ -87,18 +87,18 @@ jobs:
 
       # List all github values
       - name: task github
-        run: task --yes github 
+        run: task --yes ci 
 
       # List all base task commands
       - name: task base
-        run: task base --yes
+        run: task --yes base
 
       # Test all base tasks
       - name: task base:test
-        run: task base:test --yes
+        run: task --yes base:test
 
       - name: task git
-        run: task git --yes
+        run: task --yes git
 
       #- name: task go
       #  run: task go --yes
