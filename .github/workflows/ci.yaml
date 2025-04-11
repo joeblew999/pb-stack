@@ -39,6 +39,8 @@ on:
 
 permissions: 
   packages: write
+
+env_file: .env
   
 jobs:
   build:
@@ -53,6 +55,9 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
+      
+      - run: echo 'Check env: BASE_TASK_VERSION_ENV=${{ env.BASE_TASK_VERSION_ENV }}'
+
       # https://github.com/arduino/setup-task
       # TODO: Get TASK version from .env, so it single sourced.
       - name: Install Task
