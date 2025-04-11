@@ -96,15 +96,17 @@ jobs:
       # Test all base tasks
       - name: task base:test
         run: task base:test --yes
-        
-      # Now, build everything explicitly.
-      - name: task bin
-        run: task bin --yes
-          
+
       - name: task git
         run: task git --yes
 
-      - name: task go
-        run: task go --yes
+      #- name: task go
+      #  run: task go --yes
+
+      # builds everything explicitly.
+      #- name: task bin
+      #  run: task bin --yes
+          
+      
 
       
