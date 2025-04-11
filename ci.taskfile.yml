@@ -1,12 +1,25 @@
 # https://taskfile.dev
 
 # ci
+
+# TODO:
+# Add OS
+# Add Codeberg ( which uses WOODPECKER)
+
+# refs:
 # https://github.com/watson/ci-info
+# https://github.com/hofstadter-io/cinful/blob/main/vendors.json
+
 version: '3'
 
 vars:
-  CI_GITHUB: '{{.CI}}'
-  CI_GITHUB_ACTIONS: '{{.GITHUB_ACTIONS}}'
+  # github
+  CI_GITHUB:                '{{.CI}}'
+  CI_GITHUB_ACTIONS:        '{{.GITHUB_ACTIONS}}'
+  CI_GITHUB_EVENT_NAME:     '{{.GITHUB_EVENT_NAME}}'
+  # codeberg ( woodpecker)
+  CI_WOODPECKER:            '{{.CI}}'
+  
   
 tasks:
   default:
@@ -16,8 +29,14 @@ tasks:
       - echo '- github'
       - echo 'CI_GITHUB:'             {{.CI_GITHUB}}
       - echo 'CI_GITHUB_ACTIONS:'     {{.CI_GITHUB_ACTIONS}}
+      - echo 'CI_GITHUB_EVENT_NAME:'  {{.CI_GITHUB_EVENT_NAME}}
+      - echo ''
+      - echo '- codeberg'
+      - echo 'CI_WOODPECKER:'          {{.CI_WOODPECKER}}
       - echo ''
     silent: true
+
+
 
   
       
