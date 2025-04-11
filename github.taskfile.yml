@@ -5,7 +5,7 @@
 version: '3'
 
 vars:
-  GITHUB_CI: '{{.GITHUB_BIN_NAME}}'
+  GITHUB_CI: '{{.CI}}'
   
 tasks:
   default:
