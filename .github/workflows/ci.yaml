@@ -59,8 +59,9 @@ jobs:
         uses: arduino/setup-task@v2
         with:
           #version: 'latest'
-          #version: '3.42.1'
-          version: 'recursive-config-search'
+          version: '3.42.1'
+          # FAILS, as it cant find it.
+          #version: 'recursive-config-search'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
