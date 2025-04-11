@@ -53,15 +53,24 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - run: echo 'BASE_TASK_VERSION_ENV is $BASE_TASK_VERSION_ENV'
+      - name: READ ENV for Task
+        run: echo 'BASE_TASK_VERSION_ENV is $BASE_TASK_VERSION_ENV'
+
+      # https://github.com/actions/setup-go
+      - name: Set up Go ${{matrix.go-version}}
+        uses: actions/setup-go@v5
+        with:
+          go-version: '${{matrix.go-version}}'
+          cache-dependency-path: 'go.sum'
 
       # https://github.com/arduino/setup-task
       # TODO: Get TASK version from .env, so it single sourced.
-      - name: Install Task
+      - name: Install Task via action
         uses: arduino/setup-task@v2
         with:
           #version: 'latest'
-          version: '3.42.1'
+          version: 'v3.39.2'
+          #version: '3.42.1'
           # FAILS, as it cant find it.
           #version: 'recursive-config-search'
         env:
@@ -74,16 +83,15 @@ jobs:
         with:
           submodules: recursive
 
-      # https://github.com/actions/setup-go
-      - name: Set up Go ${{matrix.go-version}}
-        uses: actions/setup-go@v5
-        with:
-          go-version: '${{matrix.go-version}}'
-          cache-dependency-path: 'go.sum'
+      
 
       # List all task commands
       #- name: task list
       #  run: task --yes
+
+      # List all github values
+      - name: task upgrade to env
+        run: task --yes base:upgrade
 
       # List all github values
       - name: task github

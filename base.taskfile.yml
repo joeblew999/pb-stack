@@ -9,16 +9,15 @@ vars:
   # Task version to use.
   # Issue: .env variable does NOT override variables.
   # https://github.com/go-task/task/releases/tag/v3.42.1
+  # https://github.com/go-task/task/releases/tag/v3.39.2
 
-  BASE_TASK_VERSION: v3.42.1
+  BASE_TASK_VERSION_DEFAULT: v3.42.1
   
 # .env ( do not uncomment)
   #BASE_TASK_VERSION_ENV: v3.42.1
 
   # evaluated, ONLY if task is installed.
   BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
-    #sh: '{{.BASE_TASK_EXE}} --version'
-    #sh: 
 
   
 
@@ -162,9 +161,9 @@ tasks:
       - echo '- task'
       - echo ''
       # So we can upgrade task on the fly.
-      - echo 'BASE_TASK_VERSION:'         {{.BASE_TASK_VERSION}}
-      - echo 'BASE_TASK_VERSION_ENV:'     {{.BASE_TASK_VERSION_ENV}}
-      - echo 'BASE_TASK_VERSION_WHICH:'   {{.BASE_TASK_VERSION_WHICH}}
+      - echo 'BASE_TASK_VERSION_DEFAULT:'    {{.BASE_TASK_VERSION_DEFAULT}}
+      - echo 'BASE_TASK_VERSION_ENV:'        {{.BASE_TASK_VERSION_ENV}}
+      - echo 'BASE_TASK_VERSION_WHICH:'      {{.BASE_TASK_VERSION_WHICH}}
       - echo ''
       - echo 'BASE_TASK_CMD:'         {{.BASE_TASK_CMD}}
       - echo ''
@@ -233,7 +232,7 @@ tasks:
       - echo '1. Installing latest Task ...'
       # https://github.com/go-task/task/releases/tag/v3.42.1
       #- go install github.com/go-task/task/v3/cmd/task@latest
-      - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION}}'
+      - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION_ENV}}'
       # TODO: Flip to Winget for Windows, as all windows have it. winget install Task.Task
       # TODO: upgrade all shell binaries too.
       - echo ''
