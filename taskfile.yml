@@ -7,25 +7,25 @@ version: '3'
 dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  # base for all
-  base: ./base.taskfile.yml
+  # base for all, with variables used for by most other includes.
+  base:				./base.taskfile.yml
 
-  # task for devtime
-  git: ./git.taskfile.yml
-  github: ./github.taskfile.yml
-  go: ./go.taskfile.yml
+  # task for devtime. Best to have them always loaded.
+  git:				./git.taskfile.yml
+  github:     ./github.taskfile.yml
+  go:         ./go.taskfile.yml
   #vscode: ./vscode.taskfile.yml
 
   
-  # task for runtime
-  caddy: ./mod/caddy
+  # task for runtime.
+  caddy:      ./mod/caddy
   cloudflare: ./mod/cloudflare
-  compose: ./mod/compose
-  datastar: ./mod/datastar
-  gh: ./mod/github
-  kamal: ./mod/kamal
-  minio: ./mod/minio
-  pb: ./mod/pocketbase
+  compose:    ./mod/compose
+  datastar: 	./mod/datastar
+  gh: 				./mod/github
+  kamal: 			./mod/kamal
+  minio: 			./mod/minio
+  pb: 				./mod/pocketbase
   #reck: ./mod/reck/taskfile.yml
   remote:
     # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
