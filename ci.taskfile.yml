@@ -1,0 +1,23 @@
+# https://taskfile.dev
+
+# ci
+# https://github.com/watson/ci-info
+version: '3'
+
+vars:
+  CI_GITHUB: '{{.CI}}'
+  CI_GITHUB_ACTIONS: '{{.GITHUB_ACTIONS}}'
+  
+tasks:
+  default:
+    desc: github print
+    cmds:
+      - echo ''
+      - echo '- github'
+      - echo 'CI_GITHUB:'             {{.CI_GITHUB}}
+      - echo 'CI_GITHUB_ACTIONS:'     {{.CI_GITHUB_ACTIONS}}
+      - echo ''
+    silent: true
+
+  
+      

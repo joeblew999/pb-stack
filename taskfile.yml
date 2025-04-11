@@ -12,7 +12,7 @@ includes:
 
   # task for devtime. Best to have them always loaded.
   git:				./git.taskfile.yml
-  github:     ./github.taskfile.yml
+  ci:     		./ci.taskfile.yml
   go:         ./go.taskfile.yml
   #vscode: ./vscode.taskfile.yml
 
