@@ -57,7 +57,7 @@ jobs:
       - name: Load .env file, if present.
         uses: aarcangeli/load-dotenv@v1
         with:
-          path: '.'
+          path: './.github/workflows/'
           filenames: '.ci.env'
           quiet: 'false'
           if-file-not-found: 'error'
