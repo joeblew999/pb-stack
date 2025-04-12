@@ -21,7 +21,7 @@ vars:
   GIT_BIN_WHICH:
     #sh: 'command -v {{.GIT_BIN_NAME}}'
   GIT_BIN_VERSION:
-    sh: '{{.GIT_BIN_NAME}} --version'
+    #sh: '{{.GIT_BIN_NAME}} --version'
 
   # env ( expected )
   # GIT_SIGNING_USER_NAME=joeblew999
