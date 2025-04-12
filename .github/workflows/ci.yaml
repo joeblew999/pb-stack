@@ -60,11 +60,11 @@ jobs:
           submodules: recursive
 
       # https://github.com/aarcangeli/load-dotenv
-      - name: Load .env file, if present.
+      - name: Load all.env file, if present.
         uses: aarcangeli/load-dotenv@v1
         with:
-          path: './.github/workflows/'
-          filenames: '.ci.env'
+          path: '.'
+          filenames: 'all.env'
           quiet: 'false'
           if-file-not-found: 'error'
           expand: 'true'
@@ -79,19 +79,23 @@ jobs:
           go-version: '${{matrix.go-version}}'
           cache-dependency-path: 'go.sum'
 
+      # Force TaskFile to version in the all.env
+      - name: Install Taskfile version
+        run: 	go install github.com/go-task/task/v3/cmd/task@$(BASE_TASK_VERSION_ENV)
+
       # https://github.com/arduino/setup-task
       # TODO: Get TASK version from .env, so it single sourced.
-      - name: Install Task via action
-        uses: arduino/setup-task@v2
-        with:
+      #- name: Install Task via action
+      #  uses: arduino/setup-task@v2
+      #  with:
           #version: 'latest' - FAILS
           #version: '3.39.2' - FAILS as has no REMOTE feature.
-          version: '3.42.1'
+      #    version: '3.42.1'
           # FAILS, as it cant find it.
           #version: 'recursive-config-search'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #  env:
+      #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #    repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       
 

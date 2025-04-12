@@ -17,8 +17,7 @@ See [Doc](../doc/README.md) folder for Project Info.
 
 ## Make
 
-We need task and golang installed ...
-
+We need task and golang installed to bootstrap.
 
 ```sh
 
@@ -42,13 +41,15 @@ TASK_BIN_WHICH_VERSION:   3.42.1
 
 ## Env
 
-Modify the .env to suit your own git and github credentials.
+Copy the -env-template to .env to suit your own git and github credentials.
 
-``ènv
+```sh
 
 ```
 
 ## Task
+
+THen Task takes over and does the next level of Bootstrap.
 
 https://taskfile.dev/reference/
 
@@ -66,8 +67,5 @@ TASK files are used:
 task 
 
 task base
-
-
-
 
 ```

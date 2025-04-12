@@ -107,7 +107,7 @@ env:
   # mac
   PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
   # windows
-  #PATH:
+  # set PATH=%PATH%;C:\your\path\here\
   #  sh: '{{.BASE_DEP}};{{.BASE_BIN}}'
   
 tasks:
@@ -250,6 +250,7 @@ tasks:
       - echo 'testing base  ...'
       #- '{{.BASE_TASK_CMD}} base:clean'
       - '{{.BASE_TASK_CMD}} base:bin'
+      - '{{.BASE_TASK_CMD}} base:shell-os-test'
       - '{{.BASE_TASK_CMD}} base:shell-which-shell'
       - '{{.BASE_TASK_CMD}} base:shell-which-test'
     silent: false
@@ -322,7 +323,19 @@ tasks:
       - ls -al {{.BASE_DEP}}
       - ls -al {{.BASE_PACK}}
     silent: false
-    
+
+
+  shell-os-test:
+    desc: shell-os is a cross platform switch command. 
+    cmds:
+      - cmd: echo 'building on windows/arm64'
+        platforms: [windows/arm64]
+      - cmd: echo 'building on linux/amd64'
+        platforms: [linux/amd64]
+      - cmd: echo 'building on darwin'
+        platforms: [darwin]
+
+
   shell-redress-h:
     desc: redress is a cross platform **redress** command.
     cmds:
@@ -330,7 +343,6 @@ tasks:
   shell-redress-version:
     cmds:
       - '{{.BASE_SHELL_REDRESS_BIN_NAME}} version'
-
   shell-redress:
     desc: redress is a cross platform **redress** command. E.G task base:shell-redress -- task
     cmds:
@@ -348,7 +360,6 @@ tasks:
       #- '{{.TASK_EXE}} base:shell-redress -- {{.TASK_EXE}} base:shell-which {{.TASK_EXE}}'
       
 
-      
   shell-replace-h:
     desc: replace is a cross platform **replace** command.
     cmds:
@@ -367,6 +378,7 @@ tasks:
     cmds:
       - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l  --dirsfirst -C'
 
+
   shell-wgot-h:
     desc: wgot is a cross platform **wget** command.
     cmds:
@@ -379,9 +391,8 @@ tasks:
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}}'
 
 
-
   shell-which-dep:
-    desc: installs which, if not present.
+    desc: installs which, if not present. The ONLY way we can check is to check the .BIN folder itself, because which will not work if WHICH is not installed :)
     cmds:
       - echo '- which tool dep ...'
       
@@ -395,21 +406,25 @@ tasks:
       - echo '- which tool del ...'
       - rm -rf {{.BASE_DEP}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
-  shell-which-h:
+  shell-which-h: 
     desc: which is a cross platform **which** command.
     cmds:
+      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - '{{.BASE_SHELL_WHICH_BIN_NAME}} -h'
   shell-which:
-    desc: find binary. E.G task base:shell-which -- which
+    desc: find a binary based on ARGS. E.G task base:shell-which -- go
     cmds:
+      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - '{{.BASE_SHELL_WHICH_BIN_NAME}} {{.CLI_ARGS}}'
   shell-which-test:
-    desc: which test finds the task binary.
+    desc: which test finds the TASK binary.
     cmds:
-      - '{{.TASK_EXE}} base:shell-which -- {{.TASK_EXE}}'
+      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
+      - '{{.BASE_TASK_CMD}} base:shell-which -- {{.TASK_EXE}}'
   shell-which-shell: 
-    desc: which shell finds the shell binary.
+    desc: which shell finds the shell binary. FAILS since cant get shell in CI linux yet.
     cmds:
-      - '{{.TASK_EXE}} base:shell-which -- {{.BASE_SHELL}}'
+      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
+      - '{{.BASE_TASK_CMD}} base:shell-which -- {{.BASE_SHELL}}'
       
 

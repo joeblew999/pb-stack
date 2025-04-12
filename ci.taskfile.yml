@@ -3,7 +3,7 @@
 # ci
 
 # TODO:
-# Add OS
+# Add OS detection and shell detection
 # Add Codeberg ( which uses WOODPECKER)
 
 # refs:
@@ -23,7 +23,7 @@ vars:
   
 tasks:
   default:
-    desc: github print
+    desc: ci print
     cmds:
       - echo ''
       - echo '- github'
@@ -35,6 +35,22 @@ tasks:
       - echo 'CI_WOODPECKER:'          {{.CI_WOODPECKER}}
       - echo ''
     silent: true
+  bin:
+    desc: install golang helper called cinful.
+    cmds:
+      - echo ''
+      - go install github.com/hofstadter-io/cinful/cmd/cinful@latest
+      #- mv to .BIN once PATH is working...
+      - echo ''
+    silent: false
+  run-h:
+    desc: run help.
+    cmds:
+      - cinful --help
+  run-list:
+    desc: run list.
+    cmds:
+      - cinful list
 
 
 
