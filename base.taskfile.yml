@@ -7,20 +7,15 @@ vars:
   ### task
 
   # Task version to use.
-  # Issue: .env variable does NOT override variables.
+  # Issue: .env variable do not override task variables.
   # https://github.com/go-task/task/releases/tag/v3.42.1
   # https://github.com/go-task/task/releases/tag/v3.39.2
 
   BASE_TASK_VERSION_DEFAULT: v3.42.1
-  
-# .env ( do not uncomment)
+  # .env ( do not uncomment)
   #BASE_TASK_VERSION_ENV: v3.42.1
-
   # evaluated, ONLY if task is installed.
   BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
-
-  
-
 
   # Simple wrapper to apply defaults.
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
@@ -29,7 +24,8 @@ vars:
   ### shell
   
   # E.G: '/bin/zsh'  
-  # Issue: this only works on Darwin. 
+  # Issue: this only works on Darwin.
+  # TODO: Need a cross platform version 
   BASE_SHELL: '{{.SHELL}}'
 
   # E:G: 'darwin'
@@ -167,6 +163,9 @@ tasks:
       - echo ''
       - echo 'BASE_TASK_CMD:'         {{.BASE_TASK_CMD}}
       - echo ''
+      # Task allows you to configure some behavior using experiments variables ( .taskrc.yml ) . 
+      - '{{.BASE_TASK_CMD}} base:experiments'
+      - echo ''
       # Task allows you to configure some behavior using environment variables. 
       # This lists all the environment variables that Task supports.
       # https://taskfile.dev/reference/environment/
@@ -175,8 +174,6 @@ tasks:
       - echo 'TASK_REMOTE_DIR:'       {{.TASK_REMOTE_DIR}}
       - echo 'TASK_OFFLINE:'          {{.TASK_OFFLINE}}
       - echo 'FORCE_COLOR:'           {{.FORCE_COLOR}}
-      
-      
       - echo ''
       # https://taskfile.dev/reference/templating/#special-variables
       - echo '- task vars'
@@ -236,14 +233,15 @@ tasks:
       # TODO: Flip to Winget for Windows, as all windows have it. winget install Task.Task
       # TODO: upgrade all shell binaries too.
       - echo ''
-    silent: false
+    silent: true
 
   experiments:
     desc: base experiments, checks the experiments status.
     cmds:
       - echo ''
-      - echo 'task experiments  ...'
+      - echo '- task experiments '
       - '{{.BASE_TASK_CMD}} --experiments'
+    silent: true
 
   test:
     desc: base test, checks that base is working.

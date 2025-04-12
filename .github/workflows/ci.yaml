@@ -68,8 +68,8 @@ jobs:
       - name: Install Task via action
         uses: arduino/setup-task@v2
         with:
-          #version: 'latest'
-          version: '3.39.2'
+          version: 'latest'
+          #version: '3.39.2'
           #version: '3.42.1'
           # FAILS, as it cant find it.
           #version: 'recursive-config-search'
@@ -83,37 +83,37 @@ jobs:
         with:
           submodules: recursive
 
-      
-
-      # List all task commands
+      # List all task commands available.
       #- name: task list
       #  run: task --yes
 
-      # List all github values
+      # Upgrade task based on ENV vars.
       - name: task upgrade to env
         run: task --yes base:upgrade
 
-      # List all github values
-      - name: task github
-        run: task --yes ci 
+      # List all ci variables.
+      - name: task ci
+        run: task --yes ci
 
-      # List all base task commands
+      # List all base variables.
       - name: task base
         run: task --yes base
 
-      # Test all base tasks
+      # Run all tests on base.
       - name: task base:test
         run: task --yes base:test
 
+      # List all git variables.
       - name: task git
         run: task --yes git
 
-      #- name: task go
-      #  run: task go --yes
+      # List all go variables.
+      - name: task go
+        run: task --yes go
 
-      # builds everything explicitly.
+      # Build everything explicitly from root ...
       #- name: task bin
-      #  run: task bin --yes
+      #  run: task --yes bin 
           
       
 
