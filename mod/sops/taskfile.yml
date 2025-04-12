@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# ref: https://github.com/bjw-s-labs/home-ops/blob/main/.taskfiles/sops/Taskfile.yaml
+
+version: "3"
+
+tasks:
+  re-encrypt:
+    desc: Decrypt and re-encrypt all sops secrets
+    vars:
+      SECRET_FILES:
+        sh: find . -type f -name '*.sops.yaml' ! -name ".sops.yaml"
+    cmds:
+      - for:
+          var: SECRET_FILES
+        cmd: |
+          sops --decrypt --in-place "{{ .ITEM }}"
+          sops --encrypt --in-place "{{ .ITEM }}"
+    silent: false

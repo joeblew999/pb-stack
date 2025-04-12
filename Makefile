@@ -5,7 +5,11 @@
 # ISSUE: go installing task branches, DONT change the version of it.
 # I use this in base.taskfile.yml, in order to upgrade task on the fly.
 
+include ./mod/sops/Makefile
+
 BASE_OS_NAME := $(shell go env GOOS)
+
+
 
 # https://github.com/go-task/task
 TASK_BIN_NAME=task
@@ -38,10 +42,7 @@ print:
 	@echo "TASK_BIN_WHICH:           $(TASK_BIN_WHICH)"
 	@echo "TASK_BIN_WHICH_VERSION:   $(TASK_BIN_WHICH_VERSION)"
 	@echo ""
-	@echo "SOPS_BIN_NAME:            $(SOPS_BIN_NAME)"
-	@echo "SOPS_BIN_VERSION:         $(SOPS_BIN_VERSION)"
-	@echo "SOPS_BIN_WHICH:           $(SOPS_BIN_WHICH)"
-	@echo "SOPS_BIN_WHICH_VERSION:   $(SOPS_BIN_WHICH_VERSION)"
+	$(MAKE) sops-print
 	@echo ""
 
 task-del:
@@ -58,47 +59,3 @@ else
 	@echo ""
 endif
 	
-
-sops-del:
-	rm -rf $(SOPS_BIN_WHICH)
-sops:
-ifeq ($(SOPS_BIN_WHICH), )
-	@echo ""
-	@echo "$(SOPS_BIN_NAME) dep check: failed, so installing ..."
-	go install github.com/getsops/sops/v3/cmd/sops@$(SOPS_BIN_VERSION)
-else
-	@echo ""
-	@echo "$(SOPS_BIN_NAME) dep check: passed"
-endif
-sops-run-encrypt-h: sops
-	$(SOPS_BIN_NAME) encrypt -h
-
-	
-	
-sops-run-encrypt: sops
-	@echo ""
-	@echo "encrypt ..."
-	@echo ""
-	rm -f sops.test.enc.*
-
-	# .env
-	#$(SOPS_BIN_NAME) encrypt --input-type dotenv --age age1yt3tfqlfrwdwx0z0ynwplcr6qxcxfaqycuprpmy89nr83ltx74tqdpszlw sops.test.env > sops.test.enc.env
-	# yml
-	$(SOPS_BIN_NAME) encrypt --input-type yaml --age age1yt3tfqlfrwdwx0z0ynwplcr6qxcxfaqycuprpmy89nr83ltx74tqdpszlw sops.test.yml > sops.test.enc.yml
-	
-	$(SOPS_BIN_NAME) updatekeys sops.test.enc.yml
-sops-run-decrypt: sops
-	@echo ""
-	@echo "decrypt ..."
-	@echo ""
-	rm -f sops.test.dec.*
-
-	# .env
-	#cat sops.test.enc.env | $(SOPS_BIN_NAME) decrypt --input-type dotenv --output-type dotenv /dev/stdin > sops.test.dec.env
-	# yml
-	cat sops.test.enc.yml | $(SOPS_BIN_NAME) decrypt --input-type yaml --output-type yaml /dev/stdin > sops.test.dec.yml
-
-	
-	
-	
-
