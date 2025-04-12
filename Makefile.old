@@ -38,13 +38,13 @@ dep-edit:
 dep-task:
 	go install github.com/go-task/task/v3/cmd/task@latest
 
-	# https://taskfile.dev/installation/	
+	# yaml-language-server: $schema=https://taskfile.dev/schema.json/installation/	
 	#env GOBIN=$(PWD)/.bin go install github.com/go-task/task/v3/cmd/task@latest
 
 dep: dep-task
 
 	# NOT recommended. Install we added a line to the .zshrc
-	# https://taskfile.dev/installation/
+	# yaml-language-server: $schema=https://taskfile.dev/schema.json/installation/
 	task --completion bash  > $(PWD)/.bin/task.bash
 	task --completion zsh  > $(PWD)/.bin/task.zsh
 	task --completion fish  > $(PWD)/.bin/task.fish
