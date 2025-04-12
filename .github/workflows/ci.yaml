@@ -47,7 +47,8 @@ jobs:
       matrix:
         go-version: [1.24.x]
         # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
-        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
+        #os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
+        os: [ubuntu-LATEST, macos-latest, windows-latest]
         #os: [macos-15]
       fail-fast: false
     runs-on: ${{matrix.os}}
@@ -69,7 +70,7 @@ jobs:
           if-file-not-found: 'error'
           expand: 'true'
 
-      - name: READ ENV for Task
+      - name: READ ENV for BASE_TASK_VERSION_ENV
         run: echo 'BASE_TASK_VERSION_ENV is $BASE_TASK_VERSION_ENV'
 
       # https://github.com/actions/setup-go
