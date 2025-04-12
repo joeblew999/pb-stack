@@ -53,6 +53,12 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
+      # https://github.com/actions/checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       # https://github.com/aarcangeli/load-dotenv
       - name: Load .env file, if present.
         uses: aarcangeli/load-dotenv@v1
@@ -87,11 +93,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # https://github.com/actions/checkout
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      
 
       # List all task commands available.
       #- name: task list
