@@ -63,7 +63,7 @@ jobs:
 
       # https://github.com/aarcangeli/load-dotenv
       - name: Load all.env file, if present.
-        uses: aarcangeli/load-dotenv@v1
+        uses: aarcangeli/load-dotenv@v1.1.0
         with:
           path: '.'
           filenames: 'all.env'
