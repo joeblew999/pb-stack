@@ -30,11 +30,11 @@ vars:
 
   # E:G: 'darwin'
   BASE_SHELL_OS_NAME:
-    sh: uname -s | tr A-Z a-z
+    #sh: uname -s | tr A-Z a-z
 
   # E.G: 'x86_64'
   BASE_SHELL_OS_ARCH:
-    sh: uname -m | tr A-Z a-z
+    #sh: uname -m | tr A-Z a-z
 
   # help with cross OS differences, cause u-root is not good enough.
   BASE_SHELL_WHICH_BIN_NAME: shell-which
