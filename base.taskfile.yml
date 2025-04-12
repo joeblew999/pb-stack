@@ -226,14 +226,11 @@ tasks:
       - echo ''
       - echo 'Upgrading base ...'
       - echo ''
-      - echo '1. Installing latest Task ...'
-      # https://github.com/go-task/task/releases/tag/v3.42.1
-      #- go install github.com/go-task/task/v3/cmd/task@latest
+      - echo '1. Installing Task ...'
+      - echo 'BASE_TASK_VERSION_ENV:'   {{.BASE_TASK_VERSION_ENV}}
       - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION_ENV}}'
-      # TODO: Flip to Winget for Windows, as all windows have it. winget install Task.Task
-      # TODO: upgrade all shell binaries too.
       - echo ''
-    silent: true
+    silent: false
 
   experiments:
     desc: base experiments, checks the experiments status.
@@ -248,7 +245,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'testing base  ...'
-      #- '{{.BASE_TASK_CMD}} base:clean'
+      - '{{.BASE_TASK_CMD}} base:upgrade'
       - '{{.BASE_TASK_CMD}} base:bin'
       - '{{.BASE_TASK_CMD}} base:shell-os-test'
       - '{{.BASE_TASK_CMD}} base:shell-which-shell'

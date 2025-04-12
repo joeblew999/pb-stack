@@ -36,7 +36,14 @@ tasks:
       - echo ''
       - echo '- var'
     silent: true
-
+  test:
+    desc: go test
+    cmds:
+      - echo ''
+      - echo 'bin'
+      - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
+      - echo ''
+    silent: false
   bin:
     desc: go build
     cmds:

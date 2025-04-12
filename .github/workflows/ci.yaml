@@ -83,7 +83,7 @@ jobs:
 
       # Force TaskFile to version in the all.env
       - name: Install Taskfile version
-        run: 	go install github.com/go-task/task/v3/cmd/task@$BASE_TASK_VERSION_ENV
+        run: 	go install github.com/go-task/task/v3/cmd/task@latest
 
       # https://github.com/arduino/setup-task
       # TODO: Get TASK version from .env, so it single sourced.
