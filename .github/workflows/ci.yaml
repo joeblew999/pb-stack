@@ -53,6 +53,15 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
+      - name: Load .env file
+        uses: aarcangeli/load-dotenv@v1
+        with:
+          path: '.'
+          filenames: '.env'
+          quiet: 'false'
+          if-file-not-found: 'error'
+          expand: 'true'
+
       - name: READ ENV for Task
         run: echo 'BASE_TASK_VERSION_ENV is $BASE_TASK_VERSION_ENV'
 
