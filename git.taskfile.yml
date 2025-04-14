@@ -24,13 +24,12 @@ vars:
     #sh: '{{.GIT_BIN_NAME}} --version'
 
   # env ( expected )
+  # GIT_ORG_NAME
+  # GIT_ORG_NAME: 'joeblew999'
   # GIT_SIGNING_USER_NAME=joeblew999
   # GIT_SIGNING_USER_EMAIL=joeblew99@gmail.com
   # GIT_SIGNING_KEY_PRIV=$HOME/.ssh/jowblew999_github.com
 
-
-  # GIT_ORG_NAME
-  #GIT_ORG_NAME: 'joeblew999'
   GIT_SIGNING_USER_NAME: '{{.GIT_ORG_NAME}}'
   GIT_SIGNING_USER_EMAIL: '{{.GIT_ORG_NAME}}@gmail.com'
   GIT_SIGNING_KEY_PRIV: '{{.HOME}}/.ssh/{{.GIT_ORG_NAME}}_github.com'

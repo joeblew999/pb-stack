@@ -5,24 +5,23 @@
 version: '3'
 
 vars:
-  BASE_SRC_NAME: dns
-  DNS_GREETING: Hello, from DNS !
+  THIS_SRC_NAME: dns
+  THIS_GREETING: Hello, from DNS !
 
 
 tasks:
   default:
     desc: print
     cmds:
-      - echo "{{.DNS_GREETING}}"
+      - echo '{{.THIS_GREETING}}'
     silent: true
   dep:
     desc: dep
     cmds:
-      
     silent: true
   bin:
     desc: build
     cmds:
-      - task go:bin
+      - task go:bin -- '{{.THIS_SRC_NAME}}'
     silent: true
   
