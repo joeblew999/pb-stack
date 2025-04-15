@@ -47,10 +47,18 @@ tasks:
   bin:
     desc: go build
     cmds:
-      #- task base:bin
+      #- task base:dep
       - echo ''
       - echo 'bin'
-      - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} build -o {{.BASE_BIN}}/{{.THIS_SRC_NAME}}
+      - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} build -o {{.BASE_BIN}}/{{.BASE_SRC_NAME}}
+      - echo ''
+    silent: false
+  run:
+    desc: run
+    cmds:
+      - echo ''
+      - echo 'run'
+      - '{{.BASE_BIN}}/{{.BASE_SRC_NAME}}'
       - echo ''
     silent: false
    

@@ -271,7 +271,7 @@ tasks:
       - ls -al *{{.BASE_PACK}}
     silent: false
 
-  bin:
+  dep:
     desc: base:bin, installs shell level components.
     cmds:
       - echo ''
@@ -321,6 +321,10 @@ tasks:
       - ls -al {{.BASE_PACK}}
     silent: false
 
+  bin-del:
+    desc: delete .bin for proj
+    cmds:
+      - rm -rf {{.BASE_BIN}}
 
   shell-os-test:
     desc: shell-os is a cross platform switch command. 

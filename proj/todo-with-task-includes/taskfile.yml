@@ -16,13 +16,13 @@ includes:
   go: ./../../go.taskfile.yml
   #vscode: ./vscode.taskfile.yml
 
-  remote:
+  #remote:
     # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
     # https://github.com/saydulaev/taskfile
-    taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+    #taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
 
 vars:
-  BASE_SRC_NAME: todo
+  BASE_SRC_NAME: todo-with-task-includes
   TODO_GREETING: Hello, from todo project !
  
 tasks:

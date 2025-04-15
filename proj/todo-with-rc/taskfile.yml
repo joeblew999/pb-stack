@@ -24,7 +24,7 @@ includes:
 
 
 vars:
-  BASE_SRC_NAME: todo
+  BASE_SRC_NAME: todo-with-rc
   TODO_GREETING: Hello, from todo project !
  
 
