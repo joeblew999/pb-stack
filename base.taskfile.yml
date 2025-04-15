@@ -166,9 +166,9 @@ tasks:
       - echo 'BASE_TASK_VERSION_WHICH:'      {{.BASE_TASK_VERSION_WHICH}}
       - echo ''
       - echo 'BASE_TASK_CMD:'         {{.BASE_TASK_CMD}}
-      - echo '
+      - echo ''
       - echo '- task experiments'
-      #- '{{.BASE_TASK_CMD}} --experiments'
+      - '{{.BASE_TASK_CMD}} --experiments'
       - echo ''
       # Task allows you to configure some behavior using environment variables. 
       # This lists all the environment variables that Task supports.

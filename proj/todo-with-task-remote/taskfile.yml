@@ -10,7 +10,7 @@ includes:
     taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/taskfile.yml
                 
 vars:
-  BASE_SRC_NAME: todo-with-task-includes
+  #BASE_SRC_NAME: todo-with-task-includes
   TODO_GREETING: Hello, from todo project !
  
 tasks:
