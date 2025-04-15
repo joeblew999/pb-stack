@@ -14,11 +14,11 @@ includes:
 
   # task for devtime. Best to have them always loaded.
   git:				
-    taskfile:   ./git.taskfile.yml
+    taskfile: ./git.taskfile.yml
   ci:     		
-    taskfile:   ./ci.taskfile.yml
+    taskfile: ./ci.taskfile.yml
   go:         
-    taskfile:   ./go.taskfile.yml
+    taskfile: ./go.taskfile.yml
   #vscode: ./vscode.taskfile.yml
 
   
