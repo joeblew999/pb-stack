@@ -2,6 +2,8 @@
 
 version: '3'
 
+#interval: 1000ms
+
 vars:
 
   ### task
@@ -12,12 +14,12 @@ vars:
   # https://github.com/go-task/task/releases/tag/v3.39.2
 
   BASE_TASK_VERSION_DEFAULT: v3.42.1
-  # .env ( do not uncomment)
+  # For bootstrapping off all.env, so everyone is definitely on the same version.
   #BASE_TASK_VERSION_ENV: v3.42.1
   # evaluated, ONLY if task is installed.
   BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
 
-  # Simple wrapper to apply defaults.
+  # Simple wrapper to apply defaults. TODO: Can check version and Upgrade in place ?
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
 
 
@@ -71,44 +73,47 @@ vars:
   BASE_USER: '{{.USER}}'
 
   # Project (always named like project root '_' cmd path), as in go projects cmd is the entry point. 
-  #BASE_SRC_NAME: base_name
+
 
   # Our dot folders.
-  # We want this to be where the Task file is.
-  BASE_SRC: '{{.USER_WORKING_DIR}}'
+
+  # Src variables, that are used quite a bit by other tasks
+  BASE_SRC_NAME:
+    sh: basename {{.USER_WORKING_DIR}}
+  BASE_SRC_PATH: '{{.USER_WORKING_DIR}}'
 
   # We want BIN near the SRC
   BASE_BIN_NAME: '.bin'
-  BASE_BIN: '{{.BASE_SRC}}/{{.BASE_BIN_NAME}}'
+  BASE_BIN_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_BIN_NAME}}'
   
   # We want DEP in root
   BASE_DEP_NAME: '.dep'
-  BASE_DEP: '{{.TASKFILE_DIR}}/{{.BASE_DEP_NAME}}'
+  BASE_DEP_PATH: '{{.TASKFILE_DIR}}/{{.BASE_DEP_NAME}}'
 
   # We want PACKS near the SRC and BIN
   BASE_PACK_NAME: '.pack'
-  BASE_PACK: '{{.BASE_SRC}}/{{.BASE_PACK_NAME}}'
+  BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
 
   # Add .DEP and .BIN to the PATH, so we do not pollute the OS.
   # Windows PS its "$env:Path" get whats on the PATH
-  BASE_PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
+  BASE_PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
 
 
 env:
   # https://github.com/go-task/task/issues/202
 
   # export Path to include our .bin and .dep
-  #export PATH:=$(PATH):$(BASE_BIN):$(BASE_DEP)
+  #export PATH:=$(PATH):$(BASE_BIN_PATH):$(BASE_DEP_PATH)
   #export PATH:=$(PATH):$(BASE_PWD_BIN)
   # https://github.com/go-task/task/issues/202
 
   #PATH: '{{.BASE_PATH}}'
-  # '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
+  # '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
   # mac
-  PATH: '{{.PATH}}:{{.BASE_DEP}}:{{.BASE_BIN}}'
+  PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
   # windows
   # set PATH=%PATH%;C:\your\path\here\
-  #  sh: '{{.BASE_DEP}};{{.BASE_BIN}}'
+  #  sh: '{{.BASE_DEP_PATH}};{{.BASE_BIN_PATH}}'
   
 tasks:
   default:
@@ -135,17 +140,16 @@ tasks:
       - echo ''
       - echo '- dot folders'
       - echo 'BASE_SRC_NAME:'         {{.BASE_SRC_NAME}}
-      - echo ''
-      - echo 'BASE_SRC:'              {{.BASE_SRC}}
+      - echo 'BASE_SRC_PATH:'         {{.BASE_SRC_PATH}}
       - echo ''
       - echo 'BASE_BIN_NAME:'         {{.BASE_BIN_NAME}}
-      - echo 'BASE_BIN:'              {{.BASE_BIN}}
+      - echo 'BASE_BIN_PATH:'         {{.BASE_BIN_PATH}}
       - echo ''
       - echo 'BASE_DEP_NAME:'         {{.BASE_DEP_NAME}}
-      - echo 'BASE_DEP:'              {{.BASE_DEP}}
+      - echo 'BASE_DEP_PATH:'         {{.BASE_DEP_PATH}}
       - echo ''
       - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
-      - echo 'BASE_PACK:'             {{.BASE_PACK}}
+      - echo 'BASE_PACK_PATH:'        {{.BASE_PACK_PATH}}
       - echo ''
       - echo '- env path'
       - echo 'PATH:'                  {{.PATH}}
@@ -221,7 +225,7 @@ tasks:
     silent: true
 
   upgrade:
-    desc: base upgrade, upgrades task.
+    desc: base upgrade, upgrades task itself to what is in the all.env
     cmds:
       - echo ''
       - echo 'Upgrading base ...'
@@ -257,54 +261,54 @@ tasks:
     cmds:
       - echo ''
       - echo 'cleaning base  ...'
-      - rm -rf *{{.BASE_BIN}}
-      - rm -rf *{{.BASE_DEP}}
-      - rm -rf *{{.BASE_PACK}}
+      - rm -rf *{{.BASE_BIN_PATH}}
+      - rm -rf *{{.BASE_DEP_PATH}}
+      - rm -rf *{{.BASE_PACK_PATH}}
     silent: false
   clean-list:
     desc: base clean list, lists what is cleaned from the base folders.
     cmds:
       - echo ''
       - echo 'cleaning base  ...'
-      - ls -al {{.BASE_BIN}}
-      - ls -al *{{.BASE_DEP}}
-      - ls -al *{{.BASE_PACK}}
+      - ls -al {{.BASE_BIN_PATH}}
+      - ls -al *{{.BASE_DEP_PATH}}
+      - ls -al *{{.BASE_PACK_PATH}}
     silent: false
 
-  dep:
+  bin:
     desc: base:bin, installs shell level components.
     cmds:
       - echo ''
       - echo 'installing base shell tools ...'
       - echo ''
       - echo '1. Creating base folders ...'
-      - mkdir -p {{.BASE_BIN}}
-      - mkdir -p {{.BASE_DEP}}
-      - mkdir -p {{.BASE_PACK}}
+      - mkdir -p {{.BASE_BIN_PATH}}
+      - mkdir -p {{.BASE_DEP_PATH}}
+      - mkdir -p {{.BASE_PACK_PATH}}
       - echo ''
       - echo '2. Installing base shell tools ...'
       - echo ''
       - echo '- which tool ...'
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/which {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
       - echo '- tree tool ...'
       # https://github.com/a8m/tree/cmd/tree
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/tree {{.BASE_DEP}}/{{.BASE_SHELL_TREE_BIN_NAME}}
+      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/tree {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
       - echo '- wgot tool ...'
       # https://github.com/bitrise-io/got
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/wgot {{.BASE_DEP}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/wgot {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
       - echo '- replace tool ...'
       # https://github.com/webdevops/go-replace
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/go-replace {{.BASE_DEP}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
+      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/go-replace {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
       - echo '- redress tool ...'
       # https://github.com/goretk/redress
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/redress {{.BASE_DEP}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
+      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/redress {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
 
       - echo ''
       - echo 'TODO - add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
@@ -315,16 +319,16 @@ tasks:
       - echo ''
       - echo 'listing base shell tools ...'
       - echo ''
-      - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_BIN}}'
-      - ls -al {{.BASE_BIN}}
-      - ls -al {{.BASE_DEP}}
-      - ls -al {{.BASE_PACK}}
+      - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_BIN_PATH}}'
+      - ls -al {{.BASE_BIN_PATH}}
+      - ls -al {{.BASE_DEP_PATH}}
+      - ls -al {{.BASE_PACK_PATH}}
     silent: false
 
   bin-del:
     desc: delete .bin for proj
     cmds:
-      - rm -rf {{.BASE_BIN}}
+      - rm -rf {{.BASE_BIN_PATH}}
 
   shell-os-test:
     desc: shell-os is a cross platform switch command. 
@@ -375,7 +379,7 @@ tasks:
     cmds:
       - '{{.BASE_SHELL_TREE_BIN_NAME}} --help'
   shell-tree:
-    desc: tree is a cross platform **tree** command. E.G task base:shell-tree -- {{.BASE_BIN}}
+    desc: tree is a cross platform **tree** command. E.G task base:shell-tree -- {{.BASE_BIN_PATH}}
     cmds:
       - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l  --dirsfirst -C'
 
@@ -398,14 +402,14 @@ tasks:
       - echo '- which tool dep ...'
       
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
-      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
-      - mv {{.BASE_DEP}}/which {{.BASE_DEP}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/which {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
   shell-which-dep-del:
     desc: deletes which
     cmds:
       - echo '- which tool del ...'
-      - rm -rf {{.BASE_DEP}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - rm -rf {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
   shell-which-h: 
     desc: which is a cross platform **which** command.

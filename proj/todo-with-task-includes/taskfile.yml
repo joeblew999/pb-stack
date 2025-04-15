@@ -34,3 +34,6 @@ tasks:
   bin:
     cmds:
       - task go:bin
+  run:
+    cmds:
+      - task go:run

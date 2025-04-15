@@ -16,9 +16,13 @@ version: '3'
 vars:
   GO_BIN_NAME: go
   GO_BIN_WHICH:
-    #sh: 'command -v {{.GO_BIN_NAME}}'
+    sh: 'command -v {{.GO_BIN_NAME}}'
+    #sh: '{{.BASE_TASK_CMD}} base:shell-which -- {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
     sh: '{{.GO_BIN_NAME}} version'
+  GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
+  GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
+  GO_VAR_BIN_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
 
 tasks:
   default:
@@ -35,13 +39,16 @@ tasks:
 
       - echo ''
       - echo '- var'
+      - echo 'GO_VAR_SRC_PATH:'    {{.GO_VAR_SRC_PATH}}
+      - echo 'GO_VAR_BIN_NAME:'    {{.GO_VAR_BIN_NAME}}
+      - echo 'GO_VAR_BIN_PATH:'    {{.GO_VAR_BIN_PATH}}
     silent: true
   test:
     desc: go test
     cmds:
       - echo ''
       - echo 'bin'
-      - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
       - echo ''
     silent: false
   bin:
@@ -50,7 +57,7 @@ tasks:
       #- task base:dep
       - echo ''
       - echo 'bin'
-      - cd {{.BASE_SRC}} && {{.GO_BIN_NAME}} build -o {{.BASE_BIN}}/{{.BASE_SRC_NAME}}
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_PATH}}
       - echo ''
     silent: false
   run:
@@ -58,7 +65,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'run'
-      - '{{.BASE_BIN}}/{{.BASE_SRC_NAME}}'
+      - '{{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}'
       - echo ''
     silent: false
    

@@ -1,10 +1,7 @@
-# todo-no-overide
+# test
 
-```sh
-task go:bin
-```
+fails using tagged TASK.  
 
-
-
+best to just have a task and / or .taskrc.yml
 
 
