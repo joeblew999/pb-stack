@@ -77,6 +77,11 @@ vars:
 
   # Our dot folders.
 
+  # The root of the Repo. 
+  # Only way i know so far, as TASK has no vars for this.
+  BASE_GITROOT_PATH:
+    sh: git rev-parse --show-toplevel
+
   # Src variables, that are used quite a bit by other tasks
   BASE_SRC_NAME:
     sh: basename {{.USER_WORKING_DIR}}
@@ -88,7 +93,7 @@ vars:
   
   # We want DEP in root
   BASE_DEP_NAME: '.dep'
-  BASE_DEP_PATH: '{{.TASKFILE_DIR}}/{{.BASE_DEP_NAME}}'
+  BASE_DEP_PATH: '{{.BASE_GITROOT_PATH}}/{{.BASE_DEP_NAME}}'
 
   # We want PACKS near the SRC and BIN
   BASE_PACK_NAME: '.pack'
@@ -139,7 +144,8 @@ tasks:
       - echo 'BASE_USER:'             {{.BASE_USER}}
       - echo ''
       - echo '- dot folders'
-      - echo 'BASE_SRC_NAME:'         {{.BASE_SRC_NAME}}
+      - echo 'BASE_GITROOT_PATH:'     {{.BASE_GITROOT_PATH}}
+      - echo ''
       - echo 'BASE_SRC_PATH:'         {{.BASE_SRC_PATH}}
       - echo ''
       - echo 'BASE_BIN_NAME:'         {{.BASE_BIN_NAME}}
