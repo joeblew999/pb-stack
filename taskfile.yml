@@ -52,7 +52,7 @@ tasks:
       #- task --list-all --yes --sort alphanumeric --json
     silent: false
   bin:
-    desc: build all explicitly.
+    desc: build all explicitly. explicitly
     cmds:
       - echo ''
       - echo 'Building all ...'
