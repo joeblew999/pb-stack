@@ -236,14 +236,6 @@ tasks:
       - echo ''
     silent: false
 
-  experiments:
-    desc: base experiments, checks the experiments status.
-    cmds:
-      - echo ''
-      - echo '- task experiments '
-      - '{{.BASE_TASK_CMD}} --experiments'
-    silent: true
-
   test:
     desc: base test, checks that base is working.
     cmds:
