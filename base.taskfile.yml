@@ -53,7 +53,10 @@ vars:
 
   # OS User
   # E.G: '/Users/apple'
-  BASE_HOME: '{{.HOME}}'
+  #BASE_HOME: '{{.HOME}}'
+  BASE_HOME: '~'
+
+
   # E.G: 'apple'
   BASE_USER: '{{.USER}}'
 
