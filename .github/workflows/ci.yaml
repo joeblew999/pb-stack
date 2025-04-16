@@ -131,7 +131,7 @@ jobs:
 
       # Build Modules and Projects explicitly from root ...
       - name: task bin
-        run: task --yes bin 
+        run: task --yes all 
           
       
 
