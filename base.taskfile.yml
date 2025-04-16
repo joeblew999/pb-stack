@@ -314,29 +314,29 @@ tasks:
       #- env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
       - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
       # DEBUG: Wtf is windows seeing ??
-      - ls -al {{.GO_BIN_PATH}}
-      - mv {{.GO_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - ls -al {{.GO_ENV_BIN_PATH}}
+      - mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
 
       - echo '- tree tool ...'
       # https://github.com/a8m/tree/cmd/tree
       - '{{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}'
-      - mv {{.GO_BIN_PATH}}/tree{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
+      - mv {{.GO_ENV_BIN_PATH}}/tree{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
       
       - echo '- wgot tool ...'
       # https://github.com/bitrise-io/got
       - '{{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}'
-      - mv {{.GO_BIN_PATH}}/wgot{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+      - mv {{.GO_ENV_BIN_PATH}}/wgot{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
       
       - echo '- replace tool ...'
       # https://github.com/webdevops/go-replace
       - '{{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}'
-      - mv {{.GO_BIN_PATH}}/go-replace{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
+      - mv {{.GO_ENV_BIN_PATH}}/go-replace{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
       
       - echo '- redress tool ...'
       # https://github.com/goretk/redress
       - '{{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}'
-      - mv {{.GO_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
+      - mv {{.GO_ENV_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
       - echo ''
      
   tools-print:
