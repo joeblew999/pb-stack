@@ -4,6 +4,8 @@ version: '3'
 
 #interval: 1000ms
 
+# https://taskfile.dev/reference/templating/
+
 vars:
 
   ### task
@@ -31,14 +33,12 @@ vars:
   BASE_SHELL: '{{.SHELL}}'
 
   # E:G: 'darwin'
-  BASE_SHELL_OS_NAME:
-    #sh: uname -s | tr A-Z a-z
+  BASE_SHELL_OS_NAME: '{{OS}}'
+  # E.G: 'arm64'
+  BASE_SHELL_OS_ARCH: '{{ARCH}}'
 
-  # E.G: 'x86_64'
-  BASE_SHELL_OS_ARCH:
-    #sh: uname -m | tr A-Z a-z
 
-  # help with cross OS differences, cause u-root is not good enough.
+  # help with cross OS differences, cause u-root and task is not good enough.
   BASE_SHELL_WHICH_BIN_NAME: shell-which
   BASE_SHELL_WHICH_BIN_VERSION: latest
 
@@ -55,16 +55,9 @@ vars:
   # https://github.com/goretk/redress/releases/tag/v1.2.24
   BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
 
-
   ### binary
   BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
   
-
-  ### goos
-  BASE_GOOS_NAME:
-    sh: go env GOOS
-  BASE_GOOS_ARCH:
-    sh: go env GOARCH
 
   # OS User
   # E.G: '/Users/apple'
@@ -77,25 +70,24 @@ vars:
 
   # Our dot folders.
 
-  # The root of the Repo. 
-  # Only way i know so far, as TASK has no vars for this.
+  # We want to know the root of the repo.
   BASE_GITROOT_PATH:
     sh: git rev-parse --show-toplevel
 
-  # Src variables, that are used quite a bit by other tasks
-  BASE_SRC_NAME:
-    sh: basename {{.USER_WORKING_DIR}}
+  # We want the SRC to be identical to where the git clone happens to, so all other tooling works naturally.
+  # Hence, we use the USER_WORKING_DIR, which is the same as the git clone location.
+  BASE_SRC_NAME: '{{base .USER_WORKING_DIR}}'
   BASE_SRC_PATH: '{{.USER_WORKING_DIR}}'
 
-  # We want BIN near the SRC
+  # We want the BIN near the SRC
   BASE_BIN_NAME: '.bin'
   BASE_BIN_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_BIN_NAME}}'
   
-  # We want DEP in root
+  # We want the DEP in git root, as these are shared. 
   BASE_DEP_NAME: '.dep'
   BASE_DEP_PATH: '{{.BASE_GITROOT_PATH}}/{{.BASE_DEP_NAME}}'
 
-  # We want PACKS near the SRC and BIN
+  # We want the PACKS near the SRC and BIN, as these are specific to a project.
   BASE_PACK_NAME: '.pack'
   BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
 
@@ -135,10 +127,6 @@ tasks:
       - echo '- binary'
       - echo 'BASE_BINARY_EXTENSION:' {{.BASE_BINARY_EXTENSION}}
       - echo ''
-      - echo '- goos'
-      - echo 'BASE_GOOS_NAME:'        {{.BASE_GOOS_NAME}}
-      - echo 'BASE_GOOS_ARCH:'        {{.BASE_GOOS_ARCH}}
-      - echo ''
       - echo '- user'
       - echo 'BASE_HOME:'             {{.BASE_HOME}}
       - echo 'BASE_USER:'             {{.BASE_USER}}
@@ -146,6 +134,7 @@ tasks:
       - echo '- dot folders'
       - echo 'BASE_GITROOT_PATH:'     {{.BASE_GITROOT_PATH}}
       - echo ''
+      - echo 'BASE_SRC_NAME:'         {{.BASE_SRC_NAME}}
       - echo 'BASE_SRC_PATH:'         {{.BASE_SRC_PATH}}
       - echo ''
       - echo 'BASE_BIN_NAME:'         {{.BASE_BIN_NAME}}
@@ -177,15 +166,14 @@ tasks:
       - '{{.BASE_TASK_CMD}} --experiments'
       - echo ''
       # Task allows you to configure some behavior using environment variables. 
-      # This lists all the environment variables that Task supports.
-      # yaml-language-server: $schema=https://taskfile.dev/schema.json/reference/environment/
+      # https://taskfile.dev/reference/environment
       - echo '- task env'
       - echo 'TASK_TEMP_DIR:'         {{.TASK_TEMP_DIR}}
       - echo 'TASK_REMOTE_DIR:'       {{.TASK_REMOTE_DIR}}
       - echo 'TASK_OFFLINE:'          {{.TASK_OFFLINE}}
       - echo 'FORCE_COLOR:'           {{.FORCE_COLOR}}
       - echo ''
-      # yaml-language-server: $schema=https://taskfile.dev/schema.json/reference/templating/#special-variables
+      # https://taskfile.dev/reference/templating/#special-variables
       - echo '- task vars'
       # Contain all extra arguments passed after -- when calling Task through the CLI.
       - echo 'CLI_ARGS:'              {{.CLI_ARGS}}
