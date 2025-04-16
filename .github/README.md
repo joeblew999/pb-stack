@@ -2,6 +2,14 @@
 
 https://github.com/joeblew999/pb-stack
 
+# helpers
+
+# https://github.com/mbarbita/go-winget
+go install github.com/mbarbita/go-winget@latest to control winget, so we can bootstrap this way.
+
+
+
+## status 
 ! STATUS !
 
 Read the Docs for now to get a feel for the intent. Ask questions if something seems off.
