@@ -133,10 +133,9 @@ jobs:
       - name: task base:test
         run: task --yes base:test
 
-      
 
       # Build Modules and Projects explicitly from root ...
-      - name: task bin
+      - name: task all
         run: task --yes all 
           
       
