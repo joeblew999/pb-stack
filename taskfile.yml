@@ -44,6 +44,8 @@ tasks:
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
       
       #- task --list-all --yes --sort alphanumeric --json
+
+      #- task --list-all --yes git
     silent: false
   all:
     desc: build all explicitly.

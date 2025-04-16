@@ -21,6 +21,9 @@ vars:
     #sh: '{{.BASE_TASK_CMD}} base:shell-which -- {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
     sh: '{{.GO_BIN_NAME}} version'
+  GO_BIN_PATH:
+    sh: 'GOPATH=$(go env GOPATH) && echo $GOPATH/bin'
+
   GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
   GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
   GO_VAR_BIN_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
@@ -34,6 +37,7 @@ tasks:
       - echo 'GO_BIN_NAME:'       {{.GO_BIN_NAME}}
       - echo 'GO_BIN_WHICH:'      {{.GO_BIN_WHICH}}
       - echo 'GO_BIN_VERSION:'    {{.GO_BIN_VERSION}}
+      - echo 'GO_BIN_PATH:'       {{.GO_BIN_PATH}}
 
       - echo ''
       - echo '- env'

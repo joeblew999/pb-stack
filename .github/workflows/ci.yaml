@@ -99,7 +99,13 @@ jobs:
       #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #    repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      
+      # List all base variables.
+      - name: task base
+        run: task --yes base
+
+      # List all tool s.
+      - name: task base:tools-print
+        run: task --yes base:tools-print
 
       # List all task commands available.
       #- name: task list
@@ -113,9 +119,7 @@ jobs:
       - name: task ci
         run: task --yes ci
 
-      # List all base variables.
-      - name: task base
-        run: task --yes base
+      
 
       # Run all tests on base.
       - name: task base:test

@@ -36,16 +36,17 @@ vars:
   BASE_SHELL_WHICH_BIN_NAME: 'shell-which{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_WHICH_BIN_VERSION: latest
 
-  BASE_SHELL_REPLACE_BIN_NAME: shell-replace
+  #BASE_SHELL_REPLACE_BIN_NAME: shell-replace
+  BASE_SHELL_REPLACE_BIN_NAME: 'shell-replace{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_REPLACE_BIN_VERSION: latest
 
-  BASE_SHELL_TREE_BIN_NAME: shell-tree
+  BASE_SHELL_TREE_BIN_NAME: 'shell-tree{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_TREE_BIN_VERSION: latest
 
-  BASE_SHELL_WGOT_BIN_NAME: shell-wgot
+  BASE_SHELL_WGOT_BIN_NAME: 'shell-wgot{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_WGOT_BIN_VERSION: latest
 
-  BASE_SHELL_REDRESS_BIN_NAME: shell-redress
+  BASE_SHELL_REDRESS_BIN_NAME: 'shell-redress{{.BASE_BINARY_EXTENSION}}'
   # https://github.com/goretk/redress/releases/tag/v1.2.24
   BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
 
@@ -60,7 +61,8 @@ vars:
 
   # Root of the repo.
   BASE_GITROOT_PATH:
-    sh: git rev-parse --show-toplevel
+    #sh: git rev-parse --show-toplevel
+    #sh: '{{.GIT_BIN_NAME}} rev-parse --show-toplevel'
 
   # The SRC is where a developer does their the git clone into.
   BASE_SRC_NAME: '{{base .USER_WORKING_DIR}}'
@@ -72,7 +74,9 @@ vars:
   
   # The DEP folder is at the root of the git root, as these are shared. 
   BASE_DEP_NAME: '.dep'
-  BASE_DEP_PATH: '{{.BASE_GITROOT_PATH}}/{{.BASE_DEP_NAME}}'
+  #BASE_DEP_PATH: '{{.BASE_GITROOT_PATH}}/{{.BASE_DEP_NAME}}'
+  # For now we put deps into GOPATH bin, until we resolve the cross platform ENV path issue
+  BASE_DEP_PATH: '{{.GO_BIN_PATH}}'
 
   # The PACK folder is above the SRC.
   BASE_PACK_NAME: '.pack'
@@ -92,7 +96,7 @@ env:
   
 
   # Darwin - works both locally and in Github CI.
-  PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
+  #PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
   
   # windows ?
   # set PATH=%PATH%;C:\your\path\here\
@@ -286,7 +290,7 @@ tasks:
     silent: true
 
   tools:
-    desc: base:tools, installs shell level tools into .dep. These get packed into .pack when we package later.
+    desc: base:tools, installs shell level tools into .dep. These get packed into .pack when we package later, so that the identical task files work at runtime too.
     cmds:
       - echo ''
       - echo 'installing base shell tools ...'
@@ -301,32 +305,32 @@ tasks:
 
       - echo '- which tool ...'
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
-      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
-      - mv {{.BASE_DEP_PATH}}/which {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      #- env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
+      - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
+      - mv {{.GO_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
 
       - echo '- tree tool ...'
       # https://github.com/a8m/tree/cmd/tree
-      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
-      - mv {{.BASE_DEP_PATH}}/tree {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
+      - '{{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}'
+      - mv {{.GO_BIN_PATH}}/tree{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
       
       - echo '- wgot tool ...'
       # https://github.com/bitrise-io/got
-      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}
-      - mv {{.BASE_DEP_PATH}}/wgot {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+      - '{{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}'
+      - mv {{.GO_BIN_PATH}}/wgot{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
       
       - echo '- replace tool ...'
       # https://github.com/webdevops/go-replace
-      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}
-      - mv {{.BASE_DEP_PATH}}/go-replace {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
+      - '{{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}'
+      - mv {{.GO_BIN_PATH}}/go-replace{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
       
       - echo '- redress tool ...'
       # https://github.com/goretk/redress
-      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}
-      - mv {{.BASE_DEP_PATH}}/redress {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
-
+      - '{{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}'
+      - mv {{.GO_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
       - echo ''
-      - echo 'TODO - add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
+     
   tools-print:
     desc: prints the base shell tools
     cmds:
