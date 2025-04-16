@@ -294,17 +294,27 @@ tasks:
       - echo 'installing base shell tools ...'
       - echo ''
       - echo '1. Creating base folders ...'
+      - echo '.bin ...'
       - mkdir -p {{.BASE_BIN_PATH}}
+      - echo '.dep ...'
       - mkdir -p {{.BASE_DEP_PATH}}
+      - echo '.pack ...'
       - mkdir -p {{.BASE_PACK_PATH}}
       - echo ''
       - echo '2. Installing base shell tools ...'
       - echo ''
 
+
+      # TODO: 
+      # Folder paths for Windows are wrong slashes. 
+      # task: [base:tools] mv C:\Users\runneradmin\go/bin/which.exe C:\Users\runneradmin\go/bin/shell-which.exe
+
       - echo '- which tool ...'
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
       #- env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
       - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
+      # DEBUG: Wtf is windows seeing ??
+      - ls -al {{.GO_BIN_PATH}}
       - mv {{.GO_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
 
