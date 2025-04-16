@@ -60,9 +60,7 @@ vars:
   # dot folder conventions for all modules and projects
 
   # Root of the repo.
-  BASE_GITROOT_PATH:
-    #sh: git rev-parse --show-toplevel
-    #sh: '{{.GIT_BIN_NAME}} rev-parse --show-toplevel'
+  BASE_GITROOT_PATH: '{{.GIT_GITROOT_PATH}}'
 
   # The SRC is where a developer does their the git clone into.
   BASE_SRC_NAME: '{{base .USER_WORKING_DIR}}'
