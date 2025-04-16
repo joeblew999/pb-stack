@@ -202,8 +202,45 @@ tasks:
       - echo 'EXIT_CODE:'             {{.EXIT_CODE}}
     silent: true
 
+  test:
+    desc: checks that base is working.
+    cmds:
+      - echo ''
+      - echo 'testing base  ...'
+      - '{{.BASE_TASK_CMD}} base:upgrade'
+      - '{{.BASE_TASK_CMD}} base:tools-print'
+      - '{{.BASE_TASK_CMD}} base:tools'
+      - '{{.BASE_TASK_CMD}} base:tools-print'
+      - '{{.BASE_TASK_CMD}} base:shell-os-print'
+      - '{{.BASE_TASK_CMD}} base:shell-which-shell'
+      - '{{.BASE_TASK_CMD}} base:shell-which-test'
+    silent: false
+
+  shell-os-print:
+    desc: print the OS and ARCH, to check the shell is working.
+    cmds:
+      - cmd: echo 'on darwin/amd64'
+        platforms: [darwin/amd64]
+      - cmd: echo 'on darwin/arm64'
+        platforms: [darwin/arm64]
+
+      - cmd: echo 'on linux/amd64'
+        platforms: [linux/amd64]
+      - cmd: echo 'on linux/arm64'
+        platforms: [linux/arm64]
+
+      - cmd: echo 'on windows/amd64'
+        platforms: [windows/amd64]
+      - cmd: echo 'on windows/arm64'
+        platforms: [windows/arm64]
+
+      # exotics
+      - cmd: echo 'on openbsd, dragonfly, freebsd, netbsd'
+        platforms: [openbsd, dragonfly, freebsd, netbsd]
+
+    
   upgrade:
-    desc: base upgrade, upgrades task itself to what is in the all.env
+    desc: upgrades task itself to what is in the all.env
     cmds:
       - echo ''
       - echo 'Upgrading base ...'
@@ -224,17 +261,7 @@ tasks:
       - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
         platforms: [windows]
 
-  test:
-    desc: base test, checks that base is working.
-    cmds:
-      - echo ''
-      - echo 'testing base  ...'
-      - '{{.BASE_TASK_CMD}} base:upgrade'
-      - '{{.BASE_TASK_CMD}} base:tools'
-      - '{{.BASE_TASK_CMD}} base:shell-os-test'
-      - '{{.BASE_TASK_CMD}} base:shell-which-shell'
-      - '{{.BASE_TASK_CMD}} base:shell-which-test'
-    silent: false
+  
 
   clean:
     desc: base clean, cleans the base folders.
@@ -303,15 +330,15 @@ tasks:
   tools-print:
     desc: prints the base shell tools
     cmds:
+      - echo ''
+      - echo 'printing the tool names only ...'
       - echo {{.BASE_SHELL_WHICH_BIN_NAME}}
 
       - echo {{.BASE_SHELL_TREE_BIN_NAME}}
       - echo {{.BASE_SHELL_WGOT_BIN_NAME}}
       - echo {{.BASE_SHELL_REPLACE_BIN_NAME}}
       - echo {{.BASE_SHELL_REDRESS_BIN_NAME}}
-
-      
-
+      - echo ''
     silent: true
 
   bin-del:
@@ -319,29 +346,7 @@ tasks:
     cmds:
       - rm -rf {{.BASE_BIN_PATH}}
 
-  shell-os-test:
-    desc: shell-os is a cross platform switch command. 
-    cmds:
-      - cmd: echo 'on darwin/amd64'
-        platforms: [darwin/amd64]
-      - cmd: echo 'on darwin/arm64'
-        platforms: [darwin/arm64]
-
-      - cmd: echo 'on linux/amd64'
-        platforms: [linux/amd64]
-      - cmd: echo 'on linux/arm64'
-        platforms: [linux/arm64]
-
-      - cmd: echo 'on windows/amd64'
-        platforms: [windows/amd64]
-      - cmd: echo 'on windows/arm64'
-        platforms: [windows/arm64]
-
-      # exotics
-      - cmd: echo 'on openbsd, dragonfly, freebsd, netbsd'
-        platforms: [openbsd, dragonfly, freebsd, netbsd]
-
-      
+  
 
 
   shell-redress-h:
