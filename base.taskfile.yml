@@ -214,7 +214,6 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:tools'
       - '{{.BASE_TASK_CMD}} base:tools-print'
       - '{{.BASE_TASK_CMD}} base:shell-os-print'
-      - '{{.BASE_TASK_CMD}} base:shell-which-shell'
       - '{{.BASE_TASK_CMD}} base:shell-which-test'
     silent: false
 
@@ -303,40 +302,11 @@ tasks:
       - echo ''
       - echo '2. Installing base shell tools ...'
       - echo ''
-
-
-      # TODO: 
-      # Folder paths for Windows are wrong slashes. 
-      # task: [base:tools] mv C:\Users\runneradmin\go/bin/which.exe C:\Users\runneradmin\go/bin/shell-which.exe
-
-      - echo '- which tool ...'
-      # https://github.com/hairyhenderson/go-which/tree/main/cmd
-      #- env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
-      - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
-      # DEBUG: Wtf is windows seeing ??
-      - ls -al {{.GO_ENV_BIN_PATH}}
-      - mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
-      - echo ''
-
-      - echo '- tree tool ...'
-      # https://github.com/a8m/tree/cmd/tree
-      - '{{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}'
-      - mv {{.GO_ENV_BIN_PATH}}/tree{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
-      
-      - echo '- wgot tool ...'
-      # https://github.com/bitrise-io/got
-      - '{{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}'
-      - mv {{.GO_ENV_BIN_PATH}}/wgot{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
-      
-      - echo '- replace tool ...'
-      # https://github.com/webdevops/go-replace
-      - '{{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}'
-      - mv {{.GO_ENV_BIN_PATH}}/go-replace{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
-      
-      - echo '- redress tool ...'
-      # https://github.com/goretk/redress
-      - '{{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}'
-      - mv {{.GO_ENV_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
+      - '{{.BASE_TASK_CMD}} base:shell-tree-dep'
+      - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
+      - '{{.BASE_TASK_CMD}} base:shell-replace-dep'
+      - '{{.BASE_TASK_CMD}} base:shell-redress-dep'
+      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - echo ''
      
   tools-print:
@@ -360,7 +330,14 @@ tasks:
 
   
 
-
+  shell-redress-dep:
+    desc: redress is a cross platform **redress** command.
+    cmds:
+      - echo '- redress tool ...'
+      # https://github.com/goretk/redress
+      - '{{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
+      - echo ''
   shell-redress-h:
     desc: redress is a cross platform **redress** command.
     cmds:
@@ -384,7 +361,14 @@ tasks:
       #- '{{.TASK_EXE}} base:shell-redress -- /Users/apple/workspace/go/bin/task'
       #- '{{.TASK_EXE}} base:shell-redress -- {{.TASK_EXE}} base:shell-which {{.TASK_EXE}}'
       
-
+  shell-replace-dep:
+    desc: nstalls a cross platform **replace** command.
+    cmds:
+      - echo '- replace tool ...'
+      # https://github.com/webdevops/go-replace
+      - '{{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/go-replace{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
+      - echo ''
   shell-replace-h:
     desc: replace is a cross platform **replace** command.
     cmds:
@@ -392,16 +376,17 @@ tasks:
   shell-replace:
     desc: replace is a cross platform **replace** command. E.G task base:shell-replace -- aa
     cmds:
+      - '{{.BASE_TASK_CMD}} base:shell-replace-dep'
       - '{{.BASE_SHELL_REPLACE_BIN_NAME}} {{.CLI_ARGS}}'
       
   shell-tree-dep:
     desc: shell-dep installs a cross platform **tree** command.
     cmds:
+      - echo ''
       - echo '- tree tool ...'
-      - '{{.BASE_TASK_CMD}} base:shell-which -- {{.BASE_SHELL_TREE_BIN_NAME}}'
       # https://github.com/a8m/tree/cmd/tree
-      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
-      - mv {{.BASE_DEP_PATH}}/tree {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
+      - '{{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/tree{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
       - echo ''
   shell-tree-h:
     desc: tree is a cross platform **tree** command.
@@ -414,15 +399,25 @@ tasks:
       - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l --dirsfirst -C {{.CLI_ARGS}}'
     silent: true
 
+
+  shell-wgot-dep:
+    desc: installs wgot, if not present.
+    cmds:
+       - echo '- wgot tool ...'
+      # https://github.com/bitrise-io/got
+       - '{{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}'
+       - mv {{.GO_ENV_BIN_PATH}}/wgot{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+       - echo ''
   shell-wgot-h:
     desc: wgot is a cross platform **wget** command.
     cmds:
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} --help'
   shell-wgot:
-    desc: wgot is a cross platform **wget** command. E:G task base:shell-wgot -- https://example.com/file.mp4
+    desc: wgot pulls files over http. E:G task base:shell-wgot -- https://example.com/file.mp4
     cmds:
       # https://github.com/bitrise-io/got
       # got -o /path/to/save https://example.com/file.mp4
+      - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}}'
 
 
@@ -430,10 +425,12 @@ tasks:
     desc: installs which, if not present. The ONLY way we can check is to check the .BIN folder itself, because which will not work if WHICH is not installed :)
     cmds:
       - echo '- which tool dep ...'
-      
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
-      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
-      - mv {{.BASE_DEP_PATH}}/which {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      #- env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
+      - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
+      # DEBUG: Wtf is windows seeing ??
+      - ls -al {{.GO_ENV_BIN_PATH}}
+      - mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
   shell-which-dep-del:
     desc: deletes which
@@ -456,10 +453,6 @@ tasks:
     cmds:
       - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - '{{.BASE_TASK_CMD}} base:shell-which -- {{.TASK_EXE}}'
-  shell-which-shell: 
-    desc: which shell finds the shell binary. FAILS since cant get shell in CI linux yet.
-    cmds:
-      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
-      - '{{.BASE_TASK_CMD}} base:shell-which -- {{.BASE_SHELL}}'
+  
       
 
