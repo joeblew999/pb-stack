@@ -4,10 +4,19 @@ https://github.com/joeblew999/pb-stack
 
 # helpers
 
-# https://github.com/mbarbita/go-winget
-go install github.com/mbarbita/go-winget@latest to control winget, so we can bootstrap this way.
+https://github.com/psanford/wormhole-william to transfer ssh keys and config.
+- go install github.com/psanford/wormhole-william@latest
+
+https://github.com/Jacalz/rymdport for GUI version of wormhole.
+- go install github.com/Jacalz/rymdport/v3@latest
+
+https://github.com/mbarbita/go-winget to get git and go installed
+- go install github.com/mbarbita/go-winget@latest to control winget, so we can bootstrap this way.
 
 
+https://github.com/joeblew999.keys
+- to check ssh keys match your own. this is public BTW.
+- cat $HOME/.ssh/joeblew999_github.com.pub
 
 ## status 
 ! STATUS !
