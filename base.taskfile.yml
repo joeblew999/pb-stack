@@ -83,6 +83,7 @@ vars:
 
 env:
   # https://github.com/go-task/task/issues/202
+  # https://github.com/go-task/task/issues/2164
 
   # I want to add these 2 paths to the PATH, so that the shell can find the binaries.
   # Darwin: works - both locally and in Github CI.
