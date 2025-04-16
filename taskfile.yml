@@ -15,21 +15,10 @@ includes:
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
   #  flatten: true
 
-  
-  # task for runtime.
-  #caddy:      ./mod/caddy
-  #cloudflare: ./mod/cloudflare
-  #compose:    ./mod/compose
-  #datastar: 	./mod/datastar
-  #gh: 				./mod/github
-  #kamal: 			./mod/kamal
-  #minio: 			./mod/minio
-  #pb: 				./mod/pocketbase
-  #reck: ./mod/reck/taskfile.yml
   #remote:
-    # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
-    # https://github.com/saydulaev/taskfile
-    #taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+  #   https://github.com/saydulaev/taskfile
+  #   taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+  #   flatten: true
 
 
 tasks:

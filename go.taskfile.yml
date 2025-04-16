@@ -28,6 +28,7 @@ vars:
   GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
   GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
   GO_VAR_BIN_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
+  
 
 tasks:
   default:
@@ -71,6 +72,15 @@ tasks:
       - echo 'mod upgrade -  https://github.com/oligot/go-mod-upgrade'
       - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} install github.com/oligot/go-mod-upgrade@latest
       - cd {{.GO_VAR_SRC_PATH}} && go-mod-upgrade
+      - echo ''
+    silent: false
+  install:
+    desc: go install. E.G task go:install -- github.com/oligot/go-mod-upgrade@latest
+    cmds:
+      - echo ''
+      - echo 'installing go binary to .dep'
+      - '{{.GO_BIN_NAME}} install {{.CLI_ARGS}}'
+      #- mv {{.GO_ENV_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
       - echo ''
     silent: false
   bin:

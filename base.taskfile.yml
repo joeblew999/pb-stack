@@ -68,7 +68,9 @@ vars:
 
   # The BIN folder is above the SRC.
   BASE_BIN_NAME: '.bin'
-  BASE_BIN_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_BIN_NAME}}'
+  #BASE_BIN_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_BIN_NAME}}'
+  BASE_BIN_PATH: '{{joinPath .BASE_SRC_PATH .BASE_BIN_NAME }}'
+
   
   # The DEP folder is at the root of the git root, as these are shared. 
   BASE_DEP_NAME: '.dep'
@@ -78,7 +80,8 @@ vars:
 
   # The PACK folder is above the SRC.
   BASE_PACK_NAME: '.pack'
-  BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
+  #BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
+  BASE_PACK_PATH: '{{joinPath .BASE_SRC_PATH .BASE_PACK_NAME }}'
 
   BASE_ENV_PATH: '{{.PATH}}'
   
