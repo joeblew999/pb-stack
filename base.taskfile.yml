@@ -74,7 +74,7 @@ vars:
   BASE_DEP_NAME: '.dep'
   #BASE_DEP_PATH: '{{.BASE_GITROOT_PATH}}/{{.BASE_DEP_NAME}}'
   # For now we put deps into GOPATH bin, until we resolve the cross platform ENV path issue
-  BASE_DEP_PATH: '{{.GO_BIN_PATH}}'
+  BASE_DEP_PATH: '{{.GO_ENV_BIN_PATH}}'
 
   # The PACK folder is above the SRC.
   BASE_PACK_NAME: '.pack'
@@ -254,7 +254,7 @@ tasks:
     silent: false
 
   path:
-    desc: adds paths to binaries to the shell, via exporting them.
+    desc: modifies the shell PATH, adding our special Dot folders.
     cmds:
       - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
         platforms: [darwin]
