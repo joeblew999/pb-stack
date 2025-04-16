@@ -15,6 +15,7 @@ version: '3'
 
 vars:
   GO_BIN_NAME: go
+  
   GO_BIN_WHICH:
     sh: 'command -v {{.GO_BIN_NAME}}'
     #sh: '{{.BASE_TASK_CMD}} base:shell-which -- {{.GO_BIN_NAME}}'
@@ -51,12 +52,29 @@ tasks:
       - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
       - echo ''
     silent: false
+  mod-tidy:
+    desc: go mod tidy
+    cmds:
+      - echo ''
+      - echo 'mod tidy'
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} mod tidy
+      - echo ''
+    silent: false
+  mod-upgrade:
+    desc: go mod upgrade
+    cmds:
+      - echo ''
+      - echo 'mod upgrade'
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} go install https://github.com/oligot/go-mod-upgrade@latest
+      - echo ''
+    silent: false
   bin:
     desc: go build
     cmds:
       #- task base:dep
       - echo ''
       - echo 'bin'
+      - task go:mod-tidy
       - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_PATH}}
       - echo ''
     silent: false

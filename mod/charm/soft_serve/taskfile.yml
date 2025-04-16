@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  # TODO: Can i get rid of the need to swap between base and remote ?
+  # https://taskfile.dev/usage/#flatten-includes  ??
+  base: 
+    taskfile: ./../../../remote-taskfile.yml
+    flatten: true
+  #remote:
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+  #  flatten: true       
+vars:
+  # MUST have this to work. Maybe can discover it later in base.
+  BASE_SRC_NAME: soft_serve
+ 
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - task base
+      - task base:bin
+      - task go:bin
+  run:
+    cmds:
+      - task go:run

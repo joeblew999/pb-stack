@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  remote:
+    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+                
+vars:
+  # MUST have this to work. Maybe can discover it later in base.
+  BASE_SRC_NAME: todo-with-task-includes
+  TODO_GREETING: Hello, from todo project !
+ 
+tasks:
+  default:
+    desc: todo print
+    cmds:
+      - echo "{{.TODO_GREETING}}"
+    silent: true
+  all:
+    cmds:
+      - task remote:base
+      - task remote:base:bin
+      - task remote:go:bin
+      - task remote:go:run
+  # All below are just here to remind me for now..
+  base:
+    cmds:
+      - task remote:base
+      - task remote:base:bin
+  bin:
+    cmds:
+      - task remote:go:bin
+  run:
+    cmds:
+      - task remote:go:run
