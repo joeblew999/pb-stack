@@ -8,37 +8,27 @@ version: '3'
 
 vars:
 
-  ### task
-
-  # Task version to use.
-  # Issue: .env variable do not override task variables.
-  # https://github.com/go-task/task/releases/tag/v3.42.1
-  # https://github.com/go-task/task/releases/tag/v3.39.2
-
-  BASE_TASK_VERSION_DEFAULT: v3.42.1
-  # For bootstrapping off all.env, so everyone is definitely on the same version.
-  #BASE_TASK_VERSION_ENV: v3.42.1
-  # evaluated, ONLY if task is installed.
-  BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
-
   # Simple wrapper to apply defaults. TODO: Can check version and Upgrade in place ?
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
 
+  # Version
+  BASE_TASK_VERSION_DEFAULT: v3.42.1
+  # For bootstrapping off all.env, so everyone is definitely on the same version.
+  #BASE_TASK_VERSION_ENV: v3.42.1
+  BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
 
   ### shell
   
-  # E.G: '/bin/zsh'  
-  # Issue: this only works on Darwin.
-  # TODO: Need a cross platform version 
+  # I want it to work on all OS. On MAC i want 'zsh', but it gives me '/bin/zsh'. Maybe Task has a special function ?
   BASE_SHELL: '{{.SHELL}}'
-
+  
   # E:G: 'darwin'
   BASE_SHELL_OS_NAME: '{{OS}}'
   # E.G: 'arm64'
   BASE_SHELL_OS_ARCH: '{{ARCH}}'
 
 
-  # help with cross OS differences, cause u-root and task is not good enough.
+  # base cli tools.
   BASE_SHELL_WHICH_BIN_NAME: shell-which
   BASE_SHELL_WHICH_BIN_VERSION: latest
 
@@ -55,7 +45,7 @@ vars:
   # https://github.com/goretk/redress/releases/tag/v1.2.24
   BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
 
-  ### binary
+  # binary
   BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
   
 
@@ -65,48 +55,39 @@ vars:
   # E.G: 'apple'
   BASE_USER: '{{.USER}}'
 
-  # Project (always named like project root '_' cmd path), as in go projects cmd is the entry point. 
+  # dot folder conventions for all modules and projects
 
-
-  # Our dot folders.
-
-  # We want to know the root of the repo.
+  # Root of the repo.
   BASE_GITROOT_PATH:
     sh: git rev-parse --show-toplevel
 
-  # We want the SRC to be identical to where the git clone happens to, so all other tooling works naturally.
-  # Hence, we use the USER_WORKING_DIR, which is the same as the git clone location.
+  # The SRC is where a developer does their the git clone into.
   BASE_SRC_NAME: '{{base .USER_WORKING_DIR}}'
   BASE_SRC_PATH: '{{.USER_WORKING_DIR}}'
 
-  # We want the BIN near the SRC
+  # The BIN folder is above the SRC.
   BASE_BIN_NAME: '.bin'
   BASE_BIN_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_BIN_NAME}}'
   
-  # We want the DEP in git root, as these are shared. 
+  # The DEP folder is at the root of the git root, as these are shared. 
   BASE_DEP_NAME: '.dep'
   BASE_DEP_PATH: '{{.BASE_GITROOT_PATH}}/{{.BASE_DEP_NAME}}'
 
-  # We want the PACKS near the SRC and BIN, as these are specific to a project.
+  # The PACK folder is above the SRC.
   BASE_PACK_NAME: '.pack'
   BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
 
-  # Add .DEP and .BIN to the PATH, so we do not pollute the OS.
-  # Windows PS its "$env:Path" get whats on the PATH
-  BASE_PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
+  BASE_ENV_PATH: '{{.PATH}}'
+  
 
 
 env:
   # https://github.com/go-task/task/issues/202
 
-  # export Path to include our .bin and .dep
-  #export PATH:=$(PATH):$(BASE_BIN_PATH):$(BASE_DEP_PATH)
-  #export PATH:=$(PATH):$(BASE_PWD_BIN)
-  # https://github.com/go-task/task/issues/202
-
-  #PATH: '{{.BASE_PATH}}'
-  # '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
-  # mac
+  # I want to add these 2 paths to the PATH, so that the shell can find the binaries.
+  # Darwin: works - both locally and in Github CI.
+  # Linux: nope.
+  # Windows. nope.
   PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
   # windows
   # set PATH=%PATH%;C:\your\path\here\
@@ -146,12 +127,10 @@ tasks:
       - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
       - echo 'BASE_PACK_PATH:'        {{.BASE_PACK_PATH}}
       - echo ''
+      - echo 'BASE_ENV_PATH:'         {{.BASE_ENV_PATH}}
+      - echo ''
       - echo '- env path'
       - echo 'PATH:'                  {{.PATH}}
-      - echo ''
-      - echo 'BASE_PATH:'             {{.BASE_PATH}}
-      - echo ''
-      - echo ''
       - echo ''
       - echo '- task'
       - echo ''
