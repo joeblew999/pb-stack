@@ -74,7 +74,7 @@ tasks:
       #- task base:dep
       - echo ''
       - echo 'bin'
-      - task go:mod-tidy
+      #- task go:mod-tidy
       - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_PATH}}
       - echo ''
     silent: false

@@ -3,5 +3,5 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Print("Hellow from todo-with-task-includes")
+	fmt.Print("Hellow from wish")
 }

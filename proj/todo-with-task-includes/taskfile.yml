@@ -5,46 +5,25 @@
 version: '3'
 
 
-
 # MUST have this ONLY in root for env variables to work.
-#dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  # base for devtime
-  base: ./../../base.taskfile.yml
-
-  git: ./../../git.taskfile.yml
-  go: ./../../go.taskfile.yml
-  #vscode: ./vscode.taskfile.yml
-
-  #remote:
-    # binary needed: https://github.com/aquasecurity/trivy/releases/tag/v0.60.0
-    # https://github.com/saydulaev/taskfile
-    #taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+  # Pick if you want local or remote task file loading.
+  # https://taskfile.dev/usage/#flatten-includes makes it all the same either way.
+  local: 
+    taskfile: ./../../remote-taskfile.yml
+    flatten: true
+  #remote: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+  #  flatten: true
 
 vars:
   BASE_SRC_NAME: todo-with-task-includes
-  TODO_GREETING: Hello, from todo project !
- 
+
 tasks:
   default:
-    desc: todo print
-    cmds:
-      - echo "{{.TODO_GREETING}}"
-    silent: true
-  all:
     cmds:
       - task base
       - task base:bin
       - task go:bin
-      - task go:run
-  # All below are just here to remind me for now..
-  base:
-    cmds:
-      - task base
-  bin:
-    cmds:
-      - task go:bin
-  run:
-    cmds:
-      - task go:run

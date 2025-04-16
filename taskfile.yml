@@ -8,18 +8,12 @@ version: '3'
 dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  # base for all, with variables used for by most other includes.
-  base:
-    taskfile: ./base.taskfile.yml
-
-  # task for devtime. Best to have them always loaded.
-  git:				
-    taskfile: ./git.taskfile.yml
-  ci:     		
-    taskfile: ./ci.taskfile.yml
-  go:         
-    taskfile: ./go.taskfile.yml
-  #vscode: ./vscode.taskfile.yml
+  local: 
+    taskfile: ./remote-taskfile.yml
+    flatten: true
+  #remote: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+  #  flatten: true
 
   
   # task for runtime.
@@ -59,12 +53,12 @@ tasks:
       - echo 'get shell tools installed ...'
       - '{{.BASE_TASK_CMD}} go:bin'
       # mod
-      - echo 'Build a Modules ...'
-      #- cd mod/caddy && {{.BASE_TASK_CMD}} go:bin
+      - echo 'Build my Modules ...'
+      - cd mod/charm/soft_serve && {{.BASE_TASK_CMD}}
       # proj
-      - echo 'Build a Project or 2 ...'
+      - echo 'Build my Projects ...'
       # works, but only with explicit calls, otherwise it self loops.
-      - cd proj/todo-with-task-includes && {{.BASE_TASK_CMD}} bin
+      - cd proj/todo-with-task-includes && {{.BASE_TASK_CMD}}
       # work, calling all. I guess because of "remote" at start of calls.
-      - cd proj/todo-with-task-remote && {{.BASE_TASK_CMD}} all
+      - cd proj/todo-with-task-remote && {{.BASE_TASK_CMD}}
     silent: false
