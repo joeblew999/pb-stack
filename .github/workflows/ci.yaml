@@ -103,6 +103,14 @@ jobs:
       - name: task base
         run: task --yes base
 
+      # List all git variables.
+      - name: task git
+        run: task --yes git
+
+      # List all go variables.
+      - name: task go
+        run: task --yes go
+
       # List all tool s.
       - name: task base:tools-print
         run: task --yes base:tools-print
@@ -125,13 +133,7 @@ jobs:
       - name: task base:test
         run: task --yes base:test
 
-      # List all git variables.
-      - name: task git
-        run: task --yes git
-
-      # List all go variables.
-      - name: task go
-        run: task --yes go
+      
 
       # Build Modules and Projects explicitly from root ...
       - name: task bin
