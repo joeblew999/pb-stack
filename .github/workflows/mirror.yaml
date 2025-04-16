@@ -1,0 +1,26 @@
+name: Mirror to Codeberg
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Clone Codeberg repository
+        run: |
+          git clone --mirror https://codeberg.org/gedw99/apartment.git mirror-codeberg
+          cd mirror-codeberg
+          git config --global user.email "joeblew99@gmail.com"
+          git config --global user.name "joeblew999"
+
+      - name: Push to Codeberg
+        run: |
+          git push --mirror --all --set-upstream https://codeberg.org/gedw99/pb-stack.git
+          cd ..
+          rm -rf mirror-codeberg
