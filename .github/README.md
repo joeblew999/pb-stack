@@ -2,60 +2,24 @@
 
 https://github.com/joeblew999/pb-stack
 
-# helpers
+Task files for cross platform development and runtimes.
 
-https://github.com/psanford/wormhole-william to transfer ssh keys and config.
-- go install github.com/psanford/wormhole-william@latest
-
-https://github.com/Jacalz/rymdport for GUI version of wormhole.
-- go install github.com/Jacalz/rymdport/v3@latest
-
-https://github.com/mbarbita/go-winget to get git and go installed
-- go install github.com/mbarbita/go-winget@latest to control winget, so we can bootstrap this way.
+https://taskfile.dev
+https://github.com/go-task/task
 
 
-https://github.com/joeblew999.keys
-- to check ssh keys match your own. this is public BTW.
-- cat $HOME/.ssh/joeblew999_github.com.pub
-
-## status 
-! STATUS !
-
-Read the Docs for now to get a feel for the intent. Ask questions if something seems off.
-
-The scaffolds for the [TASK](../mod/task/README.md) files and [TOFU](../mod/tofu/README.md) are going in currently. We need this to rapidly develop. 
-
-Next will be the [GitHub Actions for CI and CD](../.github/workflows/README.md) round-tripping to your own Desktop.
-
-Simple examples / playgrounds, so we can work up the code generator against real projects. Its the only way for others to understand how to develop this.
+status ! WIP !
 
 ## Documentation
 
 See [Doc](../doc/README.md) folder for Project Info.
 
-
 ## Task
 
-Bootstrap task onto to your laptop...
+Assuming you have golang installed, bootstrap task onto to your laptop...
 
 ```sh
-
-make     
-TASK_BIN_NAME:            task
-TASK_BIN_VERSION:         recursive-config-search
-TASK_BIN_WHICH:           
-TASK_BIN_WHICH_VERSION:  
-
-make task 
-go install github.com/go-task/task/v3/cmd/task@recursive-config-search
-
-make
-TASK_BIN_NAME:            task
-TASK_BIN_VERSION:         recursive-config-search
-TASK_BIN_WHICH:           /Users/apple/workspace/go/bin/task
-TASK_BIN_WHICH_VERSION:   3.42.1
-
-
+go install github.com/go-task/task/v3/cmd/task@latest
 ```
 
 ## Env
@@ -67,6 +31,7 @@ Copy the .env-template to .env to suit your own git and github credentials.
 ```
 
 ```sh
+
 # .env
 
 # Each Repo MUST have this.
@@ -95,9 +60,7 @@ GIT_SIGNING_USER_EMAIL=xxx@gmail.com
 
 ## Task
 
-THen Task takes over and does the next level of Bootstrap.
-
-https://taskfile.dev/reference/
+Then Task takes over and does the next level of Bootstrap.
 
 TASK files are used:
 
@@ -181,3 +144,43 @@ then to run your local binary.
 task base-bin-run
 ```
 
+
+## helpers for Testing on Desktops.
+
+To install golang and git on Windows easily.
+
+```sh 
+winget install Golang.go
+winget install Git.git
+```
+
+To easily control winget using golang using https://github.com/mbarbita/go-winget 
+
+```sh
+go install github.com/mbarbita/go-winget@latest 
+```
+
+To move ssh config & keys around between laptops for testing.
+
+https://github.com/psanford/wormhole-william
+
+```sh
+go install github.com/psanford/wormhole-william@latest
+``` 
+
+To move files between machines for testing with a GUI for wormhole.
+
+```sh
+go install github.com/Jacalz/rymdport/v3@latest
+```
+
+
+
+
+https://github.com/joeblew999.keys
+
+to check ssh keys match your own. this is public BTW.
+
+```sh
+cat $HOME/.ssh/joeblew999_github.com.pub
+``` 

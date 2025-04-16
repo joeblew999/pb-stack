@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 
-# go
+# go.taskfile.yml 
 
 # Only need.
 # go compiler

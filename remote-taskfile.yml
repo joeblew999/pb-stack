@@ -1,6 +1,6 @@
-
-
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# remote-taskfile.yml
 
 version: '3'
 
@@ -13,9 +13,9 @@ includes:
     taskfile: ./base.taskfile.yml
 
   # tasks for devtime. Best to have them always loaded.
-  git:				
-    taskfile: ./git.taskfile.yml
-  ci:     		
-    taskfile: ./ci.taskfile.yml
-  go:         
-    taskfile: ./go.taskfile.yml
+  #git:				
+  #  taskfile: ./git.taskfile.yml
+  #ci:     		
+  #  taskfile: ./ci.taskfile.yml
+  #go:         
+  #  taskfile: ./go.taskfile.yml
