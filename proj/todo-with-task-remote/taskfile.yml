@@ -7,7 +7,7 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   remote:
-    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/taskfile.yml
+    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/taskfile-remote.yml
                 
 vars:
   #BASE_SRC_NAME: todo-with-task-includes
