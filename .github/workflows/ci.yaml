@@ -129,9 +129,9 @@ jobs:
       - name: task go
         run: task --yes go
 
-      # Build everything explicitly from root ...
-      #- name: task bin
-      #  run: task --yes bin 
+      # Build Modules and Projects explicitly from root ...
+      - name: task bin
+        run: task --yes bin 
           
       
 

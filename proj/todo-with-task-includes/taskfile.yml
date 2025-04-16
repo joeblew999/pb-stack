@@ -32,6 +32,16 @@ tasks:
     cmds:
       - echo "{{.TODO_GREETING}}"
     silent: true
+  all:
+    cmds:
+      - task base
+      - task base:bin
+      - task go:bin
+      - task go:run
+  # All below are just here to remind me for now..
+  base:
+    cmds:
+      - task base
   bin:
     cmds:
       - task go:bin
