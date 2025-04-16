@@ -55,6 +55,9 @@ tasks:
       # mod
       - echo 'Build my Modules ...'
       - cd mod/charm/soft_serve && {{.BASE_TASK_CMD}}
+      # mod example ( that uses a module task file.)
+      - cd mod/process_compose/example/local && {{.BASE_TASK_CMD}}
+      - cd mod/process_compose/example/remote && {{.BASE_TASK_CMD}} 
       # proj
       - echo 'Build my Projects ...'
       # works, but only with explicit calls, otherwise it self loops.

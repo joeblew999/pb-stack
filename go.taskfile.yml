@@ -64,8 +64,9 @@ tasks:
     desc: go mod upgrade
     cmds:
       - echo ''
-      - echo 'mod upgrade'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} go install https://github.com/oligot/go-mod-upgrade@latest
+      - echo 'mod upgrade -  https://github.com/oligot/go-mod-upgrade'
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} install github.com/oligot/go-mod-upgrade@latest
+      - cd {{.GO_VAR_SRC_PATH}} && go-mod-upgrade
       - echo ''
     silent: false
   bin:

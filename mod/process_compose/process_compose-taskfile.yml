@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+includes:
+  base:
+    taskfile: ./../../base.taskfile.yml
+    #flatten: true
+  git:
+    taskfile: ./../../git.taskfile.yml
+    #flatten: true
+  #base: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/base.taskfile.yml
+  #  flatten: true
+  #git: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/git.taskfile.yml
+  #  flatten: true
+
+vars:
+  # MUST have this to work. Maybe can discover it later in base.
+  BASE_BIN_NAME: process_compose
+ 
+tasks:
+  default:
+    cmds:
+      - echo 'runner of pc'
+  run:
+    cmds:
+      - echo 'binary process_compose'

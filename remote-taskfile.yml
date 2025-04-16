@@ -12,7 +12,7 @@ includes:
   base:
     taskfile: ./base.taskfile.yml
 
-  # task for devtime. Best to have them always loaded.
+  # tasks for devtime. Best to have them always loaded.
   git:				
     taskfile: ./git.taskfile.yml
   ci:     		

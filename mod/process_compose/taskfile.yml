@@ -8,21 +8,24 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 includes:
   # Pick if you want local or remote task file loading.
   # https://taskfile.dev/usage/#flatten-includes makes it all the same either way.
-  local: 
-    taskfile: ./../../../remote-taskfile.yml
+  local-root: 
+    taskfile: ./../../remote-taskfile.yml
     flatten: true
-  #remote: 
+  #remote-root: 
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
   #  flatten: true
 
 vars:
   # MUST have this to work. Maybe can discover it later in base.
-  BASE_SRC_NAME: soft_serve
+  BASE_SRC_NAME: process_compose
  
 tasks:
   default:
     cmds:
       - task --list-all
       - task base
-      - task base:tools
+      #- task base:tools
       - task go:bin
+  run:
+    cmds:
+      - task go:run

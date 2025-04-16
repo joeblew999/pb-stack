@@ -22,6 +22,6 @@ tasks:
   default:
     cmds:
       - task base
-      - task base:bin
+      - task base:tools
       - task go:bin
  

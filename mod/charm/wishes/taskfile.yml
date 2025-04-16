@@ -24,7 +24,7 @@ tasks:
     cmds:
       - task --list-all
       - task base
-      - task base:bin
+      - task base:tools
       - task go:bin
   run:
     cmds:

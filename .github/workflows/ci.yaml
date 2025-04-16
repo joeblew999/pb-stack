@@ -86,7 +86,7 @@ jobs:
         run: 	go install github.com/go-task/task/v3/cmd/task@latest
 
       # https://github.com/arduino/setup-task
-      # TODO: Get TASK version from .env, so it single sourced.
+      # DONT NEED THIS. Just use golang.
       #- name: Install Task via action
       #  uses: arduino/setup-task@v2
       #  with:

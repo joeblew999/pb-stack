@@ -29,7 +29,8 @@ vars:
 
 
   # base cli tools.
-  BASE_SHELL_WHICH_BIN_NAME: shell-which
+  BASE_SHELL_WHICH_BIN_NAME: 'shell-which{{.BASE_BINARY_EXTENSION}}'
+  # Is Windows ?
   BASE_SHELL_WHICH_BIN_VERSION: latest
 
   BASE_SHELL_REPLACE_BIN_NAME: shell-replace
@@ -86,11 +87,14 @@ env:
   # https://github.com/go-task/task/issues/2164
 
   # I want to add these 2 paths to the PATH, so that the shell can find the binaries.
-  # Darwin: works - both locally and in Github CI.
+  
   # Linux: nope.
-  # Windows. nope.
+  
+
+  # Darwin - works both locally and in Github CI.
   PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
-  # windows
+  
+  # windows ?
   # set PATH=%PATH%;C:\your\path\here\
   #  sh: '{{.BASE_DEP_PATH}};{{.BASE_BIN_PATH}}'
   
@@ -210,13 +214,23 @@ tasks:
       - echo ''
     silent: false
 
+  path:
+    desc: adds paths to binaries to the shell, via exporting them.
+    cmds:
+      - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
+        platforms: [darwin]
+      - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
+        platforms: [linux]
+      - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
+        platforms: [windows]
+
   test:
     desc: base test, checks that base is working.
     cmds:
       - echo ''
       - echo 'testing base  ...'
       - '{{.BASE_TASK_CMD}} base:upgrade'
-      - '{{.BASE_TASK_CMD}} base:bin'
+      - '{{.BASE_TASK_CMD}} base:tools'
       - '{{.BASE_TASK_CMD}} base:shell-os-test'
       - '{{.BASE_TASK_CMD}} base:shell-which-shell'
       - '{{.BASE_TASK_CMD}} base:shell-which-test'
@@ -226,23 +240,26 @@ tasks:
     desc: base clean, cleans the base folders.
     cmds:
       - echo ''
-      - echo 'cleaning base  ...'
+      - echo 'cleaning base folders ...'
       - rm -rf *{{.BASE_BIN_PATH}}
       - rm -rf *{{.BASE_DEP_PATH}}
       - rm -rf *{{.BASE_PACK_PATH}}
     silent: false
   clean-list:
-    desc: base clean list, lists what is cleaned from the base folders.
+    desc: base clean list, lists the contents of the base folders.
     cmds:
       - echo ''
-      - echo 'cleaning base  ...'
-      - ls -al {{.BASE_BIN_PATH}}
-      - ls -al *{{.BASE_DEP_PATH}}
-      - ls -al *{{.BASE_PACK_PATH}}
-    silent: false
+      - echo 'cleaning base folders...'
+      - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_BIN_PATH}}'
+      #- '{{.BASE_SHELL_TREE_BIN_NAME}} {{.BASE_BIN_PATH}}'
+      - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_DEP_PATH}}'
+      #- '{{.BASE_SHELL_TREE_BIN_NAME}} {{.BASE_DEP_PATH}}'
+      - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_PACK_PATH}}'
+      #- '{{.BASE_SHELL_TREE_BIN_NAME}} {{.BASE_PACK_PATH}}'
+    silent: true
 
-  bin:
-    desc: base:bin, installs shell level components.
+  tools:
+    desc: base:tools, installs shell level tools into .dep. These get packed into .pack when we package later.
     cmds:
       - echo ''
       - echo 'installing base shell tools ...'
@@ -254,23 +271,28 @@ tasks:
       - echo ''
       - echo '2. Installing base shell tools ...'
       - echo ''
+
       - echo '- which tool ...'
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
       - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
       - mv {{.BASE_DEP_PATH}}/which {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
+
       - echo '- tree tool ...'
       # https://github.com/a8m/tree/cmd/tree
       - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
       - mv {{.BASE_DEP_PATH}}/tree {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
+      
       - echo '- wgot tool ...'
       # https://github.com/bitrise-io/got
       - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}
       - mv {{.BASE_DEP_PATH}}/wgot {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
+      
       - echo '- replace tool ...'
       # https://github.com/webdevops/go-replace
       - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/webdevops/go-replace@{{.BASE_SHELL_REPLACE_BIN_VERSION}}
       - mv {{.BASE_DEP_PATH}}/go-replace {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REPLACE_BIN_NAME}}
+      
       - echo '- redress tool ...'
       # https://github.com/goretk/redress
       - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}
@@ -278,18 +300,19 @@ tasks:
 
       - echo ''
       - echo 'TODO - add the other tools after we sort out the SHELL and BIN Naming to be cross platform  ...'
-
-  bin-list:
-    desc: base bin list, lists what is installed in the bin folders.
+  tools-print:
+    desc: prints the base shell tools
     cmds:
-      - echo ''
-      - echo 'listing base shell tools ...'
-      - echo ''
-      - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_BIN_PATH}}'
-      - ls -al {{.BASE_BIN_PATH}}
-      - ls -al {{.BASE_DEP_PATH}}
-      - ls -al {{.BASE_PACK_PATH}}
-    silent: false
+      - echo {{.BASE_SHELL_WHICH_BIN_NAME}}
+
+      - echo {{.BASE_SHELL_TREE_BIN_NAME}}
+      - echo {{.BASE_SHELL_WGOT_BIN_NAME}}
+      - echo {{.BASE_SHELL_REPLACE_BIN_NAME}}
+      - echo {{.BASE_SHELL_REDRESS_BIN_NAME}}
+
+      
+
+    silent: true
 
   bin-del:
     desc: delete .bin for proj
@@ -299,12 +322,26 @@ tasks:
   shell-os-test:
     desc: shell-os is a cross platform switch command. 
     cmds:
-      - cmd: echo 'building on windows/arm64'
-        platforms: [windows/arm64]
-      - cmd: echo 'building on linux/amd64'
+      - cmd: echo 'on darwin/amd64'
+        platforms: [darwin/amd64]
+      - cmd: echo 'on darwin/arm64'
+        platforms: [darwin/arm64]
+
+      - cmd: echo 'on linux/amd64'
         platforms: [linux/amd64]
-      - cmd: echo 'building on darwin'
-        platforms: [darwin]
+      - cmd: echo 'on linux/arm64'
+        platforms: [linux/arm64]
+
+      - cmd: echo 'on windows/amd64'
+        platforms: [windows/amd64]
+      - cmd: echo 'on windows/arm64'
+        platforms: [windows/arm64]
+
+      # exotics
+      - cmd: echo 'on openbsd, dragonfly, freebsd, netbsd'
+        platforms: [openbsd, dragonfly, freebsd, netbsd]
+
+      
 
 
   shell-redress-h:
@@ -340,6 +377,15 @@ tasks:
     cmds:
       - '{{.BASE_SHELL_REPLACE_BIN_NAME}} {{.CLI_ARGS}}'
       
+  shell-tree-dep:
+    desc: shell-dep installs a cross platform **tree** command.
+    cmds:
+      - echo '- tree tool ...'
+      - '{{.BASE_TASK_CMD}} base:shell-which -- {{.BASE_SHELL_TREE_BIN_NAME}}'
+      # https://github.com/a8m/tree/cmd/tree
+      - env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/tree {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
+      - echo ''
   shell-tree-h:
     desc: tree is a cross platform **tree** command.
     cmds:
@@ -347,8 +393,9 @@ tasks:
   shell-tree:
     desc: tree is a cross platform **tree** command. E.G task base:shell-tree -- {{.BASE_BIN_PATH}}
     cmds:
-      - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l  --dirsfirst -C'
-
+      - '{{.BASE_TASK_CMD}} base:shell-tree-dep'
+      - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l --dirsfirst -C {{.CLI_ARGS}}'
+    silent: true
 
   shell-wgot-h:
     desc: wgot is a cross platform **wget** command.

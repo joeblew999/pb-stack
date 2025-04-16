@@ -10,16 +10,16 @@ The scaffolds for the [TASK](../mod/task/README.md) files and [TOFU](../mod/tofu
 
 Next will be the [GitHub Actions for CI and CD](../.github/workflows/README.md) round-tripping to your own Desktop.
 
-Then simple examples / playgrounds, so we can work up the code generator against real projects. Its the only way for others to understand how to develop this.
+Simple examples / playgrounds, so we can work up the code generator against real projects. Its the only way for others to understand how to develop this.
 
 ## Documentation
 
 See [Doc](../doc/README.md) folder for Project Info.
 
 
-## Make
+## Task
 
-We need task and golang installed to bootstrap.
+Bootstrap task onto to your laptop...
 
 ```sh
 
@@ -43,9 +43,36 @@ TASK_BIN_WHICH_VERSION:   3.42.1
 
 ## Env
 
-Copy the -env-template to .env to suit your own git and github credentials.
+Copy the .env-template to .env to suit your own git and github credentials.
 
 ```sh
+    cp .env-template .env
+```
+
+```sh
+# .env
+
+# Each Repo MUST have this.
+
+### task
+
+BASE_TASK_VERSION_ENV=v3.42.1
+# https://github.com/go-task/task/tree/recursive-config-search
+#BASE_TASK_VERSION_ENV=recursive-config-search
+
+
+
+### git
+
+GIT_ORG_NAME=xxx
+
+# below settings are not needed because my files conform,
+# to the conventions expected at git.taskfile.yml
+
+#GIT_SIGNING_USER_NAME=xxx
+GIT_SIGNING_USER_EMAIL=xxx@gmail.com
+#GIT_SIGNING_KEY_PRIV={{.HOME}}/.ssh/xxx_github.com
+#GIT_SIGNING_KEY={{.HOME}}/.ssh/xxx_github.com.pub
 
 ```
 
@@ -71,3 +98,69 @@ task
 task base
 
 ```
+
+
+## Dev-time
+
+Pick a Project or Module
+
+```sh
+cd mod && task 
+```
+
+or
+
+```sh
+cd proj && task 
+```
+
+then to build ...
+
+```sh
+task
+```
+
+then to run ...
+
+```sh
+task go:run
+```
+
+then to package for distribution.
+
+
+```sh
+task base-bin-pack
+``` 
+
+then to push the binary for usage by others.
+
+
+```sh
+task base-bin-push
+```
+
+
+## Run-time
+
+Pick the Project local or remote run time 
+
+```sh
+cd proj/example/local
+```
+or
+```sh 
+cd proj/example/remote
+```
+then,  to update your local binary.
+
+```sh
+task base-bin-pull
+```
+
+then to run your local binary.
+
+```sh
+task base-bin-run
+```
+
