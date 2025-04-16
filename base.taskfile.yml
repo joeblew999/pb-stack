@@ -27,10 +27,13 @@ vars:
   # E.G: 'arm64'
   BASE_SHELL_OS_ARCH: '{{ARCH}}'
 
+  # binary extension
+  BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
+  
 
   # base cli tools.
+  # checking that windows is correct 
   BASE_SHELL_WHICH_BIN_NAME: 'shell-which{{.BASE_BINARY_EXTENSION}}'
-  # Is Windows ?
   BASE_SHELL_WHICH_BIN_VERSION: latest
 
   BASE_SHELL_REPLACE_BIN_NAME: shell-replace
@@ -46,9 +49,6 @@ vars:
   # https://github.com/goretk/redress/releases/tag/v1.2.24
   BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
 
-  # binary
-  BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
-  
 
   # OS User
   # E.G: '/Users/apple'
