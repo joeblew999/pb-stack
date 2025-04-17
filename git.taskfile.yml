@@ -18,11 +18,16 @@ version: '3'
 
 vars:
   #GIT_BIN_NAME: 'git'
-  GIT_BIN_NAME: git{{.BASE_BINARY_EXTENSION}}
+  GIT_BIN_NAME: 'git{{.BASE_BINARY_EXTENSION}}'
   GIT_BIN_WHICH:
     #sh: 'command -v {{.GIT_BIN_NAME}}'
   GIT_BIN_VERSION:
     sh: '{{.GIT_BIN_NAME}} --version'
+
+  # ssh 
+  GIT_SSH_BIN_NAME: ssh
+  GIT_SSH_BIN_VERSION:
+    sh: '{{.GIT_SSH_BIN_NAME}} -V'
 
 
   # env ( expected )
@@ -58,26 +63,31 @@ tasks:
     desc: git print
     cmds:
       - echo ''
-      - echo '- bin'
-      - echo 'GIT_BIN_NAME:'                 {{.GIT_BIN_NAME}}
-      - echo 'GIT_BIN_WHICH:'                {{.GIT_BIN_WHICH}}
-      - echo 'GIT_BIN_VERSION:'              {{.GIT_BIN_VERSION}}
+      - echo '- git bin'
+      - echo 'GIT_BIN_NAME:'                {{.GIT_BIN_NAME}}
+      - echo 'GIT_BIN_WHICH:'               {{.GIT_BIN_WHICH}}
+      - echo 'GIT_BIN_VERSION:'             {{.GIT_BIN_VERSION}}
+      - echo ''
+      - echo '- ssh bin'
+      - echo 'GIT_SSH_BIN_NAME:'            {{.GIT_SSH_BIN_NAME}}
+      - echo 'GIT_SSH_BIN_WHICH:'           {{.GIT_BIN_WHICH}}
+      - echo 'GIT_SSH_BIN_VERSION:'         {{.GIT_SSH_BIN_VERSION}}
       - echo ''
       - echo '- github (env)'
-      - echo 'GIT_ORG_NAME:'             {{.GIT_ORG_NAME}}
+      - echo 'GIT_ORG_NAME:'                {{.GIT_ORG_NAME}}
       - echo ''
       - echo '- signing (env)'
-      - echo 'GIT_SIGNING_USER_NAME:'        {{.GIT_SIGNING_USER_NAME}}
-      - echo 'GIT_SIGNING_USER_EMAIL:'       {{.GIT_SIGNING_USER_EMAIL}}
-      - echo 'GIT_SIGNING_KEY_PRIV:'         {{.GIT_SIGNING_KEY_PRIV}}
-      - echo 'GIT_SIGNING_KEY:'              {{.GIT_SIGNING_KEY}}
+      - echo 'GIT_SIGNING_USER_NAME:'       {{.GIT_SIGNING_USER_NAME}}
+      - echo 'GIT_SIGNING_USER_EMAIL:'      {{.GIT_SIGNING_USER_EMAIL}}
+      - echo 'GIT_SIGNING_KEY_PRIV:'        {{.GIT_SIGNING_KEY_PRIV}}
+      - echo 'GIT_SIGNING_KEY:'             {{.GIT_SIGNING_KEY}}
       - echo '- signing (var)'
-      - echo 'GIT_SIGNING_PROGRAM:'          {{.GIT_SIGNING_PROGRAM}}
-      - echo 'GIT_SIGNING_FORMAT:'           {{.GIT_SIGNING_FORMAT}}
+      - echo 'GIT_SIGNING_PROGRAM:'         {{.GIT_SIGNING_PROGRAM}}
+      - echo 'GIT_SIGNING_FORMAT:'          {{.GIT_SIGNING_FORMAT}}
       - echo ''
       - echo '- var'
-      - echo 'GIT_GITROOT_PATH:'                  {{.GIT_GITROOT_PATH}}
-      - echo 'GIT_GITROOT_VERSION:'          {{.GIT_GITROOT_VERSION}}
+      - echo 'GIT_GITROOT_PATH:'            {{.GIT_GITROOT_PATH}}
+      - echo 'GIT_GITROOT_VERSION:'         {{.GIT_GITROOT_VERSION}}
     silent: true
 
   run-dep:
@@ -130,10 +140,16 @@ tasks:
 
   ssh-del:
     desc: deletes ssh keys and their config. Tricky to be idempotent
-    cmd:
+    cmds:
       #- rm {{.GIT_SIGNING_KEY_PRIV}}
       #- rm {{.GIT_SIGNING_KEY}}
-  
+
+  ssh-list:
+    desc: list all ssh keys
+    cmds:
+      - echo 'Adding the ssh keys to the ssh agent ...'
+      - ssh-add -l
+
 
   ssh-create:
     desc: git ssh creation. Only once of it not there.

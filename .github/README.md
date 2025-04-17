@@ -2,19 +2,145 @@
 
 https://github.com/joeblew999/pb-stack
 
+
 Task files for cross platform development and runtimes.
 
 https://taskfile.dev
+
 https://github.com/go-task/task
+
+## Status
 
 
 status ! WIP !
+
+0. Determine SHELL, and manipulate it.
+
+Task can not determine the shell you have configured, or the path to the shell config, so we need a Golang tool for it, that we install as part of bootstrap, that Task can then call.
+
+1. Manipulate PATH.
+
+Environment PATH manipulation does not exist in Task, where we add .DEP and .BIN at runtime, so we need a Golang tool, that Task calls.
+
+2. File path joins.
+
+File path joins is broken in TASK, so we need a golang tool for that, which Task will call.
+
 
 ## Documentation
 
 See [Doc](../doc/README.md) folder for Project Info.
 
-## Task
+## 0. Base OS Setup
+
+You need golang, git and ssh. Nothing else.
+
+### For Darwin / Linux
+
+Install Brew, and then:
+
+```sh
+which go
+which git
+which openssh
+```
+
+```sh
+brew install go
+brew install git
+brew install openssh
+```
+
+Open your Shell config. For Zsh its:
+```sh
+code ~/.zshrc
+```
+
+### For Windows
+
+Windows Package Manager (aka WinGet) comes pre-installed with Windows 11 (21H2 and later). It can also be found in the Microsoft Store or be installed directly.
+
+https://learn.microsoft.com/en-us/windows/package-manager/winget/
+
+Install Winget from Powershell:
+
+```sh
+Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+```
+
+Then install which, like we have on Darwin / Linux:
+
+```sh 
+winget list GnuWin32.Which
+winget search GnuWin32.Which
+```
+
+```sh
+winget install GnuWin32.Which
+
+# Check it with:
+#which which
+#C:\Users\admin\AppData\Local\Microsoft\WinGet\Links\which.EXE
+```
+
+Then install golang, git and ssh:
+
+```sh
+winget list Golang.go
+winget search Golang.go
+
+winget list Git.git
+winget search Git.git
+
+winget list Openssh
+winget search Openssh
+```
+
+```sh 
+winget install GnuWin32.Which
+winget install Golang.go
+winget install Git.git
+winget install Microsoft.OpenSSH.Preview
+```
+
+To easily control winget using golang using https://github.com/mbarbita/go-winget 
+
+```sh
+go install github.com/mbarbita/go-winget@latest 
+```
+
+## 2. Sync the SSH on all your devices
+
+SSH is all that is needed, and Wormhole makes this easy.
+
+To move ssh config & keys around between systems using a CLI for wormhole.
+
+https://github.com/psanford/wormhole-william
+
+```sh
+go install github.com/psanford/wormhole-william@latest
+``` 
+
+To move files between machines using a GUI for wormhole.
+
+```sh
+go install github.com/Jacalz/rymdport/v3@latest
+```
+
+
+
+
+To check ssh keys on Github match your own. This is public BTW.
+
+https://github.com/joeblew999.keys
+
+
+```sh
+cat $HOME/.ssh/joeblew999_github.com.pub
+``` 
+
+
+## 1. Task Setup
 
 Assuming you have golang installed, bootstrap task onto to your laptop...
 
@@ -22,7 +148,7 @@ Assuming you have golang installed, bootstrap task onto to your laptop...
 go install github.com/go-task/task/v3/cmd/task@latest
 ```
 
-## Env
+## 2. Env Setup
 
 Copy the .env-template to .env to suit your own git and github credentials.
 
@@ -57,6 +183,16 @@ GIT_SIGNING_USER_EMAIL=xxx@gmail.com
 #GIT_SIGNING_KEY={{.HOME}}/.ssh/xxx_github.com.pub
 
 ```
+
+## 3. GIT and SSH setup
+
+In the git task file, are all the SSH and GIT functions.
+
+
+
+
+
+
 
 ## Task
 
@@ -145,42 +281,5 @@ task base-bin-run
 ```
 
 
-## helpers for Testing on Desktops.
+## Helpers for base OS setup of SSH keys and files for Dev-time and Run-time
 
-To install golang and git on Windows easily.
-
-```sh 
-winget install Golang.go
-winget install Git.git
-```
-
-To easily control winget using golang using https://github.com/mbarbita/go-winget 
-
-```sh
-go install github.com/mbarbita/go-winget@latest 
-```
-
-To move ssh config & keys around between laptops for testing.
-
-https://github.com/psanford/wormhole-william
-
-```sh
-go install github.com/psanford/wormhole-william@latest
-``` 
-
-To move files between machines for testing with a GUI for wormhole.
-
-```sh
-go install github.com/Jacalz/rymdport/v3@latest
-```
-
-
-
-
-https://github.com/joeblew999.keys
-
-to check ssh keys match your own. this is public BTW.
-
-```sh
-cat $HOME/.ssh/joeblew999_github.com.pub
-``` 

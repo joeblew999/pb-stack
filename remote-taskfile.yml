@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 
-# remote-taskfile.yml
+# remote-taskfile.yml encapsulates our set of includes for local and remote developers.
 
 version: '3'
 
@@ -8,14 +8,18 @@ version: '3'
 #dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  # base for all, with variables used for by most other includes.
+  # base is used by other includes.
   base:
     taskfile: ./base.taskfile.yml
+  # flatten: true
 
-  # tasks for devtime. Best to have them always loaded.
+  # these are for dev-time. Best to have them always loaded.
   git:				
     taskfile: ./git.taskfile.yml
-  #ci:     		
-  #  taskfile: ./ci.taskfile.yml
+  #  flatten: true
+  ci:     		
+    taskfile: ./ci.taskfile.yml
+  #  flatten: true
   go:         
     taskfile: ./go.taskfile.yml
+  #  flatten: true

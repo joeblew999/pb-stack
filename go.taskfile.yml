@@ -8,8 +8,6 @@
 # go builds for native, wasm, 
 # decent LDFLags structure, so we can pull Module as source and build and release using TASK structure. 
 
-# TODO
-# Make golang builds a AMP package itself ? might make sense.
 
 version: '3'
 

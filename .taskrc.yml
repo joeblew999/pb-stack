@@ -4,18 +4,18 @@ experiments:
   
   # https://taskfile.dev/experiments/env-precedence
   # Before this experiment, the OS variable took precedence over the task environment variable. This experiment changes the precedence to make the task environment variable take precedence over the OS variable.
-  #ENV_PRECEDENCE: 1
+  ENV_PRECEDENCE: 1
 
   # https://taskfile.dev/experiments/gentle-force/
   # This experiment allows you to use the force option in a more gentle way. This means that the force option will not overwrite files that are not in the taskfile.
   # This is useful for tasks that need to be run in a specific order or for tasks that need to be run in a specific environment.
-  #GENTLE_FORCE: 1
+  GENTLE_FORCE: 1
 
   # https://taskfile.dev/experiments/map-variables/
   # This experiment allows you to use the map variable syntax in your Taskfile. This is useful for creating more complex tasks and for using variables in a more flexible way.
   # This experiment is enabled by default in Taskfile v3.0.0 and later.
   # The map variable syntax allows you to use variables in a more flexible way. For example, you can use the map variable syntax to create a task that takes a variable as an argument and then uses that variable in the task.
-  #MAP_VARIABLES: 2
+  MAP_VARIABLES: 2
 
   # https://taskfile.dev/experiments/remote-taskfiles/
   # This experiment allows you to use remote Taskfiles in your Taskfile. This is useful for sharing tasks between projects or for using tasks from a central repository.
