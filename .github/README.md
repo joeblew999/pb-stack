@@ -53,21 +53,30 @@ See [Doc](../doc/README.md) folder for Project Info.
 
 ## 0. Base OS Setup
 
-You need golang, git and ssh. Nothing else.
-
-For Frontend shit, we sometimes need npm or Node, but its far easier to use bun.
+You need golang, git, ssh and bun.
 
 ### For Darwin / Linux
 
-Install Brew:
+Install Brew, if not already installed
 
+https://docs.brew.sh/Installation
+
+```sh
+which brew
+
+# Assuming its not installed then...
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+
+brew doctor
+
+brew analytics off
+brew analytics
+
+```
 
 
 Then, install everything by:
 
-```sh
-
-```
 
 ```sh
 
