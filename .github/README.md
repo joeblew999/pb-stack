@@ -104,6 +104,8 @@ brew uninstall git
 brew uninstall openssh
 brew uninstall bun
 
+brew cleanup -s
+
 which go
 which git
 which openssh
