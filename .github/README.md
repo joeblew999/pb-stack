@@ -11,7 +11,6 @@ https://github.com/go-task/task
 
 ## Status
 
-
 status ! WIP !
 
 0. Determine SHELL, and manipulate it.
@@ -26,6 +25,27 @@ Environment PATH manipulation does not exist in Task, where we add .DEP and .BIN
 
 File path joins is broken in TASK, so we need a golang tool for that, which Task will call.
 
+3. SSH Config
+
+We need a cross platform way to manipulate the ssh config, and call it.
+When i installed openssh to Darwin, git stopped working in vscode.
+
+4. Packaging for golang stuff
+
+https://github.com/imjamesonzeller/tasklight-v3 has a good one for Desktops.
+
+- has service installer and Task file modularity for all OS.
+
+```sh
+git clone https://github.com/imjamesonzeller/tasklight-v3
+
+go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest
+
+go install github.com/go-task/task/v3/cmd/task@latest
+
+
+``` 
+
 
 ## Documentation
 
@@ -35,26 +55,64 @@ See [Doc](../doc/README.md) folder for Project Info.
 
 You need golang, git and ssh. Nothing else.
 
+For Frontend shit, we sometimes need npm or Node, but its far easier to use bun.
+
 ### For Darwin / Linux
 
-Install Brew, and then:
+Install Brew:
+
+
+
+Then, install everything by:
 
 ```sh
-which go
-which git
-which openssh
+
 ```
 
 ```sh
+
 brew install go
 brew install git
 brew install openssh
-```
+brew install bun
+``` 
 
-Open your Shell config. For Zsh its:
+Then configure your shell to use them all:
+
+For Zsh, do:
 ```sh
 code ~/.zshrc
 ```
+
+Then check that your shell is using all packages by:
+
+```sh
+
+which go
+which git
+which openssh
+which bun
+
+```
+
+To uninstall all packages, do:
+
+```sh
+
+brew uninstall go
+brew uninstall git
+brew uninstall openssh
+brew uninstall bun
+
+which go
+which git
+which openssh
+which bun
+
+```
+
+And remove them from you shell config...
+
 
 ### For Windows
 
@@ -81,27 +139,74 @@ winget install GnuWin32.Which
 # Check it with:
 #which which
 #C:\Users\admin\AppData\Local\Microsoft\WinGet\Links\which.EXE
+
 ```
 
-Then install golang, git and ssh:
+Then install golang, git, ssh and bun:
+
+Check package names have not changed by:
 
 ```sh
+winget list GnuWin32.Which
+winget search GnuWin32.Which
+
 winget list Golang.go
 winget search Golang.go
 
 winget list Git.git
 winget search Git.git
 
-winget list Openssh
-winget search Openssh
+winget list Microsoft.OpenSSH.Preview
+winget search Microsoft.OpenSSH.Preview
+
+winget list Oven-sh.Bun
+winget search Oven-sh.Bun
+
 ```
 
+Then install them by:
+
 ```sh 
-winget install GnuWin32.Which
-winget install Golang.go
-winget install Git.git
-winget install Microsoft.OpenSSH.Preview
+
+winget install --id=GnuWin32.Which
+
+winget install --id=Golang.go
+
+winget install --id=Git.git
+
+winget install --id=Microsoft.OpenSSH.Preview
+
+winget install --id=Oven-sh.Bun
+
+which which
+
+which go
+
+which git
+
+which openssh
+
+which bun
+
 ```
+
+If you need to remove then, do:
+
+```sh
+
+winget uninstall --id=GnuWin32.Which
+
+winget uninstall --id=Golang.go
+
+winget uninstall --id=Git.git
+
+winget uninstall --id=Microsoft.OpenSSH.Preview
+
+winget uninstall --id=Oven-sh.Bun
+
+```
+
+
 
 To easily control winget using golang using https://github.com/mbarbita/go-winget 
 
