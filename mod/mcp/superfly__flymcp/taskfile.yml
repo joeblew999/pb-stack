@@ -9,7 +9,7 @@ dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   local: 
-    taskfile: ././../../remote-taskfile.yml
+    taskfile: ././../../../remote-taskfile.yml
     flatten: true
   #remote: 
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
@@ -28,11 +28,13 @@ tasks:
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
     silent: false
 
+
   this:
     desc: build all explicitly.
     cmds:
       - '{{.BASE_TASK_CMD}} go:mod-tidy'
       - '{{.BASE_TASK_CMD}} bin:debug'
+     
 
   bin:debug:
     desc: build all explicitly.

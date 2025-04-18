@@ -12,6 +12,8 @@
 version: '3'
 
 vars:
+  ### bins 
+
   GO_BIN_NAME: go
   #GO_BIN_NAME: 'go{{.BASE_BINARY_EXTENSION}}'
   
@@ -20,16 +22,8 @@ vars:
     #sh: '{{.BASE_TASK_CMD}} base:shell-which -- {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
     sh: '{{.GO_BIN_NAME}} version'
-  GO_ENV_PATH:
-    sh: '{{.GO_BIN_NAME}} env GOPATH'
-  GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
 
-  GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
-  GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
-  GO_VAR_BIN_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
-  #GO_VAR_BIN_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
-
-  # https://github.com/burrowers/garble
+   # https://github.com/burrowers/garble
   GO_GARBLE_BIN_NAME: garble
   # https://github.com/burrowers/garble/releases/tag/v0.14.2
   GO_GARBLE_BIN_VERSION: v0.14.2
@@ -38,8 +32,24 @@ vars:
   # TODO Issue: https://github.com/burrowers/garble/issues/941
   GO_GARBLE_BIN_WHICH_VERSION:
     #sh: '{{.GO_GARBLE_BIN_NAME}} version'
-  
-  
+
+  ### envs
+
+  GO_ENV_PATH:
+    sh: '{{.GO_BIN_NAME}} env GOPATH'
+  GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
+
+  ### vars
+
+  GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
+  GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
+  GO_VAR_BIN_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
+  #GO_VAR_BIN_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
+
+  # NOT setting it here, so that mod and proj can override.
+  #GO_VAR_BUILD_PRE: 'CGO_ENABLED=0'
+  #GO_VAR_BUILD_POST: '-tags production -ldflags="-X"'
+
 
 tasks:
   default:
@@ -47,24 +57,29 @@ tasks:
     cmds:
       - echo ''
       - echo '- bin'
-      - echo 'GO_BIN_NAME:'                {{.GO_BIN_NAME}}
-      - echo 'GO_BIN_WHICH:'               {{.GO_BIN_WHICH}}
-      - echo 'GO_BIN_VERSION:'             {{.GO_BIN_VERSION}}
+      - echo 'GO_BIN_NAME:'                 {{.GO_BIN_NAME}}
+      - echo 'GO_BIN_WHICH:'                {{.GO_BIN_WHICH}}
+      - echo 'GO_BIN_VERSION:'              {{.GO_BIN_VERSION}}
       - echo ''
       - echo '- garble bin'
-      - echo 'GO_GARBLE_BIN_NAME:'         {{.GO_GARBLE_BIN_NAME}}
-      - echo 'GO_GARBLE_BIN_VERSION:'      {{.GO_GARBLE_BIN_VERSION}}
-      - echo 'GO_GARBLE_BIN_WHICH:'        {{.GO_GARBLE_BIN_WHICH}}
-      - echo 'GO_GARBLE_BIN_WHICH_VERSION:'{{.GO_GARBLE_BIN_WHICH_VERSION}}
+      - echo 'GO_GARBLE_BIN_NAME:'          {{.GO_GARBLE_BIN_NAME}}
+      - echo 'GO_GARBLE_BIN_VERSION:'       {{.GO_GARBLE_BIN_VERSION}}
+      - echo 'GO_GARBLE_BIN_WHICH:'         {{.GO_GARBLE_BIN_WHICH}}
+      - echo 'GO_GARBLE_BIN_WHICH_VERSION:' {{.GO_GARBLE_BIN_WHICH_VERSION}}
       - echo ''
       - echo '- env'
-      - echo 'GO_ENV_PATH:'       {{.GO_ENV_PATH}}
-      - echo 'GO_ENV_BIN_PATH:'   {{.GO_ENV_BIN_PATH}}
+      - echo 'GO_ENV_PATH:'                 {{.GO_ENV_PATH}}
+      - echo 'GO_ENV_BIN_PATH:'             {{.GO_ENV_BIN_PATH}}
       - echo ''
       - echo '- var'
-      - echo 'GO_VAR_SRC_PATH:'    {{.GO_VAR_SRC_PATH}}
-      - echo 'GO_VAR_BIN_NAME:'    {{.GO_VAR_BIN_NAME}}
-      - echo 'GO_VAR_BIN_PATH:'    {{.GO_VAR_BIN_PATH}}
+      - echo 'GO_VAR_SRC_PATH:'             {{.GO_VAR_SRC_PATH}}
+      - echo 'GO_VAR_BIN_NAME:'             {{.GO_VAR_BIN_NAME}}
+      - echo 'GO_VAR_BIN_PATH:'             {{.GO_VAR_BIN_PATH}}
+      - echo ''
+      - echo 'GO_VAR_BUILD_PRE:'            {{.GO_VAR_BUILD_PRE}}
+      - echo 'GO_VAR_BUILD_POST:'           {{.GO_VAR_BUILD_POST}}
+    
+      - echo ''
     silent: true
   test:
     desc: go test
@@ -155,7 +170,7 @@ tasks:
       - echo ''
       - echo 'bin'
       #- task go:mod-tidy
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_PATH}}
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_VAR_BUILD_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BUILD_POST}} -o {{.GO_VAR_BIN_PATH}}
       - echo ''
     silent: false
 
