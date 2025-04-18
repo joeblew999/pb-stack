@@ -34,7 +34,7 @@ When i installed openssh to Darwin, git stopped working in vscode.
 
 https://github.com/imjamesonzeller/tasklight-v3 has a good one for Desktops.
 
-- has service installer and Task file modularity for all OS.
+- has service installer and Task file modularity for all OS. NOT ready yet though.
 
 ```sh
 git clone https://github.com/imjamesonzeller/tasklight-v3
@@ -55,11 +55,43 @@ See [Doc](../doc/README.md) folder for Project Info.
 
 You need golang, git, ssh and bun.
 
+## Golang that does not effect your already installed golang.
+
+https://github.com/kevincobain2000/gobrew allows installing golang compiler versions on the fly.
+
+For darwin / linux:
+
+```sh
+curl -sL https://raw.githubusercontent.com/kevincobain2000/gobrew/master/git.io.sh | bash
+
+# This needs to be run in each new shell. Can add it to your shell.
+code $HOME/.bashrc
+code $HOME/.zshrc
+export PATH="$HOME/.gobrew/current/bin:$HOME/.gobrew/bin:$PATH"
+
+```
+
+For windows:
+
+```sh
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/kevincobain2000/gobrew/master/git.io.ps1'))
+``` 
+
+Test it from any github repo that has a go.mod, which is all golang projects:
+
+```sh
+
+```
+
+
+
 ### For Darwin / Linux
 
 Install Brew, if not already installed
 
 https://docs.brew.sh/Installation
+
+TODO: Is there a golang brew controller, like what we have for Winget ?
 
 ```sh
 which brew
