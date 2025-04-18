@@ -9,8 +9,8 @@ dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   local: 
-  #  taskfile: ./remote-taskfile.yml
-  #  flatten: true
+    taskfile: ././../../remote-taskfile.yml
+    flatten: true
   #remote: 
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
   #  flatten: true
@@ -41,7 +41,11 @@ tasks:
       - echo ''
       - echo 'Building all ...'
 
-      # base
-      - echo 'test system is working ...'
-      - '{{.BASE_TASK_CMD}} go:bin
+      # dep
+      - '{{.BASE_TASK_CMD}} go:install -- github.com/ogen-go/ogen/cmd/ogen@latest'
+
+      # gen
+      - '{{.BASE_TASK_CMD}} base:shell-wgot -- https://raw.githubusercontent.com/ogen-go/web/main/examples/petstore.yml'
+      - '{{.BASE_TASK_CMD}} go:run -- github.com/ogen-go/ogen/cmd/ogen@latest'
     silent: false
+  

@@ -20,4 +20,39 @@ includes:
   #   taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
   #   flatten: true
 
-  
+tasks:
+  default:
+    desc: Welcome. 
+    cmds:
+      - echo ''
+      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
+    silent: false
+
+
+  bin:debug:
+    desc: build all explicitly.
+    cmds:
+      - echo ''
+      - echo 'Building all ...'
+
+      # bin
+      - '{{.BASE_TASK_CMD}} go:bin'
+      - '{{.BASE_TASK_CMD}} go:inspect'
+      
+      # run
+      - '{{.BASE_TASK_CMD}} go:run'
+    silent: false
+
+  bin:release:
+    desc: build all explicitly.
+    cmds:
+      - echo ''
+      - echo 'Building all ...'
+
+      # bin
+      - '{{.BASE_TASK_CMD}} go:garble'
+      - '{{.BASE_TASK_CMD}} go:inspect'
+
+      # run
+      - '{{.BASE_TASK_CMD}} go:run'
+    silent: false

@@ -85,8 +85,8 @@ vars:
 
   # The PACK folder is above the SRC.
   BASE_PACK_NAME: '.pack'
-  #BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
-  BASE_PACK_PATH: '{{joinPath .BASE_SRC_PATH .BASE_PACK_NAME }}'
+  BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
+  #BASE_PACK_PATH: '{{joinPath .BASE_SRC_PATH .BASE_PACK_NAME }}'
 
   BASE_ENV_PATH: '{{.PATH}}'
   
@@ -356,6 +356,7 @@ tasks:
   shell-redress:
     desc: redress is a cross platform **redress** command. E.G task base:shell-redress -- task
     cmds:
+      - '{{.BASE_TASK_CMD}} base:shell-redress-dep'
       - '{{.BASE_SHELL_REDRESS_BIN_NAME}} version {{.CLI_ARGS}}'
       - '{{.BASE_SHELL_REDRESS_BIN_NAME}} gomod {{.CLI_ARGS}}'
       - '{{.BASE_SHELL_REDRESS_BIN_NAME}} info {{.CLI_ARGS}}'
@@ -428,11 +429,21 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}}'
 
-
+  shell-which-print:
+    desc: prints the which tool name only.
+    cmds:
+      - echo ''
+      - echo 'printing the which tool name ...'
+      - echo {{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo {{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo ''
+    silent: true
   shell-which-dep:
     desc: installs which, if not present. The ONLY way we can check is to check the .BIN folder itself, because which will not work if WHICH is not installed :)
     cmds:
       - echo '- which tool dep ...'
+      # TODO check is file exists, as WHICH will not work :)
+
       # https://github.com/hairyhenderson/go-which/tree/main/cmd
       #- env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
       - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
