@@ -52,11 +52,15 @@ vars:
   GIT_SIGNING_FORMAT: 'ssh'
 
   # vars
+
   GIT_GITROOT_PATH:
     #sh: git rev-parse --show-toplevel
     sh: '{{.GIT_BIN_NAME}} rev-parse --show-toplevel'
   GIT_GITROOT_VERSION:
     sh: '{{.GIT_BIN_NAME}} rev-parse HEAD'
+
+  # The git url. Comments out so that it is not used.
+  #GIT_VAR_URL: 'YY'
 
 tasks:
   default:
@@ -88,6 +92,10 @@ tasks:
       - echo '- var'
       - echo 'GIT_GITROOT_PATH:'            {{.GIT_GITROOT_PATH}}
       - echo 'GIT_GITROOT_VERSION:'         {{.GIT_GITROOT_VERSION}}
+      - echo ''
+      - echo 'GIT_VAR_NAME:'                {{.GIT_VAR_NAME}}
+      - echo 'GIT_VAR_URL:'                 {{.GIT_VAR_URL}}
+      - echo ''
     silent: true
 
   run-dep:
@@ -106,15 +114,32 @@ tasks:
     cmds:
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
       
-  clone:
-    desc: git clone
+  clone:root:
+    desc: git clone root
     cmds:
       # todo: make a VAR, and let Root Task file override it.
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} clone -h
       # set cross platform attributes, so Windows does not screw up the line endings.
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local core.eol lf
+      - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
 
+  clone:src:
+    desc: git clone src
+    cmds:
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} clone {{.GIT_VAR_URL}} --single-branch --depth 1
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.eol lf
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.sparseCheckout true
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_URL}}
+      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_URL}}
+      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
+  clone:src:del:
+    desc: git clone src delete
+    cmds:
+      # TODO: Need name of repo, not path.
+      - cd {{.BASE_SRC_PATH}} && rm -rf ?? 
   pull:
     desc: git pull
     cmds:

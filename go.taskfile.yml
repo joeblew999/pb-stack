@@ -46,7 +46,7 @@ vars:
   GO_VAR_BIN_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
   #GO_VAR_BIN_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
 
-  # NOT setting it here, so that mod and proj can override.
+  # Can be set at Mod or Proj level.
   #GO_VAR_BUILD_PRE: 'CGO_ENABLED=0'
   #GO_VAR_BUILD_POST: '-tags production -ldflags="-X"'
 

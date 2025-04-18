@@ -9,7 +9,7 @@ dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   local: 
-    taskfile: ././../../remote-taskfile.yml
+    taskfile: ././../../../remote-taskfile.yml
     flatten: true
   #remote: 
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
@@ -22,6 +22,14 @@ includes:
 
 
 vars:
+  
+
+  GIT_VAR_NAME: tenv
+  GIT_VAR_URL: https://github.com/tofuutils/{{.GIT_VAR_NAME}}.git
+  GIT_VAR_PATH: '{{.GIT_GITROOT_PATH}}/src/github.com/tofuutils/{{.GIT_VAR_NAME}}'
+
+  BASE_SRC_NAME: '{{.GIT_VAR_NAME}}'
+
   GO_VAR_BUILD_PRE: 'CGO_ENABLED=0'
   GO_VAR_BUILD_POST: '-tags production -ldflags="-s -w"'
 
@@ -36,23 +44,37 @@ tasks:
   this:
     desc: build all explicitly.
     cmds:
+      - '{{.BASE_TASK_CMD}} src'
       - '{{.BASE_TASK_CMD}} bin'
 
+  src:
+    desc: src all explicitly.
+    cmds:
+      - '{{.BASE_TASK_CMD}} git:clone:src'
 
   bin:
     desc: build all explicitly.
     cmds:
+      - echo ''
+      - echo 'Building all ...'
       - '{{.BASE_TASK_CMD}} go:mod-tidy'
       - '{{.BASE_TASK_CMD}} go:bin'
+      - '{{.BASE_TASK_CMD}} go:inspect'
+    silent: false
 
   bin:release:
     desc: build all explicitly.
     cmds:
+      - echo ''
+      - echo 'Building all ...'
       - '{{.BASE_TASK_CMD}} go:mod-tidy'
       - '{{.BASE_TASK_CMD}} go:garble'
       - '{{.BASE_TASK_CMD}} go:inspect'
+    silent: false
 
   run:
     desc: run all explicitly.
     cmds:
       - '{{.BASE_TASK_CMD}} go:run'
+
+  
