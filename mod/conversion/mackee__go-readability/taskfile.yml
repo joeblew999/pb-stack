@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# taskfile.yml
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  local: 
+    taskfile: ././../../remote-taskfile.yml
+    flatten: true
+  #remote: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+  #  flatten: true
+
+  #remote:
+  #   https://github.com/saydulaev/taskfile
+  #   taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+  #   flatten: true
+
+
+vars:
+  GO_VAR_BUILD_PRE: 'CGO_ENABLED=0'
+  GO_VAR_BUILD_POST: '-tags production -ldflags="-s -w"'
+
+tasks:
+  default:
+    desc: Welcome. 
+    cmds:
+      - echo ''
+      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
+    silent: false
+
+  this:
+    desc: build all explicitly.
+    cmds:
+      - '{{.BASE_TASK_CMD}} bin'
+
+
+  bin:
+    desc: build all explicitly.
+    cmds:
+      - '{{.BASE_TASK_CMD}} go:mod-tidy'
+      - '{{.BASE_TASK_CMD}} go:bin'
+
+  bin:release:
+    desc: build all explicitly.
+    cmds:
+      - '{{.BASE_TASK_CMD}} go:mod-tidy'
+      - '{{.BASE_TASK_CMD}} go:garble'
+      - '{{.BASE_TASK_CMD}} go:inspect'
+
+  run:
+    desc: run all explicitly.
+    cmds:
+      - '{{.BASE_TASK_CMD}} go:run'

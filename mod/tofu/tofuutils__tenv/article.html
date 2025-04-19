@@ -1,0 +1,144 @@
+<article itemprop="text"><div dir="auto"><h1 tabindex="-1" dir="auto">go-readability</h1><a aria-label="Permalink: go-readability" href="#go-readability" id="user-content-go-readability"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">A Go implementation of Mozilla&#039;s Readability library, inspired by <a href="https://github.com/mizchi/readability">@mizchi/readability</a>. This library extracts the main content from web pages, removing clutter like navigation, ads, and unnecessary elements to provide a clean reading experience.</p>
+<div dir="auto"><h2 tabindex="-1" dir="auto">Installation</h2><a id="user-content-installation" aria-label="Permalink: Installation" href="#installation"><svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="16" height="16"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div dir="auto" data-snippet-clipboard-copy-content="go get github.com/mackee/go-readability"><pre>go get github.com/mackee/go-readability</pre></div>
+<div dir="auto"><h2 dir="auto" tabindex="-1">Usage</h2><a aria-label="Permalink: Usage" href="#usage" id="user-content-usage"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div dir="auto"><h3 tabindex="-1" dir="auto">As a Library</h3><a aria-label="Permalink: As a Library" href="#as-a-library" id="user-content-as-a-library"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div dir="auto" data-snippet-clipboard-copy-content="package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+
+	&quot;github.com/mackee/go-readability&quot;
+)
+
+func main() {
+	// Fetch a web page
+	resp, err := http.Get(&quot;https://example.com/article&quot;)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// Parse and extract the main content
+	article, err := readability.FromReader(resp.Body, &quot;https://example.com/article&quot;)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Access the extracted content
+	fmt.Println(&quot;Title:&quot;, article.Title)
+	fmt.Println(&quot;Byline:&quot;, article.Byline)
+	fmt.Println(&quot;Content:&quot;, article.Content)
+	
+	// Get content as HTML
+	html := article.Content
+	
+	// Get content as plain text
+	text := article.TextContent
+	
+	// Get metadata
+	fmt.Println(&quot;Excerpt:&quot;, article.Excerpt)
+	fmt.Println(&quot;SiteName:&quot;, article.SiteName)
+}"><pre>package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+
+	&quot;github.com/mackee/go-readability&quot;
+)
+
+func main() {
+	// Fetch a web page
+	resp, err := http.Get(&quot;https://example.com/article&quot;)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// Parse and extract the main content
+	article, err := readability.FromReader(resp.Body, &quot;https://example.com/article&quot;)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Access the extracted content
+	fmt.Println(&quot;Title:&quot;, article.Title)
+	fmt.Println(&quot;Byline:&quot;, article.Byline)
+	fmt.Println(&quot;Content:&quot;, article.Content)
+	
+	// Get content as HTML
+	html := article.Content
+	
+	// Get content as plain text
+	text := article.TextContent
+	
+	// Get metadata
+	fmt.Println(&quot;Excerpt:&quot;, article.Excerpt)
+	fmt.Println(&quot;SiteName:&quot;, article.SiteName)
+}</pre></div>
+<div dir="auto"><h3 tabindex="-1" dir="auto">Using the CLI Tool</h3><a href="#using-the-cli-tool" id="user-content-using-the-cli-tool" aria-label="Permalink: Using the CLI Tool"><svg viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The package includes a command-line tool that can extract content from a URL:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="# Install the CLI tool
+go install github.com/mackee/go-readability/cmd/readability@latest
+
+# Extract content from a URL
+readability https://example.com/article
+
+# Save the extracted content to a file
+readability https://example.com/article &gt; article.html
+
+# Output as markdown
+readability --format markdown https://example.com/article &gt; article.md
+
+# Output metadata as JSON
+readability --metadata https://example.com/article"><pre># Install the CLI tool
+go install github.com/mackee/go-readability/cmd/readability@latest
+
+# Extract content from a URL
+readability https://example.com/article
+
+# Save the extracted content to a file
+readability https://example.com/article &gt; article.html
+
+# Output as markdown
+readability --format markdown https://example.com/article &gt; article.md
+
+# Output metadata as JSON
+readability --metadata https://example.com/article</pre></div>
+<div dir="auto"><h2 tabindex="-1" dir="auto">Features</h2><a id="user-content-features" aria-label="Permalink: Features" href="#features"><svg width="16" height="16" aria-hidden="true" viewBox="0 0 16 16" version="1.1"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li>Extracts the main content from web pages</li>
+<li>Removes clutter like navigation, ads, and unnecessary elements</li>
+<li>Preserves important images and formatting</li>
+<li>Extracts metadata (title, byline, excerpt, etc.)</li>
+<li>Supports output in HTML or Markdown format</li>
+<li>Command-line interface for easy content extraction</li>
+</ul>
+<div dir="auto"><h2 tabindex="-1" dir="auto">Testing</h2><a id="user-content-testing" aria-label="Permalink: Testing" href="#testing"><svg height="16" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="16"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">This library uses test fixtures based on <a href="https://github.com/mozilla/readability">Mozilla&#039;s Readability</a> test suite. Currently, we have implemented a subset of the test cases, with the source HTML files being identical to the original Mozilla implementation.</p>
+<div dir="auto"><h3 tabindex="-1" dir="auto">Test Fixtures</h3><a id="user-content-test-fixtures" aria-label="Permalink: Test Fixtures" href="#test-fixtures"><svg width="16" height="16" aria-hidden="true" viewBox="0 0 16 16" version="1.1"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The test fixtures in <code>testdata/fixtures/</code> are sourced from Mozilla&#039;s Readability test suite, with some differences:</p>
+<ul dir="auto">
+<li>The source HTML files (<code>source.html</code>) are identical to Mozilla&#039;s Readability</li>
+<li>The expected output HTML (<code>expected.html</code>) may differ due to implementation differences between JavaScript and Go</li>
+<li>The expected metadata extraction results are aligned with Mozilla&#039;s implementation where possible</li>
+</ul>
+<p dir="auto">While not all test cases from Mozilla&#039;s Readability are currently implemented, using the same source HTML helps ensure that:</p>
+<ol dir="auto">
+<li>The Go implementation handles the same input as the JavaScript implementation</li>
+<li>Regressions can be easily detected</li>
+<li>Users can trust the library to process the same types of content as Mozilla&#039;s Readability</li>
+</ol>
+<div dir="auto"><h3 tabindex="-1" dir="auto">Fixture Licensing</h3><a id="user-content-fixture-licensing" aria-label="Permalink: Fixture Licensing" href="#fixture-licensing"><svg height="16" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="16"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><code>testdata/fixtures/001</code>: © Nicolas Perriault, <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="nofollow">CC BY-SA 3.0</a></li>
+</ul>
+<p dir="auto">These fixtures are identical to those used in Mozilla&#039;s Readability implementation.</p>
+<div dir="auto"><h2 tabindex="-1" dir="auto">License</h2><a id="user-content-license" aria-label="Permalink: License" href="#license"><svg version="1.1" width="16" height="16" aria-hidden="true" viewBox="0 0 16 16"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a href="/mackee/go-readability/blob/main/LICENSE">Apache License 2.0</a></p>
+</article>
