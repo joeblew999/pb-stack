@@ -1,46 +1,46 @@
 
 # DOCKER
 
-
-Build golang locally with task.
-
-Build docker, locally and remote with Task with  TaskFile inside the docker.
+Build golang ( and js ) locally, in CI and inside Docker with Task.
 
 See: https://github.com/scaleaq/taskfile-docker
 
 ## Usage
 
+```sh
+
+task docker
+
+```
+
+## Files
+
+docker.github.yaml_template is a github action template. It will be part of the templating.
+
+docker.md is this.
+
+docker.mk is the old way. will be deleted later
+
 docker.taskfile is a docker that loads task. 
 
----
+docker.taskfile.yml is the Taskfile. It will be part of the templating.
 
-templating
+Dockerfile is the standard DockerFile
+
+Dockerfile_template is the standard DockerFile template. It will be part of the templating.
+
+Dockerfile.multi is a multi arch docker, that we will get working.
+
+
+## Templating
 
 It copies the default docker and docker.env and docker.yaml GitHub action into your repo, so you do it once and can make changes.
 
 Its designed to be used as a remote taskfile and is useful when you get into Teams using a best practice setup.
 
----
-
-docker.mk is old stuff.
-
----
-
-docker.taskfile.yml is a Taskfile dedicated to docker, designed to be reused.
-
----
-
-DockerFile is a standard Dockerfile that has your stuff in it.
-
----
-
-Dockerfile.multi is not yet backed.
-
-## Best Practices
-
+## Multi stage builds
 
 Best practice is to use multistage builds. smaller, more secure.
-r.
 
 https://serverfault.com/questions/960648/use-makefile-to-copy-files-in-docker-multi-stage-builds
 

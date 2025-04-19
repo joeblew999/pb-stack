@@ -28,6 +28,7 @@ go.work.sum
 .task
 
 # dot folder we use for standardisation
+
 .bin
 .dep
 .pack

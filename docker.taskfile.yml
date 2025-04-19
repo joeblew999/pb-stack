@@ -2,9 +2,6 @@
 
 # docker.taskfile.yml 
 
-### TODO:
-# adapt docker makefile for extra bits we need.
-
 
 version: '3'
 
@@ -60,10 +57,10 @@ vars:
 
 tasks:
   default:
-    desc: docker print
+    desc: docker print. STILL WIP !!
     cmds:
       - echo ''
-      - echo '- docker bin'
+      - echo '- bin - !! STILL WIP !!'
       - echo ''
       - echo '- docker'
       - echo 'DOCKER_BIN_NAME:'                 {{.DOCKER_BIN_NAME}}
