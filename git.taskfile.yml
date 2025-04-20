@@ -142,11 +142,13 @@ tasks:
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
+      - cd {{.BASE_SRC_PATH}} && touch .gitignore && echo '{{.GIT_VAR_NAME}}' >> .gitignore
   clone:src:del:
     desc: delete the src code.
     cmds:
       - echo 'Deleting the src ...'
       - cd {{.BASE_SRC_PATH}} && rm -rf {{.GIT_VAR_NAME}}
+      - cd {{.BASE_SRC_PATH}} && rm -f .gitignore
   pull:
     desc: git pull
     cmds:
