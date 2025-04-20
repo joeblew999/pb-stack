@@ -137,9 +137,9 @@ tasks:
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} clone {{.GIT_VAR_URL}} --single-branch --depth 1
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.eol lf
-      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.sparseCheckout true
-      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_URL}}
+      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.sparseCheckout true
+      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
       - cd {{.BASE_SRC_PATH}} && touch .gitignore && echo '{{.GIT_VAR_NAME}}' >> .gitignore
