@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# taskfile.yml
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  local: 
+    taskfile: ./../../../remote-taskfile.yml
+    flatten: true
+  #remote: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+  #  flatten: true
+
+  #remote:
+  #   https://github.com/saydulaev/taskfile
+  #   taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+  #   flatten: true
+
+vars:
+  GIT_VAR_NAME: 'workers'
+  GIT_VAR_URL: 'https://github.com/syumai/workers'
+
+  THIS_SRC: '{{.GIT_VAR_NAME}}/_examples/r2-image-server'
+
+tasks:
+  default:
+    desc: Welcome. 
+    cmds:
+      - echo ''
+      #- task --list-all --yes --sort alphanumeric
+      #- task --list-all --yes --sort alphanumeric
+      #- task --list-all --yes --sort none
+
+      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
+      
+      #- task --list-all --yes --sort alphanumeric --json
+
+      #- task --list-all --yes git
+    silent: false
+  src:
+    desc: build all explicitly.
+    cmds:
+      - '{{.BASE_TASK_CMD}} git:clone:src'
+  src:del:
+    desc: build all explicitly.
+    cmds:
+      - '{{.BASE_TASK_CMD}} git:clone:src:del'
+  bin:
+    desc: build all explicitly.
+    cmds:
+      - cd {{.THIS_SRC}} && bun install
+      - cd {{.THIS_SRC}} && go run ../../cmd/workers-assets-gen
+      # TODO: Get tinygo installed and working using task, not "brew install tinygo"
+      - cd {{.THIS_SRC}} && tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
+      # Not needed as its only for new apps.
+      #- cd {{.THIS_SRC}} && bunx wrangler init
+  run:
+    cmds:
+      - cd {{.THIS_SRC}} && bunx wrangler dev
+  deploy:
+    cmds:
+      # ERROR:  R2 bucket 'r2-image-viewer' not found. Please use a different name and try again. [code: 10085]
+      # Need TOFU to setup the bucket first ?
+      - cd {{.THIS_SRC}} && bunx wrangler deploy

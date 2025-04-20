@@ -59,8 +59,10 @@ vars:
   GIT_GITROOT_VERSION:
     sh: '{{.GIT_BIN_NAME}} rev-parse HEAD'
 
-  # The git url. Comments out so that it is not used.
-  #GIT_VAR_URL: 'YY'
+  # E.g: 'workers'
+  # GIT_VAR_NAME: 
+  # E.g: 'https://github.com/syumai/workers'
+  # GIT_VAR_URL: 
 
 tasks:
   default:
@@ -109,10 +111,14 @@ tasks:
     cmds:
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} status
     
-  config:
+  config:root:
     desc: git config
     cmds:
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
+  config:src:
+    desc: git config
+    cmds:
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
       
   clone:root:
     desc: git clone root
@@ -125,8 +131,9 @@ tasks:
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
 
   clone:src:
-    desc: git clone src
+    desc: git clone the src code.
     cmds:
+      - echo 'Cloning the src ...'
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} clone {{.GIT_VAR_URL}} --single-branch --depth 1
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.eol lf
@@ -136,10 +143,10 @@ tasks:
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
   clone:src:del:
-    desc: git clone src delete
+    desc: delete the src code.
     cmds:
-      # TODO: Need name of repo, not path.
-      - cd {{.BASE_SRC_PATH}} && rm -rf ?? 
+      - echo 'Deleting the src ...'
+      - cd {{.BASE_SRC_PATH}} && rm -rf {{.GIT_VAR_NAME}}
   pull:
     desc: git pull
     cmds:
