@@ -1,0 +1,3 @@
+# go
+
+golang base stuff.
