@@ -22,6 +22,10 @@ https://github.com/starfederation/datastar/tree/develop/sdk/go
 
 https://github.com/starfederation/datastar/tree/develop/examples
 
+## todo
+
+datastar.taskfile.yml needs refactoring to work off base paths.
+
 
 
 

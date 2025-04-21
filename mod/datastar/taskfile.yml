@@ -9,10 +9,10 @@ dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   local: 
-    taskfile: ./../../../remote-taskfile.yml
+    taskfile: ./../../remote-taskfile.yml
     flatten: true
   datastar: 
-    taskfile: .//datastar.taskfile.yml
+    taskfile: ./datastar.taskfile.yml
   #  flatten: true
 
   #remote: 
