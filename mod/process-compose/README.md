@@ -2,6 +2,8 @@
 
 https://github.com/F1bonacc1/process-compose
 
+Customised with main.go inporting it.
+
 ## Task
 
 ```sh

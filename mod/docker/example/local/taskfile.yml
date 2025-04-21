@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  local: 
+    taskfile: ./../../../../remote-taskfile.yml
+    flatten: true
+  docker: 
+    taskfile: ./../../docker.taskfile.yml
+
+  #process-compose-remote: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/mod/process_compose/process_compose-taskfile.yml
+  #  flatten: true

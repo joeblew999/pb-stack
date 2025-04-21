@@ -6,6 +6,9 @@ version: '3'
 dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  process-compose-remote:
-    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/mod/process-compose/process-compose.taskfile.yml
+  local: 
+    taskfile: ./../../../../remote-taskfile.yml
     flatten: true
+  process-compose:
+    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/mod/process-compose/process-compose.taskfile.yml
+    

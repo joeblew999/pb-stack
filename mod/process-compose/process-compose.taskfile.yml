@@ -9,14 +9,19 @@ env:
 vars:
   ### bin
   PC_BIN_NAME: process-compose
-  PC_BIN_WHICH: #/usr/local/bin/cloudflared
   # https://github.com/F1bonacc1/process-compose/releases/tag/v1.46.0
-  PC_BIN_VERSION: v1.9.0
+  PC_BIN_VERSION: v1.46.0
+  PC_BIN_WHICH: 
+    sh: 'which {{.PC_BIN_NAME}}'
+  PC_BIN_WHICH_VERSION:
+    # Its too many lines.
+    # My Issue: https://github.com/F1bonacc1/process-compose/issues/330
+    #sh: '{{.PC_BIN_NAME}} version'
   
-  # https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_darwin_arm64.zip
+  # https://github.com/F1bonacc1/process-compose/releases/download/v1.46.0/process-compose_darwin_arm64.tar.gz
   # TODO: adapt to each OS.
-  PC_BIN_URL_NAME: tofu_1.9.0_darwin_arm64.zip
-  PC_BIN_URL: https://github.com/opentofu/opentofu/releases/download/{{.PC_BIN_VERSION}}_{{.PC_BIN_URL_NAME}}
+  PC_BIN_URL_NAME: process-compose_darwin_arm64.tar.gz
+  PC_BIN_URL: https://github.com/F1bonacc1/process-compose/releases/download/{{.PC_BIN_VERSION}}/{{.PC_BIN_URL_NAME}}
 
 tasks:
   default:
@@ -24,10 +29,14 @@ tasks:
     cmds:
       - echo ''
       - echo '- bin'
-      - echo 'PC_BIN_NAME:'       {{.PC_BIN_NAME}}
-      - echo 'PC_BIN_WHICH:'      {{.PC_BIN_WHICH}}
-      - echo 'PC_BIN_VERSION:'    {{.PC_BIN_VERSION}}
-      - echo 'PC_BIN_URL:'        {{.PC_BIN_URL}}
+      - echo 'PC_BIN_NAME:'               {{.PC_BIN_NAME}}
+      - echo 'PC_BIN_VERSION:'            {{.PC_BIN_VERSION}}
+      - echo 'PC_BIN_WHICH:'              {{.PC_BIN_WHICH}}
+      - echo 'PC_BIN_WHICH_VERSION:'      {{.PC_BIN_WHICH_VERSION}}
+      - echo ''
+      - echo '- url'
+      - echo 'PC_BIN_URL_NAME:'           {{.PC_BIN_URL_NAME}}
+      - echo 'PC_BIN_URL:'                {{.PC_BIN_URL}}
       - echo ''
       - echo '- vars:'
       - echo ''
@@ -36,12 +45,26 @@ tasks:
   dep:
     cmds:
       - brew install f1bonacc1/tap/process-compose
-      #- task base:shell-wgot -- {{.PC_BIN_URL}}
-
+      - task base:shell-wgot -- {{.PC_BIN_URL}}
   run:
-    desc: run tofu
     cmds:
       - '{{.PC_BIN_NAME}} -h'
+    silent: false
+  version:
+    cmds:
+      - '{{.PC_BIN_NAME}} version'
+    silent: false
+  up:
+    cmds:
+      - '{{.PC_BIN_NAME}} up'
+    silent: false
+  down:
+    cmds:
+      - '{{.PC_BIN_NAME}} down'
+    silent: false
+  list:
+    cmds:
+      - '{{.PC_BIN_NAME}} list'
     silent: false
 
 

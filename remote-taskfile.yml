@@ -23,6 +23,3 @@ includes:
   go:         
     taskfile: ./go.taskfile.yml
   #  flatten: true
-  docker:         
-    taskfile: ./docker.taskfile.yml
-  #  flatten: true
