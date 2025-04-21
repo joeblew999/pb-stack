@@ -8,10 +8,10 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   local: 
-    taskfile: ./../../../../remote-taskfile.yml
+    taskfile: ./../../remote-taskfile.yml
     flatten: true
   pc: 
-    taskfile: ./../../process-compose.taskfile.yml
+    taskfile: ./process-compose.taskfile.yml
 
   #process-compose-remote: 
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/mod/process_compose/process_compose-taskfile.yml

@@ -33,15 +33,23 @@ vars:
   BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
   
 
-  # base cli tools.
+  # base shell tools.
+
   # bun
   BASE_SHELL_BUN_BIN_NAME: 'shell-bun{{.BASE_BINARY_EXTENSION}}'
   # https://github.com/oven-sh/bun/releases/tag/bun-v1.2.10
   BASE_SHELL_BUN_BIN_VERSION: latest
 
-  # which
-  BASE_SHELL_WHICH_BIN_NAME: 'shell-which{{.BASE_BINARY_EXTENSION}}'
-  BASE_SHELL_WHICH_BIN_VERSION: latest
+  # arc
+  # https://github.com/jm33-m0/arc
+  BASE_SHELL_ARC_BIN_NAME: 'shell-arc{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/jm33-m0/arc/releases/tag/v2.0.1
+  BASE_SHELL_ARC_BIN_VERSION: v2.0.1
+
+  # regress
+  BASE_SHELL_REDRESS_BIN_NAME: 'shell-redress{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/goretk/redress/releases/tag/v1.2.24
+  BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
 
   # replace
   BASE_SHELL_REPLACE_BIN_NAME: 'shell-replace{{.BASE_BINARY_EXTENSION}}'
@@ -55,10 +63,9 @@ vars:
   BASE_SHELL_WGOT_BIN_NAME: 'shell-wgot{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_WGOT_BIN_VERSION: latest
 
-  # regress
-  BASE_SHELL_REDRESS_BIN_NAME: 'shell-redress{{.BASE_BINARY_EXTENSION}}'
-  # https://github.com/goretk/redress/releases/tag/v1.2.24
-  BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
+  # which
+  BASE_SHELL_WHICH_BIN_NAME: 'shell-which{{.BASE_BINARY_EXTENSION}}'
+  BASE_SHELL_WHICH_BIN_VERSION: latest
 
 
   # OS User
@@ -348,6 +355,28 @@ tasks:
 
   
 
+  shell-arc-dep:
+    #desc: installs arc, if not present.
+    cmds:
+      - echo '- arc tool ...'
+      # https://github.com/jm33-m0/arc
+      - '{{.GO_BIN_NAME}} install github.com/jm33-m0/arc/v2/cmd/arc@{{.BASE_SHELL_ARC_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/arc{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_ARC_BIN_NAME}}
+      - echo ''
+  shell-arc-dep-del:
+    cmds:
+      - rm -rf {{.BASE_DEP_PATH}}/{{.BASE_SHELL_ARC_BIN_NAME}}
+  shell-arc:
+    cmds:
+      - '{{.BASE_SHELL_ARC_BIN_NAME}} -h'
+  shell-arc-extract:
+    cmds:
+      - '{{.BASE_SHELL_ARC_BIN_NAME}} extract -f {{.CLI_ARGS}}'
+  shell-arc-extract-tocwd:
+    cmds:
+      - '{{.BASE_SHELL_ARC_BIN_NAME}} extract -f {{.BASE_SRC_PATH}}/{{.CLI_ARGS}} {{.BASE_SRC_PATH}}'
+
+
   shell-bun-dep:
     #desc: installs bun, if not present.
     cmds:
@@ -476,7 +505,7 @@ tasks:
       # https://github.com/bitrise-io/got
       # got -o /path/to/save https://example.com/file.mp4
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
-      - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}} --dir {{.BASE_SRC_PATH}}'
+      - '{{.BASE_SHELL_WGOT_BIN_NAME}} --dir {{.BASE_SRC_PATH}} {{.CLI_ARGS}} '
 
 
 

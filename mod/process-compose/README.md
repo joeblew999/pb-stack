@@ -1,73 +1,89 @@
-# process-compose
+## Process Compose
 
-https://github.com/F1bonacc1/process-compose
+[![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](https://go.dev/) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/F1bonacc1/process-compose/graphs/commit-activity) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) ![Go Report](https://goreportcard.com/badge/github.com/F1bonacc1/process-compose) [![Releases](https://img.shields.io/github/downloads/F1bonacc1/process-compose/total.svg)]() ![X (formerly Twitter) URL](https://img.shields.io/twitter/url?url=https%3A%2F%2Ftwitter.com%2FProcessCompose&style=flat&logo=x&label=Process%20Compose)
 
-Customised with main.go inporting it.
 
-## Task
 
-```sh
+Process Compose is a simple and flexible scheduler and orchestrator to manage non-containerized applications.
 
-task process-compose
+**Why?** Because sometimes you just don't want to deal with docker files, volume definitions, networks and docker registries.
+Since it's written in Go, Process Compose is a single binary file and has no other dependencies.
 
-task process-compose:dep
+Once [installed](https://f1bonacc1.github.io/process-compose/installation/), you just need to describe your workflow using a simple [YAML](http://yaml.org/) schema in a file called `process-compose.yaml`:
 
-task process-compose:run
+```yaml
+version: "0.5"
 
+processes:
+  hello:
+    command: echo 'Hello World'
+  pc:
+    command: echo 'From Process Compose'
+    depends_on:
+      hello:
+        condition: process_completed
 ```
 
-## Dev-time
+And start it by running `process-compose` from your terminal.
 
-copy their go.mod in and tidy ...
+Check the [Documentation](https://f1bonacc1.github.io/process-compose/launcher/) for more advanced use cases.
 
-```sh task ``` , to build.
+#### Features:
 
-```sh task go:run ``` , to run.
+- Processes execution (in parallel or/and serially)
+- Processes dependencies and startup order
+- Process recovery policies
+- Manual process [re]start
+- Processes arguments `bash` or `zsh` style (or define your own shell)
+- Per process and global environment variables
+- Per process or global (single file) logs
+- Health checks (liveness and readiness)
+- Terminal User Interface (TUI) or CLI modes
+- Forking (services or daemons) processes
+- REST API (OpenAPI a.k.a Swagger)
+- Logs caching
+- Functions as both server and client
+- Configurable shortcuts
+- Merge Configuration Files
+- Namespaces
+- Run Multiple Replicas of a Process
+- Run a Foreground Process 
+- Themes Support
 
+It is heavily inspired by [docker-compose](https://github.com/docker/compose), but without the need for containers. The configuration syntax tries to follow the docker-compose specifications, with a few minor additions and lots of subtractions.
 
-```sh task base-bin-pack ``` , to package for distribution.
+<img src="./imgs/tui.png" alt="TUI" style="zoom:67%;" />
 
-# to distribute
+## Get Process Compose
 
-```sh task base-bin-push ```, to push the binary for usage by others.
+[Installation Instructions](https://f1bonacc1.github.io/process-compose/installation/)
 
+## Documentation
 
-## Run-time
+[Quick Start](https://f1bonacc1.github.io/process-compose/intro/)
 
+[Documentation](https://f1bonacc1.github.io/process-compose/launcher/)
 
-cd example/local && task 
+## How to Contribute
 
-``` task base-bin-pull  ``` , to update your local binary.
+1. Fork it
+2. Create your feature branch (git checkout -b my-new-feature)
+3. Commit your changes (git commit -am 'Add some feature')
+4. Push to the branch (git push origin my-new-feature)
+5. Create new Pull Request
 
-``` task base-bin-run ``` , to run your local binary.
+English is not my native language, so PRs correcting grammar or spelling are welcome and appreciated.
 
+### Consider supporting the project ❤️
 
-## Usage
+##### Github (preferred)
 
-For running sets of binaries in a formation.
+https://github.com/sponsors/F1bonacc1
 
-Replaces K8, Docker and Docker compose.
+##### Bitcoin
 
-TODO:
+<img src="./imgs/btc.wallet.qr.png" style="zoom:50%;"  alt="3QjRfBzwQASQfypATTwa6gxwUB65CX1jfX"/>
 
-- Same as agent we need for process compose.
+3QjRfBzwQASQfypATTwa6gxwUB65CX1jfX
 
-## beszel
-
-https://github.com/henrygd/beszel
-
-TODO:
-
-- Add to pocketbase module. We can work out how best to integrate later. 
-
-- The SQLite can be on server or on nats server where the web gui runs.
-
-- Also how best to have a nats agent . Same as agent we need for process compose.
-
-- And then redo the web gui with Datastar . 
-
-
-
-
-
-
+Thank **You**!

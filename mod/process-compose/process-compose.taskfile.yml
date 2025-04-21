@@ -8,11 +8,11 @@ env:
   
 vars:
   ### bin
-  PC_BIN_NAME: process-compose
+  PC_BIN_NAME: mod-process-compose
   # https://github.com/F1bonacc1/process-compose/releases/tag/v1.46.0
   PC_BIN_VERSION: v1.46.0
   PC_BIN_WHICH: 
-    sh: 'which {{.PC_BIN_NAME}}'
+    #sh: 'which {{.PC_BIN_NAME}}'
   PC_BIN_WHICH_VERSION:
     # Its too many lines.
     # My Issue: https://github.com/F1bonacc1/process-compose/issues/330
@@ -20,8 +20,9 @@ vars:
   
   # https://github.com/F1bonacc1/process-compose/releases/download/v1.46.0/process-compose_darwin_arm64.tar.gz
   # TODO: adapt to each OS.
-  PC_BIN_URL_NAME: process-compose_darwin_arm64.tar.gz
-  PC_BIN_URL: https://github.com/F1bonacc1/process-compose/releases/download/{{.PC_BIN_VERSION}}/{{.PC_BIN_URL_NAME}}
+  PC_BIN_URL_COMPRESS_NAME: process-compose_darwin_arm64.tar.gz
+  PC_BIN_URL_EXTRACT_NAME: process-compose
+  PC_BIN_URL: https://github.com/F1bonacc1/process-compose/releases/download/{{.PC_BIN_VERSION}}/{{.PC_BIN_URL_COMPRESS_NAME}}
 
 tasks:
   default:
@@ -29,14 +30,15 @@ tasks:
     cmds:
       - echo ''
       - echo '- bin'
-      - echo 'PC_BIN_NAME:'               {{.PC_BIN_NAME}}
-      - echo 'PC_BIN_VERSION:'            {{.PC_BIN_VERSION}}
-      - echo 'PC_BIN_WHICH:'              {{.PC_BIN_WHICH}}
-      - echo 'PC_BIN_WHICH_VERSION:'      {{.PC_BIN_WHICH_VERSION}}
+      - echo 'PC_BIN_NAME:'                 {{.PC_BIN_NAME}}
+      - echo 'PC_BIN_VERSION:'              {{.PC_BIN_VERSION}}
+      - echo 'PC_BIN_WHICH:'                {{.PC_BIN_WHICH}}
+      - 'which {{.PC_BIN_NAME}}'
+      - echo 'PC_BIN_WHICH_VERSION:'        {{.PC_BIN_WHICH_VERSION}}
       - echo ''
       - echo '- url'
-      - echo 'PC_BIN_URL_NAME:'           {{.PC_BIN_URL_NAME}}
-      - echo 'PC_BIN_URL:'                {{.PC_BIN_URL}}
+      - echo 'PC_BIN_URL_COMPRESS_NAME:'    {{.PC_BIN_URL_COMPRESS_NAME}}
+      - echo 'PC_BIN_URL:'                  {{.PC_BIN_URL}}
       - echo ''
       - echo '- vars:'
       - echo ''
@@ -44,8 +46,18 @@ tasks:
 
   dep:
     cmds:
-      - brew install f1bonacc1/tap/process-compose
-      - task base:shell-wgot -- {{.PC_BIN_URL}}
+      #- brew install f1bonacc1/tap/process-compose
+      # OR
+      # works !
+      - task base:shell-wgot-tocwd -- {{.PC_BIN_URL}}
+      - task base:shell-arc-extract-tocwd -- {{.PC_BIN_URL_COMPRESS_NAME}}
+      - mv {{.BASE_SRC_PATH}}/{{.PC_BIN_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
+      - rm -f {{.BASE_SRC_PATH}}/{{.PC_BIN_URL_COMPRESS_NAME}}
+      - rm -f {{.BASE_SRC_PATH}}/{{.PC_BIN_URL_EXTRACT_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
+    silent: false
+  
+
   run:
     cmds:
       - '{{.PC_BIN_NAME}} -h'
