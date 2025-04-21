@@ -1,0 +1,10 @@
+version: "0.5"
+
+processes:
+  hello:
+    command: echo 'Hello World'
+  pc:
+    command: echo 'From Process Compose'
+    depends_on:
+      hello:
+        condition: process_completed

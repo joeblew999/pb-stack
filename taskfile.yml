@@ -25,16 +25,8 @@ tasks:
   default:
     desc: Welcome. 
     cmds:
-      - echo ''
-      #- task --list-all --yes --sort alphanumeric
-      #- task --list-all --yes --sort alphanumeric
-      #- task --list-all --yes --sort none
-
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
-      
-      #- task --list-all --yes --sort alphanumeric --json
-
-      #- task --list-all --yes git
+     
     silent: false
   all:
     desc: build all explicitly.
@@ -47,7 +39,7 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:test'
 
       # mod
-      - echo 'Build my Modules, that my projects need ...'
+      -  echo 'Build my Modules, that my projects need ...'
       - cd mod/charm/soft_serve && {{.BASE_TASK_CMD}}
       # mod example ( that uses a module task file.)
       - cd mod/process_compose/example/local && {{.BASE_TASK_CMD}}

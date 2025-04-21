@@ -36,7 +36,7 @@ tasks:
       - 'which {{.PC_BIN_NAME}}'
       - echo 'PC_BIN_WHICH_VERSION:'        {{.PC_BIN_WHICH_VERSION}}
       - echo ''
-      - echo '- url'
+      - echo '- bin url'
       - echo 'PC_BIN_URL_COMPRESS_NAME:'    {{.PC_BIN_URL_COMPRESS_NAME}}
       - echo 'PC_BIN_URL:'                  {{.PC_BIN_URL}}
       - echo ''
@@ -49,11 +49,17 @@ tasks:
       #- brew install f1bonacc1/tap/process-compose
       # OR
       # works !
+      # todo; add check if binary exist in .DEP_PATH, if else. 
       - task base:shell-wgot-tocwd -- {{.PC_BIN_URL}}
       - task base:shell-arc-extract-tocwd -- {{.PC_BIN_URL_COMPRESS_NAME}}
       - mv {{.BASE_SRC_PATH}}/{{.PC_BIN_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
       - rm -f {{.BASE_SRC_PATH}}/{{.PC_BIN_URL_COMPRESS_NAME}}
       - rm -f {{.BASE_SRC_PATH}}/{{.PC_BIN_URL_EXTRACT_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
+    silent: false
+  dep-del:
+    cmds:
+      - rm -f {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
       - ls -al {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
     silent: false
   

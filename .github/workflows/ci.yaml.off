@@ -1,0 +1,143 @@
+# ci
+
+name: ci
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+  pull_request:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      upload-artifacts:
+        default: false
+        required: false
+        type: boolean
+      environment:
+        type: string
+        required: true
+      sign:
+        type: boolean
+        default: true
+        required: false
+    secrets:
+      AZURE_CODE_SIGNING_TENANT_ID:
+      AZURE_CODE_SIGNING_CLIENT_ID:
+      AZURE_CODE_SIGNING_CLIENT_SECRET:
+      DESKTOP_OAUTH_CLIENT_ID:
+      DESKTOP_OAUTH_CLIENT_SECRET:
+      APPLE_ID:
+      APPLE_ID_PASSWORD:
+      APPLE_TEAM_ID:
+      APPLE_APPLICATION_CERT:
+      APPLE_APPLICATION_CERT_PASSWORD:
+
+
+permissions: 
+  packages: write
+  
+jobs:
+  build:
+    name: ${{ matrix.os }} ${{ matrix.arch }} go-${{ matrix.go-version }} 
+    strategy:
+      matrix:
+        go-version: [1.24.x]
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+        #os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
+        #os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest, windows-latest]
+        #os: [macos-15]
+      fail-fast: false
+    runs-on: ${{matrix.os}}
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # https://github.com/aarcangeli/load-dotenv
+      - name: Load all.env file, if present.
+        uses: aarcangeli/load-dotenv@v1.1.0
+        with:
+          path: '.'
+          filenames: 'all.env'
+          quiet: 'false'
+          if-file-not-found: 'error'
+          expand: 'true'
+
+      - name: READ ENV for BASE_TASK_VERSION_ENV
+        run: echo 'BASE_TASK_VERSION_ENV is $BASE_TASK_VERSION_ENV'
+
+      # https://github.com/actions/setup-go
+      - name: Set up Go ${{matrix.go-version}}
+        uses: actions/setup-go@v5
+        with:
+          go-version: '${{matrix.go-version}}'
+          cache-dependency-path: 'go.sum'
+
+      # Force TaskFile to version in the all.env
+      - name: Install Taskfile version
+        run: 	go install github.com/go-task/task/v3/cmd/task@latest
+
+      # https://github.com/arduino/setup-task
+      # DONT NEED THIS. Just use golang.
+      #- name: Install Task via action
+      #  uses: arduino/setup-task@v2
+      #  with:
+          #version: 'latest' - FAILS
+          #version: '3.39.2' - FAILS as has no REMOTE feature.
+      #    version: '3.42.1'
+          # FAILS, as it cant find it.
+          #version: 'recursive-config-search'
+      #  env:
+      #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #    repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # List all base variables.
+      - name: task base
+        run: task --yes base
+
+      # List all git variables.
+      - name: task git
+        run: task --yes git
+
+      # List all go variables.
+      - name: task go
+        run: task --yes go
+
+      # List all tool s.
+      - name: task base:tools-print
+        run: task --yes base:tools-print
+
+      # List all task commands available.
+      #- name: task list
+      #  run: task --yes
+
+      # Upgrade task based on ENV vars.
+      - name: task upgrade to env
+        run: task --yes base:upgrade
+
+      # List all ci variables.
+      - name: task ci
+        run: task --yes ci
+
+      
+
+      # Run all tests on base.
+      - name: task base:test
+        run: task --yes base:test
+
+
+      # Build Modules and Projects explicitly from root ...
+      - name: task all
+        run: task --yes all 
+          
+      
+
+      
