@@ -43,8 +43,10 @@ vars:
 
   GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
   GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
-  GO_VAR_BIN_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
-  #GO_VAR_BIN_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
+
+  GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
+  GO_VAR_BIN_WASM_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}_wasm'
+  #GO_VAR_BIN_NATIVE_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
 
   # Can be set at Mod or Proj level.
   #GO_VAR_BUILD_PRE: 'CGO_ENABLED=0'
@@ -74,7 +76,8 @@ tasks:
       - echo '- var'
       - echo 'GO_VAR_SRC_PATH:'             {{.GO_VAR_SRC_PATH}}
       - echo 'GO_VAR_BIN_NAME:'             {{.GO_VAR_BIN_NAME}}
-      - echo 'GO_VAR_BIN_PATH:'             {{.GO_VAR_BIN_PATH}}
+      - echo 'GO_VAR_BIN_NATIVE_PATH:'      {{.GO_VAR_BIN_NATIVE_PATH}}
+      - echo 'GO_VAR_BIN_WASM_PATH:'        {{.GO_VAR_BIN_WASM_PATH}}
       - echo ''
       - echo 'GO_VAR_BUILD_PRE:'            {{.GO_VAR_BUILD_PRE}}
       - echo 'GO_VAR_BUILD_POST:'           {{.GO_VAR_BUILD_POST}}
@@ -141,7 +144,7 @@ tasks:
       - echo ''
       - echo 'garble'
       - '{{.BASE_TASK_CMD}} go:garble:dep'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_GARBLE_BIN_NAME}} build -o {{.GO_VAR_BIN_PATH}}
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_GARBLE_BIN_NAME}} build -o {{.GO_VAR_BIN_NATIVE_PATH}}
       - echo ''
     silent: false
 
@@ -150,7 +153,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'garble'
-      - '{{.BASE_TASK_CMD}} base:shell-redress -- {{.GO_VAR_BIN_PATH}}'
+      - '{{.BASE_TASK_CMD}} base:shell-redress -- {{.GO_VAR_BIN_NATIVE_PATH}}'
       - echo ''
     silent: false
 
@@ -164,15 +167,23 @@ tasks:
     silent: false
 
   bin:
-    desc: go build
+    desc: build binary
     cmds:
       #- task base:dep
       - echo ''
       - echo 'bin'
       #- task go:mod-tidy
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_VAR_BUILD_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BUILD_POST}} -o {{.GO_VAR_BIN_PATH}}
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_VAR_BUILD_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BUILD_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
       - echo ''
     silent: false
+
+  bin:wasm:
+    desc: build go wasm
+    cmds:
+      - echo ''
+      - echo 'bin'
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
+      - echo ''
 
   run:
     desc: run

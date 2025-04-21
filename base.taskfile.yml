@@ -34,20 +34,28 @@ vars:
   
 
   # base cli tools.
-  # checking that windows is correct 
+  # bun
+  BASE_SHELL_BUN_BIN_NAME: 'shell-bun{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/oven-sh/bun/releases/tag/bun-v1.2.10
+  BASE_SHELL_BUN_BIN_VERSION: latest
+
+  # which
   BASE_SHELL_WHICH_BIN_NAME: 'shell-which{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_WHICH_BIN_VERSION: latest
 
-  #BASE_SHELL_REPLACE_BIN_NAME: shell-replace
+  # replace
   BASE_SHELL_REPLACE_BIN_NAME: 'shell-replace{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_REPLACE_BIN_VERSION: latest
 
+  # tree
   BASE_SHELL_TREE_BIN_NAME: 'shell-tree{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_TREE_BIN_VERSION: latest
 
+  # wgot
   BASE_SHELL_WGOT_BIN_NAME: 'shell-wgot{{.BASE_BINARY_EXTENSION}}'
   BASE_SHELL_WGOT_BIN_VERSION: latest
 
+  # regress
   BASE_SHELL_REDRESS_BIN_NAME: 'shell-redress{{.BASE_BINARY_EXTENSION}}'
   # https://github.com/goretk/redress/releases/tag/v1.2.24
   BASE_SHELL_REDRESS_BIN_VERSION: v1.2.24
@@ -270,7 +278,10 @@ tasks:
       - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
         platforms: [windows]
 
-  
+  bin-del:
+    desc: delete .bin for proj
+    cmds:
+      - rm -rf {{.BASE_BIN_PATH}}
 
   clean:
     desc: base clean, cleans the base folders.
@@ -314,6 +325,7 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_TASK_CMD}} base:shell-replace-dep'
       - '{{.BASE_TASK_CMD}} base:shell-redress-dep'
+
       - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - echo ''
      
@@ -322,21 +334,39 @@ tasks:
     cmds:
       - echo ''
       - echo 'printing the tool names only ...'
-      - echo {{.BASE_SHELL_WHICH_BIN_NAME}}
-
-      - echo {{.BASE_SHELL_TREE_BIN_NAME}}
-      - echo {{.BASE_SHELL_WGOT_BIN_NAME}}
-      - echo {{.BASE_SHELL_REPLACE_BIN_NAME}}
-      - echo {{.BASE_SHELL_REDRESS_BIN_NAME}}
+      - echo 'BASE_SHELL_WHICH_BIN_NAME:'             {{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo 'BASE_SHELL_WHICH_BIN_VERSION:'          {{.BASE_SHELL_WHICH_BIN_VERSION}}
+      
+      - echo ''
+      - echo 'BASE_SHELL_BUN_BIN_NAME:'           {{.BASE_SHELL_BUN_BIN_NAME}}
+      - echo 'BASE_SHELL_REPLACE_BIN_NAME:'       {{.BASE_SHELL_REPLACE_BIN_NAME}}
+      - echo 'BASE_SHELL_REDRESS_BIN_NAME:'       {{.BASE_SHELL_REDRESS_BIN_NAME}}
+      - echo 'BASE_SHELL_TREE_BIN_NAME:'          {{.BASE_SHELL_TREE_BIN_NAME}}
+      - echo 'BASE_SHELL_WGOT_BIN_NAME:'          {{.BASE_SHELL_WGOT_BIN_NAME}}
       - echo ''
     silent: true
 
-  bin-del:
-    desc: delete .bin for proj
-    cmds:
-      - rm -rf {{.BASE_BIN_PATH}}
-
   
+
+  shell-bun-dep:
+    #desc: installs bun, if not present.
+    cmds:
+      - echo '- bun tool ...'
+      # https://github.com/oven-sh/bun
+      - '{{.GO_BIN_NAME}} install github.com/oven-sh/bun/cmd/bun@{{.BASE_SHELL_BUN_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/bun{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_BUN_BIN_NAME}}
+      - echo ''
+
+
+
+  shell-redress-dep:
+    desc: redress is a cross platform **redress** command.
+    cmds:
+      - echo '- redress tool ...'
+      # https://github.com/goretk/redress
+      - '{{.GO_BIN_NAME}} install github.com/goretk/redress@{{.BASE_SHELL_REDRESS_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
+      - echo ''
 
   shell-redress-dep:
     desc: redress is a cross platform **redress** command.
@@ -370,6 +400,8 @@ tasks:
       #- '{{.TASK_EXE}} base:shell-redress -- /Users/apple/workspace/go/bin/task'
       #- '{{.TASK_EXE}} base:shell-redress -- {{.TASK_EXE}} base:shell-which {{.TASK_EXE}}'
       
+
+
   shell-replace-dep:
     desc: nstalls a cross platform **replace** command.
     cmds:
@@ -388,6 +420,8 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:shell-replace-dep'
       - '{{.BASE_SHELL_REPLACE_BIN_NAME}} {{.CLI_ARGS}}'
       
+
+
   shell-tree-dep:
     desc: shell-dep installs a cross platform **tree** command.
     cmds:
@@ -407,6 +441,7 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:shell-tree-dep'
       - '{{.BASE_SHELL_TREE_BIN_NAME}} -a -l --dirsfirst -C {{.CLI_ARGS}}'
     silent: true
+
 
 
   shell-wgot-dep:
@@ -443,13 +478,20 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}} --dir {{.BASE_SRC_PATH}}'
 
+
+
   shell-which-print:
     desc: prints the which tool name only.
     cmds:
       - echo ''
       - echo 'printing the which tool name ...'
-      - echo {{.BASE_SHELL_WHICH_BIN_NAME}}
-      - echo {{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo 'BASE_SHELL_WHICH_BIN_NAME:'               {{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo 'BASE_SHELL_WHICH_BIN_VERSION:'            {{.BASE_SHELL_WHICH_BIN_VERSION}}
+      - echo ''
+      - echo 'BASE_SHELL_WHICH_BIN_WHICH:'              
+      - which {{.BASE_SHELL_WHICH_BIN_NAME}}
+      - echo 'BASE_SHELL_WHICH_BIN_WHICH_VERSION:'      
+      - '{{.BASE_SHELL_WHICH_BIN_NAME}} -v'
       - echo ''
     silent: true
   shell-which-dep:
