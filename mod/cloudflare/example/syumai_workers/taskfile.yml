@@ -9,10 +9,10 @@ dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   local: 
-    taskfile: ./../../../remote-taskfile.yml
+    taskfile: ./../../../../remote-taskfile.yml
     flatten: true
   cloudflare: 
-    taskfile: ./../cloudflare.taskfile.yml
+    taskfile: ./../../cloudflare.taskfile.yml
   #  flatten: true
 
   #remote: 

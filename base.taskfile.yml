@@ -422,12 +422,26 @@ tasks:
     cmds:
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} --help'
   shell-wgot:
-    desc: wgot pulls files over http. E:G task base:shell-wgot -- https://example.com/file.mp4
+    desc: wgot pulls files over http. E:G task base:shell-wgot -- https://example.com/file.mp4 
     cmds:
       # https://github.com/bitrise-io/got
       # got -o /path/to/save https://example.com/file.mp4
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}}'
+  shell-wgot-todep:
+    desc: wgot pulls files over http and places in .dep BASE_DEP_PATH. E:G task base:shell-wgot -- https://example.com/file.mp4 
+    cmds:
+      # https://github.com/bitrise-io/got
+      # got -o /path/to/save https://example.com/file.mp4
+      - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
+      - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}} --dir {{.BASE_DEP_PATH}}'
+  shell-wgot-tocwd:
+    desc: wgot pulls files over http and places the file in CWD BASE_SRC_PATH. E:G task base:shell-wgot -- https://example.com/file.mp4 
+    cmds:
+      # https://github.com/bitrise-io/got
+      # got -o /path/to/save https://example.com/file.mp4
+      - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
+      - '{{.BASE_SHELL_WGOT_BIN_NAME}} {{.CLI_ARGS}} --dir {{.BASE_SRC_PATH}}'
 
   shell-which-print:
     desc: prints the which tool name only.

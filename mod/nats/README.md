@@ -6,15 +6,22 @@ TODO:
 - https://github.com/synadia-io/nex/blob/main/Taskfile.yaml
 - TOFU files for Deploying Server, Cluster and Marmot.
 
-
 ## Server
 
+https://github.com/nats-io/nats-server
 https://github.com/nats-io/nats-server/releases/tag/v2.11.0
 
 ## Cli
 
+https://github.com/nats-io/natscli
 https://github.com/nats-io/natscli/releases/tag/v0.2.0
 
+## NSC
+
+Tool for creating nkey/jwt based configurations
+
+https://github.com/nats-io/nsc
+https://github.com/nats-io/nsc/releases/tag/v2.11.0
 
 ## Cluster
 

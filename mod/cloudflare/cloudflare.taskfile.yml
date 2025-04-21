@@ -19,17 +19,23 @@ vars:
   CLOUDFLARE_ACCOUNT_DASH_URL: https://dash.cloudflare.com/{{.CLOUDFLARE_ACCOUNT_ID}}
   CLOUDFLARE_ACCOUNT_DASH_TOKEN_URL: https://dash.cloudflare.com/{{.CLOUDFLARE_ACCOUNT_ID}}/api-tokens
 
-  ### tunnel
+  # tunnel
+
+  ### bin 
   CLOUDFLARE_TRUNNEL_BIN_NAME: cloudflared
-  CLOUDFLARE_TRUNNEL_BIN_WHICH: #/usr/local/bin/cloudflared
-   # https://github.com/cloudflare/cloudflared/releases/tag/2025.4.0
+  # https://github.com/cloudflare/cloudflared/releases/tag/2025.4.0
   CLOUDFLARE_TRUNNEL_BIN_VERSION: 2025.4.0
+  CLOUDFLARE_TRUNNEL_BIN_WHICH: #/usr/local/bin/cloudflared
+  CLOUDFLARE_TRUNNEL_BIN_WHICH_VERSION:
+    sh: '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} version'
   
   CLOUDFLARE_TRUNNEL_BIN_URL_NAME: cloudflared-darwin-arm64.tgz
   CLOUDFLARE_TRUNNEL_BIN_URL: https://github.com/cloudflare/cloudflared/releases/download/{{.CLOUDFLARE_TRUNNEL_BIN_VERSION}}/{{.CLOUDFLARE_TRUNNEL_BIN_URL_NAME}}
 
   # example: http://localhost:8080
   CLOUDFLARE_TUNNEL_VAR_URL: http://localhost:8080
+
+  CLOUDFLARE_TUNNEL_CMD: '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}}'
 
 tasks:
   default:
@@ -50,10 +56,11 @@ tasks:
       - echo 'CLOUDFLARE_ACCOUNT_DOMAIN_NAME:'    {{.CLOUDFLARE_ACCOUNT_DOMAIN_NAME}}
       - echo ''
       - echo '- tunnel bin'
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_NAME:'       {{.CLOUDFLARE_TRUNNEL_BIN_NAME}}
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_WHICH:'      {{.CLOUDFLARE_TRUNNEL_BIN_WHICH}}
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_VERSION:'    {{.CLOUDFLARE_TRUNNEL_BIN_VERSION}}
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_URL:'        {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_NAME:'           {{.CLOUDFLARE_TRUNNEL_BIN_NAME}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_VERSION:'        {{.CLOUDFLARE_TRUNNEL_BIN_VERSION}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_WHICH:'          {{.CLOUDFLARE_TRUNNEL_BIN_WHICH}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_WHICH_VERSION:'  {{.CLOUDFLARE_TRUNNEL_BIN_WHICH_VERSION}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_URL:'            {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
       - echo ''
       - echo '- tunnel vars:'
       - echo 'CLOUDFLARE_TUNNEL_VAR_URL:'         {{.CLOUDFLARE_TUNNEL_VAR_URL}}
@@ -71,21 +78,37 @@ tasks:
 
   tunnel:dep:
     cmds:
-      - brew install cloudflare/cloudflare/cloudflared
+      - brew install cloudflared
+      #- task base:shell-wgot -- {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
+  tunnel:dep:del:
+    cmds:
+      - brew uninstall cloudflared
       #- task base:shell-wgot -- {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
 
-  tunnel:login:
-    desc: login to cloudflared tunnel
+  tunnel:version:
+    desc: run tunnel version
     cmds:
-      - echo 'try to run cloudflared tunnel'
-      - 'cloudflared tunnel login'
+      - '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} version'
     silent: false
 
   tunnel:run:
-    desc: try to run cloudflared tunnel
+    desc: run tunnel help
+    cmds:
+      - '{{.CLOUDFLARE_TUNNEL_CMD}} tunnel -h'
+    silent: false
+
+  tunnel:login:
+    desc: login to tunnel
     cmds:
       - echo 'try to run cloudflared tunnel'
-      - 'cloudflared tunnel --url {{.CLOUDFLARE_TUNNEL_VAR_URL}} --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'
+      - '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} tunnel login'
+    silent: false
+
+  tunnel:server:
+    desc: run cloudflared tunnel server
+    cmds:
+      - echo 'try to run cloudflared tunnel'
+      - '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} tunnel --url {{.CLOUDFLARE_TUNNEL_VAR_URL}} --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'
       #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate'
       #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate --loglevel debug'
       #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'

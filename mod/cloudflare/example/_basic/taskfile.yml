@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# taskfile.yml
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  local: 
+    taskfile: ./../../../../remote-taskfile.yml
+    flatten: true
+  cloudflare: 
+    taskfile: ./../../cloudflare.taskfile.yml
+  #  flatten: true
+
+  #remote: 
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+  #  flatten: true
+
+  #remote:
+  #   https://github.com/saydulaev/taskfile
+  #   taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
+  #   flatten: true
+
+vars:
+
+tasks:
+  default:
+    desc: default
+    cmds:
+      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
+    silent: false
+  
