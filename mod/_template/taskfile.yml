@@ -29,7 +29,6 @@ tasks:
   default:
     desc: Welcome. 
     cmds:
-      - echo ''
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
     silent: false
 
@@ -37,7 +36,6 @@ tasks:
     desc: build all explicitly.
     cmds:
       - '{{.BASE_TASK_CMD}} bin'
-
 
   bin:
     desc: build all explicitly.

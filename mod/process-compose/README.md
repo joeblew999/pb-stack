@@ -2,6 +2,18 @@
 
 https://github.com/F1bonacc1/process-compose
 
+## Task
+
+```sh
+
+task process-compose
+
+task process-compose:dep
+
+task process-compose:run
+
+```
+
 ## Dev-time
 
 copy their go.mod in and tidy ...
@@ -14,6 +26,7 @@ copy their go.mod in and tidy ...
 ```sh task base-bin-pack ``` , to package for distribution.
 
 # to distribute
+
 ```sh task base-bin-push ```, to push the binary for usage by others.
 
 

@@ -1,13 +1,8 @@
 # Projects
 
-We can call **task** from here to reuse the TASK files higher up: 
+Each Folder is a Project.
 
-https://taskfile.dev/usage/#running-a-taskfile-from-a-subdirectory
-
-
-## Usage
-
-Each Folder is a playground.
+Each Project can use Modules by just including the relevant task file.
 
 ## Todo
 

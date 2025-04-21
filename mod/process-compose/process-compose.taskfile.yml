@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# process_compose.taskfile.yml
+
+version: '3'
+
+env:
+  
+vars:
+  ### bin
+  PC_BIN_NAME: process-compose
+  PC_BIN_WHICH: #/usr/local/bin/cloudflared
+  # https://github.com/F1bonacc1/process-compose/releases/tag/v1.46.0
+  PC_BIN_VERSION: v1.9.0
+  
+  # https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_darwin_arm64.zip
+  # TODO: adapt to each OS.
+  PC_BIN_URL_NAME: tofu_1.9.0_darwin_arm64.zip
+  PC_BIN_URL: https://github.com/opentofu/opentofu/releases/download/{{.PC_BIN_VERSION}}_{{.PC_BIN_URL_NAME}}
+
+tasks:
+  default:
+    desc: print
+    cmds:
+      - echo ''
+      - echo '- bin'
+      - echo 'PC_BIN_NAME:'       {{.PC_BIN_NAME}}
+      - echo 'PC_BIN_WHICH:'      {{.PC_BIN_WHICH}}
+      - echo 'PC_BIN_VERSION:'    {{.PC_BIN_VERSION}}
+      - echo 'PC_BIN_URL:'        {{.PC_BIN_URL}}
+      - echo ''
+      - echo '- vars:'
+      - echo ''
+    silent: true
+
+  dep:
+    cmds:
+      - brew install f1bonacc1/tap/process-compose
+      #- task base:shell-wgot -- {{.PC_BIN_URL}}
+
+  run:
+    desc: run tofu
+    cmds:
+      - '{{.PC_BIN_NAME}} -h'
+    silent: false
+
+
