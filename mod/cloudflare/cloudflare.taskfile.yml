@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# cloudflare.taskfile.yml
+
+version: '3'
+
+env:
+  # expected in .env file
+  # CLOUDFLARE_ACCOUNT_ID: 
+  # CF_API_TOKEN:
+
+  
+
+vars:
+  
+  CLOUDFLARE_ACCOUNT_DOMAIN_NAME: ubuntudesign.com
+
+  # urls
+  CLOUDFLARE_ACCOUNT_DASH_URL: https://dash.cloudflare.com/{{.CLOUDFLARE_ACCOUNT_ID}}
+  CLOUDFLARE_ACCOUNT_DASH_TOKEN_URL: https://dash.cloudflare.com/{{.CLOUDFLARE_ACCOUNT_ID}}/api-tokens
+
+  ### tunnel
+  CLOUDFLARE_TRUNNEL_BIN_NAME: cloudflared
+  CLOUDFLARE_TRUNNEL_BIN_WHICH: #/usr/local/bin/cloudflared
+   # https://github.com/cloudflare/cloudflared/releases/tag/2025.4.0
+  CLOUDFLARE_TRUNNEL_BIN_VERSION: 2025.4.0
+  
+  CLOUDFLARE_TRUNNEL_BIN_URL_NAME: cloudflared-darwin-arm64.tgz
+  CLOUDFLARE_TRUNNEL_BIN_URL: https://github.com/cloudflare/cloudflared/releases/download/{{.CLOUDFLARE_TRUNNEL_BIN_VERSION}}/{{.CLOUDFLARE_TRUNNEL_BIN_URL_NAME}}
+
+  # example: http://localhost:8080
+  CLOUDFLARE_TUNNEL_VAR_URL: http://localhost:8080
+
+tasks:
+  default:
+    desc:  cloudflare print
+    cmds:
+     
+      - echo ''
+      - echo '- vars ( env ) :'
+      - echo 'CLOUDFLARE_ACCOUNT_ID:'             {{.CLOUDFLARE_ACCOUNT_ID}}
+      - echo 'CF_API_TOKEN:'                      {{.CF_API_TOKEN}}
+      - echo ''
+      - echo '- urls '
+      - echo 'CLOUDFLARE_ACCOUNT_DASH_URL:'       {{.CLOUDFLARE_ACCOUNT_DASH_URL}}
+      - echo 'CLOUDFLARE_ACCOUNT_DASH_TOKEN_URL:' {{.CLOUDFLARE_ACCOUNT_DASH_TOKEN_URL}}
+      - echo 'CLOUDFLARE_ACCOUNT_DOMAIN_URL:'     {{.CLOUDFLARE_ACCOUNT_DOMAIN_URL}}
+      - echo ''
+      - echo '- vars:'
+      - echo 'CLOUDFLARE_ACCOUNT_DOMAIN_NAME:'    {{.CLOUDFLARE_ACCOUNT_DOMAIN_NAME}}
+      - echo ''
+      - echo '- tunnel bin'
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_NAME:'       {{.CLOUDFLARE_TRUNNEL_BIN_NAME}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_WHICH:'      {{.CLOUDFLARE_TRUNNEL_BIN_WHICH}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_VERSION:'    {{.CLOUDFLARE_TRUNNEL_BIN_VERSION}}
+      - echo 'CLOUDFLARE_TRUNNEL_BIN_URL:'        {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
+      - echo ''
+      - echo '- tunnel vars:'
+      - echo 'CLOUDFLARE_TUNNEL_VAR_URL:'         {{.CLOUDFLARE_TUNNEL_VAR_URL}}
+      - echo ''
+    silent: true
+
+  dashboard:open:
+    desc: open cloudflare dashboard
+    cmds:
+      - echo 'open cloudflare dashboard'
+      - open {{.CLOUDFLARE_ACCOUNT_URL}}
+    silent: false
+
+
+
+  tunnel:dep:
+    cmds:
+      - brew install cloudflare/cloudflare/cloudflared
+      #- task base:shell-wgot -- {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
+
+  tunnel:login:
+    desc: login to cloudflared tunnel
+    cmds:
+      - echo 'try to run cloudflared tunnel'
+      - 'cloudflared tunnel login'
+    silent: false
+
+  tunnel:run:
+    desc: try to run cloudflared tunnel
+    cmds:
+      - echo 'try to run cloudflared tunnel'
+      - 'cloudflared tunnel --url {{.CLOUDFLARE_TUNNEL_VAR_URL}} --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'
+      #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate'
+      #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate --loglevel debug'
+      #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'
+    silent: false
+
+

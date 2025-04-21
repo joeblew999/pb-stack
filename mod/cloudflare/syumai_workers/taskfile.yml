@@ -11,6 +11,10 @@ includes:
   local: 
     taskfile: ./../../../remote-taskfile.yml
     flatten: true
+  cloudflare: 
+    taskfile: ./../cloudflare.taskfile.yml
+  #  flatten: true
+
   #remote: 
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
   #  flatten: true
@@ -30,34 +34,25 @@ tasks:
   default:
     desc: Welcome. 
     cmds:
-      - echo ''
-      #- task --list-all --yes --sort alphanumeric
-      #- task --list-all --yes --sort alphanumeric
-      #- task --list-all --yes --sort none
-
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
-      
-      #- task --list-all --yes --sort alphanumeric --json
+      - echo 'THIS_SRC:'      {{.THIS_SRC}}
+      - echo 'THIS_SRC:'      {{.THIS_SRC}}
 
-      #- task --list-all --yes git
     silent: false
   src:
-    desc: build all explicitly.
     cmds:
       - '{{.BASE_TASK_CMD}} git:clone:src'
   src:del:
-    desc: build all explicitly.
     cmds:
       - '{{.BASE_TASK_CMD}} git:clone:src:del'
   bin:
-    desc: build all explicitly.
     cmds:
-      - cd {{.THIS_SRC}} && bun install
+      # TODO: Get Bun installed and working using task, not "brew install bun"
+      - cd {{.THIS_SRC}} && bun install wrangler
+
       - cd {{.THIS_SRC}} && go run ../../cmd/workers-assets-gen
       # TODO: Get tinygo installed and working using task, not "brew install tinygo"
       - cd {{.THIS_SRC}} && tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
-      # Not needed as its only for new apps.
-      #- cd {{.THIS_SRC}} && bunx wrangler init
   run:
     cmds:
       - cd {{.THIS_SRC}} && bunx wrangler dev

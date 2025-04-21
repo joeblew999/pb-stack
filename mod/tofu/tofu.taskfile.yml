@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# tofu.taskfile.yml
+
+version: '3'
+
+env:
+  
+vars:
+  ### bin
+  TOFU_BIN_NAME: tofu
+  TOFU_BIN_WHICH: #/usr/local/bin/cloudflared
+  # https://github.com/opentofu/opentofu/releases/tag/v1.9.0
+  TOFU_BIN_VERSION: v1.9.0
+  
+  # https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_darwin_arm64.zip
+  # TODO: adapt to each OS.
+  TOFU_BIN_URL_NAME: tofu_1.9.0_darwin_arm64.zip
+  TOFU_BIN_URL: https://github.com/opentofu/opentofu/releases/download/{{.TOFU_BIN_VERSION}}_{{.TOFU_BIN_URL_NAME}}
+
+tasks:
+  default:
+    desc:  cloudflare print
+    cmds:
+      - echo ''
+      - echo '- bin'
+      - echo 'TOFU_BIN_NAME:'       {{.TOFU_BIN_NAME}}
+      - echo 'TOFU_BIN_WHICH:'      {{.TOFU_BIN_WHICH}}
+      - echo 'TOFU_BIN_VERSION:'    {{.TOFU_BIN_VERSION}}
+      - echo 'TOFU_BIN_URL:'        {{.TOFU_BIN_URL}}
+      - echo ''
+      - echo '- vars:'
+      - echo ''
+    silent: true
+
+  dep:
+    cmds:
+      - brew install opentofu
+      #- task base:shell-wgot -- {{.TOFU_BIN_URL}}
+
+  run:
+    desc: run tofu
+    cmds:
+      - '{{.TOFU_BIN_NAME}} -h'
+    silent: false
+
+
