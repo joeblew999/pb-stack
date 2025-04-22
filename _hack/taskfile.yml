@@ -8,6 +8,8 @@ vars:
 tasks:
   example:
     cmds:
+      - echo 'FOO:' {{.FOO}}
+      - echo 'BAR:' {{.BAR}}
       - echo 'FUBAR:' {{joinPath .FOO .BAR}}
       - echo 'FUBAR:' {{.FUBAR}}              ***** NOT OK
       - echo '{{.FUBAR}}'                           ***** OK
