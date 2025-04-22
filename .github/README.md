@@ -2,16 +2,43 @@
 
 https://github.com/joeblew999/pb-stack
 
-
 Task files for cross platform development and runtimes.
+
+
 
 https://taskfile.dev
 
 https://github.com/go-task/task
 
+
+## Terms
+
+Developer is a person that works with the compilation of the code.
+
+Operator is a person that works with the non compiled code with bun as the interpreter. They are utilising the binaries that the Developer built. An Operator is also a CI and CD system.
+
+Users is person that uses the final Software Product. They are utilising the code that the Operator build.
+
+## Philosophy
+
+The system is designed so that the same code can be used by Developers, CI / CD ( in github ), Operators ( on cloud or on premise ), Users.
+
+After many years building systems for large teams, you tend to start using a fair bit of code gen. Golang templates go along way in this regards.
+
+This system extends that idea of software productivity to allow different Actors in the Software flow to run using the same system, to reduce the complexity. This is similar to the concept of "Single Sourcing", but applied deeply. 
+
+For example, when you Package a project, the task files, binary dependencies ( for each OS and ARCH) and configuration files are put into the Package. This allows the next Actor in the Software flow to have everything they need to run the system. 
+
+The other aspect is self sovereignty.  This means reducing your dependency on other external systems. NATS Jetstream is a huge help with this, allowing you to for example bootstrap the public SSH Keys onto any device, via a NATS Public system. Of course you do need NATS running somewhere. Another example is data sync between offline apps, which can be easily done using NATS running in a Leaf Node setup.
+
+Lastly, there is the GUI aspect. Web, Desktop and Mobile can all be built using simple HTMX constructs with a good quality Webview.  This applies to all Actors in the Software Flow. For example, a Developers laptop can run some tools, an Operator actor can also run some GUI to help with the process, as well as A Web GUI for end users. 
+
+
 ## Status
 
-status ! WIP !
+Its still very much a WIP, with things changing, but the constructs do work. I have built systems like this before, and this is a refactoring of those to use Task files and Process Compose.
+
+## TODO
 
 0. Determine SHELL, and manipulate it.
 
@@ -23,12 +50,12 @@ Environment PATH manipulation does not exist in Task, where we add .DEP and .BIN
 
 2. File path joins.
 
-File path joins is broken in TASK, so we need a golang tool for that, which Task will call.
+File path joins is broken in TASK on Windows, so we need a golang tool for that, which Task will call.
 
 3. SSH Config
 
 We need a cross platform way to manipulate the ssh config, and call it.
-When i installed openssh to Darwin, git stopped working in vscode.
+When i installed openssh to Darwin, git stopped working in vscode for example.
 
 4. Packaging for golang stuff
 
@@ -49,13 +76,21 @@ go install github.com/go-task/task/v3/cmd/task@latest
 
 ## Documentation
 
-See [Doc](../doc/README.md) folder for Project Info.
+
+You can use the Docs folder for your Project documentation for each Actor type.
+
+This Project uses the top level docs folder.  See [Doc](../doc/README.md) folder for Project Info.
 
 ## 0. Base OS Setup
 
-You need golang, git, ssh and bun.
+Developers need golang, git, ssh and bun.
 
-## Golang that does not effect your already installed golang.
+Operators of course need much less. 
+
+
+## Golang 
+
+That does not effect your already installed golang.
 
 https://github.com/kevincobain2000/gobrew allows installing golang compiler versions on the fly.
 
@@ -82,8 +117,6 @@ Test it from any github repo that has a go.mod, which is all golang projects:
 ```sh
 
 ```
-
-
 
 ### For Darwin / Linux
 
