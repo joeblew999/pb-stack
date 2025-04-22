@@ -1,0 +1,15 @@
+version: '3'
+
+vars:
+  FOO: '{{.USER_WORKING_DIR}}'
+  BAR: "bar/foo"
+  FUBAR: '{{joinPath .FOO .BAR}}'
+
+tasks:
+  default:
+    cmds:
+      - echo 'FOO:' {{.FOO}}
+      - echo 'BAR:' {{.BAR}}
+      - echo 'FUBAR:' {{.FUBAR}}
+      - mkdir -p {{.FUBAR}}
+      

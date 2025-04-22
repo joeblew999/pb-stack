@@ -1,0 +1,90 @@
+# ci
+
+name: ci
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      upload-artifacts:
+        default: false
+        required: false
+        type: boolean
+      environment:
+        type: string
+        required: true
+      sign:
+        type: boolean
+        default: true
+        required: false
+    secrets:
+      AZURE_CODE_SIGNING_TENANT_ID:
+      AZURE_CODE_SIGNING_CLIENT_ID:
+      AZURE_CODE_SIGNING_CLIENT_SECRET:
+      DESKTOP_OAUTH_CLIENT_ID:
+      DESKTOP_OAUTH_CLIENT_SECRET:
+      APPLE_ID:
+      APPLE_ID_PASSWORD:
+      APPLE_TEAM_ID:
+      APPLE_APPLICATION_CERT:
+      APPLE_APPLICATION_CERT_PASSWORD:
+    
+
+
+permissions: 
+  packages: write
+  
+jobs:
+  build:
+    name: ${{ matrix.os }} ${{ matrix.arch }} go-${{ matrix.go-version }} 
+    strategy:
+      matrix:
+        go-version: [1.24.x]
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+        #os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15, windows-2025]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        #os: [macos-latest, windows-latest]
+        #os: [macos-15]
+      fail-fast: false
+    runs-on: ${{matrix.os}}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      # https://github.com/actions/setup-go
+      - name: Set up Go ${{matrix.go-version}}
+        uses: actions/setup-go@v5
+        with:
+          go-version: '${{matrix.go-version}}'
+          cache-dependency-path: 'go.sum'
+
+      # Task install
+      - name: Install Taskfile version
+        run: go install github.com/go-task/task/v3/cmd/task@latest
+
+
+      - name: _hack/test-paths 
+        run: task --yes
+        working-directory: _hack/test-paths
+
+      - name: _hack/test-mkdir 
+        run: task --yes
+        working-directory: _hack/test-mkdir     
+      
+
+      

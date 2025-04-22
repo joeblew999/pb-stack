@@ -6,7 +6,7 @@ vars:
   FUBAR: '{{joinPath .FOO .BAR}}'
 
 tasks:
-  example:
+  default:
     cmds:
       - echo 'FOO:' {{.FOO}}
       - echo 'BAR:' {{.BAR}}
