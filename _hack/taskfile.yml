@@ -1,0 +1,16 @@
+version: '3'
+
+vars:
+  FOO: '{{.USER_WORKING_DIR}}'
+  BAR: "bar/foo"
+  FUBAR: '{{joinPath .FOO .BAR}}'
+
+tasks:
+  example:
+    cmds:
+      - echo 'FUBAR:' {{joinPath .FOO .BAR}}
+      - echo 'FUBAR:' {{.FUBAR}}              ***** NOT OK
+      - echo '{{.FUBAR}}'                           ***** OK
+      - echo '{{spew .FUBAR}}'                  ***** internally, OK
+      - echo 'FUBAR:' test\\foo\bar          ***** here, the problem is generated directly
+      - echo 'FUBAR:' {{shellQuote .FUBAR}} **** This will FIX the problem
