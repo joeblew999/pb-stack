@@ -19,7 +19,7 @@ tasks:
       - echo 'FOLDER02_NAME:' {{.FOLDER02_NAME}}
       - echo 'FOLDER02_PATH:' {{.FOLDER02_PATH}}
       - go install github.com/a8m/tree/cmd/tree@latest
-      # Its need the .exe to work on Windows arm64 native.
+      # Its need the .exe to work on Windows arm64 native. in CI, windows amd64 does not care either way.
       - tree{{.BASE_BINARY_EXTENSION}} -a -l --dirsfirst -C .
       - mkdir -p {{.FOLDER01_PATH}}
       - mkdir -p {{.FOLDER02_PATH}}

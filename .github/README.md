@@ -109,43 +109,12 @@ Developers need golang, git, ssh and bun.
 
 Operators of course need much less. Sometimes none, depending on the Project. 
 
-## Golang 
-
-That does not effect your already installed golang.
-
-https://github.com/kevincobain2000/gobrew allows installing golang compiler versions on the fly.
-
-For darwin / linux:
-
-```sh
-curl -sL https://raw.githubusercontent.com/kevincobain2000/gobrew/master/git.io.sh | bash
-
-# This needs to be run in each new shell. Can add it to your shell.
-code $HOME/.bashrc
-code $HOME/.zshrc
-export PATH="$HOME/.gobrew/current/bin:$HOME/.gobrew/bin:$PATH"
-
-```
-
-For windows:
-
-```sh
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/kevincobain2000/gobrew/master/git.io.ps1'))
-``` 
-
-Test it from any github repo that has a go.mod, which is all golang projects:
-
-```sh
-
-```
-
 ### For Darwin / Linux
 
 Install Brew, if not already installed
 
 https://docs.brew.sh/Installation
 
-TODO: Is there a golang brew controller, like what we have for Winget ?
 
 ```sh
 which brew
@@ -161,36 +130,75 @@ brew analytics
 ```
 
 
-Then, install everything by:
-
+Then, install the os binaries you need by:
 
 ```sh
+
+brew install visual-studio-code
 
 brew install go
 brew install git
 brew install openssh
 brew install bun
+
 ``` 
 
 Then configure your shell to use them all:
 
-For Zsh, do:
+
 ```sh
 code ~/.zshrc
+
+# VS Code ( nothing needed )
+
+# GO
+# The core golang system
+export GOROOT=$(brew --prefix)/opt/go/libexec
+# Where you golang projects live, with the bin, pkg, src folders inside. 
+export GOPATH=$HOME/workspace/go
+
+# add both to the path.
+export PATH=$PATH:$GOROOT/bin
+export PATH=$PATH:$GOPATH/bin
+
+
+## GIT
+# The core git system
+PATH="$(brew --prefix)/opt/git/libexec/git-core:$PATH"
+
+## BUN ( nothing needed )
+
+
 ```
 
-Then check that your shell is using all packages by:
+Then check that your shell can see the binaries:
 
 ```sh
 
+which code
+/opt/homebrew/bin/code
+
 which go
+/opt/homebrew/bin/go
+
+go version
+go version go1.24.2 darwin/arm64
+
 which git
+opt/homebrew/opt/git/libexec/git-core/git
+git version
+git version 2.49.0
+
 which openssh
+/opt/homebrew/bin/ssh
+
 which bun
+/opt/homebrew/bin/bun
+
 
 ```
 
-To uninstall all packages, do:
+To uninstall all binaries, do:
 
 ```sh
 
@@ -233,7 +241,7 @@ winget search GnuWin32.Which
 ```sh
 winget install GnuWin32.Which
 
-# Check it with:
+# Try it with:
 #which which
 #C:\Users\admin\AppData\Local\Microsoft\WinGet\Links\which.EXE
 
