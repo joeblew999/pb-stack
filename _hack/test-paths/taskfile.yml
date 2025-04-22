@@ -15,7 +15,9 @@ tasks:
       - echo 'FOLDER01_PATH:' {{.FOLDER01_PATH}}
       - echo 'FOLDER02_NAME:' {{.FOLDER02_NAME}}
       - echo 'FOLDER02_PATH:' {{.FOLDER02_PATH}}
+      - go install github.com/a8m/tree/cmd/tree@latest
       - mkdir -p {{.FOLDER01_PATH}}
       - mkdir -p {{.FOLDER02_PATH}}
       - ls -al .
+      - tree -a -l --dirsfirst -C .
     silent: false
