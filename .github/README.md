@@ -13,11 +13,11 @@ https://github.com/go-task/task
 
 ## Terms
 
-Developer is a person that works with the compilation of the code.
+**Developer** is a person that works with the compilation of the code.
 
-Operator is a person that works with the non compiled code with bun as the interpreter. They are utilising the binaries that the Developer built. An Operator is also a CI and CD system.
+**Operator** is a person that works with the non compiled code with bun as the interpreter. They are utilising the binaries that the Developer built. An Operator is also a CI and CD system.
 
-Users is person that uses the final Software Product. They are utilising the code that the Operator build.
+**User** is person that uses the final Software Product. They are utilising the code that the Operator build.
 
 ## Philosophy
 
@@ -36,7 +36,9 @@ Lastly, there is the GUI aspect. Web, Desktop and Mobile can all be built using 
 
 ## Status
 
-Its still very much a WIP, with things changing, but the constructs do work. I have built systems like this before, and this is a refactoring of those to use Task files and Process Compose.
+Its still very much a WIP, with things changing, but the constructs do work. 
+
+I have built systems like this before and the philosophy does work exceeding well. This is a refactoring of those previous systems that uses Task files and Process Compose. 
 
 ## TODO
 
@@ -81,12 +83,20 @@ You can use the Docs folder for your Project documentation for each Actor type.
 
 This Project uses the top level docs folder.  See [Doc](../doc/README.md) folder for Project Info.
 
-## 0. Base OS Setup
+## Boostrapping 
+
+Boostrapping runs at 2 level: 
+
+- OS level setup
+
+- Task level setup
+
+
+## 0. OS Setup
 
 Developers need golang, git, ssh and bun.
 
-Operators of course need much less. 
-
+Operators of course need much less. Sometimes none, depending on the Project. 
 
 ## Golang 
 
@@ -321,7 +331,7 @@ cat $HOME/.ssh/joeblew999_github.com.pub
 ``` 
 
 
-## 1. Task Setup
+## 3. Task Setup
 
 Assuming you have golang installed, bootstrap task onto to your laptop...
 
@@ -329,7 +339,7 @@ Assuming you have golang installed, bootstrap task onto to your laptop...
 go install github.com/go-task/task/v3/cmd/task@latest
 ```
 
-## 2. Env Setup
+## 4. Env Setup
 
 Copy the .env-template to .env to suit your own git and github credentials.
 
@@ -368,10 +378,6 @@ GIT_SIGNING_USER_EMAIL=xxx@gmail.com
 ## 3. GIT and SSH setup
 
 In the git task file, are all the SSH and GIT functions.
-
-
-
-
 
 
 
@@ -462,5 +468,9 @@ task base-bin-run
 ```
 
 
-## Helpers for base OS setup of SSH keys and files for Dev-time and Run-time
+## Helpers 
+
+For base OS setup of SSH keys and files for Dev-time and Run-time, golang helpers will eventually be written and less Task based commands will be needed.
+
+
 
