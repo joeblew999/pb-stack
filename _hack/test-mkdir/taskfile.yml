@@ -12,4 +12,5 @@ tasks:
       - echo 'BAR:' {{.BAR}}
       - echo 'FUBAR:' {{.FUBAR}}
       - mkdir -p {{.FUBAR}}
+    silent: true
       

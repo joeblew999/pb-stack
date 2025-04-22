@@ -1,18 +1,18 @@
 version: '3'
 
 vars:
-  FOO: '{{.USER_WORKING_DIR}}'
-  BAR: "bar/foo"
-  FUBAR: '{{joinPath .FOO .BAR}}'
+  UWD: '{{.USER_WORKING_DIR}}'
+  FOLDER01_NAME: 'folder01'
+  FOLDER01_PATH: '{{joinPath .USER_WORKING_DIR .FOLDER01_NAME}}'
+  FOLDER02_NAME: "bar/foo"
+  FOLDER02_PATH: '{{joinPath .UWD .FOLDER02_NAME}}'
 
 tasks:
   default:
     cmds:
-      - echo 'FOO:' {{.FOO}}
-      - echo 'BAR:' {{.BAR}}
-      - echo 'FUBAR:' {{joinPath .FOO .BAR}}
-      - echo 'FUBAR:' {{.FUBAR}}              ***** NOT OK
-      - echo '{{.FUBAR}}'                           ***** OK
-      - echo '{{spew .FUBAR}}'                  ***** internally, OK
-      - echo 'FUBAR:' test\\foo\bar          ***** here, the problem is generated directly
-      - echo 'FUBAR:' {{shellQuote .FUBAR}} **** This will FIX the problem
+      - echo 'UWD:' {{.UWD}}
+      - echo 'FOLDER01_NAME:' {{.FOLDER01_NAME}}
+      - echo 'FOLDER01_PATH:' {{.FOLDER01_PATH}}
+      - echo 'FOLDER02_NAME:' {{.FOLDER02_NAME}}
+      - echo 'FOLDER02_PATH:' {{.FOLDER02_PATH}}
+    silent: true
