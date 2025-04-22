@@ -19,6 +19,8 @@ https://github.com/go-task/task
 
 **User** is person that uses the final Software Product. They are utilising the code that the Operator build.
 
+**Single sourcing** in data refers to using a single source of information to generate multiple outputs or documents, rather than creating separate content for each need. 
+
 ## Philosophy
 
 The system is designed so that the same code can be used by Developers, CI / CD ( in github ), Operators ( on cloud or on premise ), Users.

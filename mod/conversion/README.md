@@ -1,5 +1,13 @@
 # conversion
 
+These are basic workers used in pipelines to convert from one format to another.
+
+This helps with Single Sourcing so that we output to many other system like Google SEO, etc. 
+
+It has a myriad of uses at different levels of the Software Flow though.
+
+## Markdown
+
 Pipelines for conversions so that:
 
 AI can get clean markdown
@@ -7,14 +15,15 @@ AI can get clean markdown
 Users can get clean markdown
 
 
-
 ## HTML
+
+Convert complex web pages to simple ones, to aid with AI and SEO.
 
 https://github.com/mackee/go-readability
 
 Can call remote or local html.
 
-remote sites often block.
+Remote sites often block. 
 
 
 ```sh
