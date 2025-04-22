@@ -2,9 +2,9 @@ version: '3'
 
 vars:
   UWD: '{{.USER_WORKING_DIR}}'
-  FOLDER01_NAME: 'folder01'
+  FOLDER01_NAME: 'outfolder01'
   FOLDER01_PATH: '{{joinPath .USER_WORKING_DIR .FOLDER01_NAME}}'
-  FOLDER02_NAME: "bar/foo"
+  FOLDER02_NAME: "outbar/foo"
   FOLDER02_PATH: '{{joinPath .UWD .FOLDER02_NAME}}'
 
 tasks:
@@ -15,4 +15,6 @@ tasks:
       - echo 'FOLDER01_PATH:' {{.FOLDER01_PATH}}
       - echo 'FOLDER02_NAME:' {{.FOLDER02_NAME}}
       - echo 'FOLDER02_PATH:' {{.FOLDER02_PATH}}
-    silent: true
+      - mkdir -p {{.FOLDER01_PATH}}
+      - mkdir -p {{.FOLDER02_PATH}}
+    silent: false

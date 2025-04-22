@@ -8,9 +8,6 @@ vars:
 tasks:
   default:
     cmds:
-      - echo 'FOO:' {{.FOO}}
-      - echo 'BAR:' {{.BAR}}
-      - echo 'FUBAR:' {{.FUBAR}}
-      - mkdir -p {{.FUBAR}}
-    silent: true
+     
+    silent: false
       
