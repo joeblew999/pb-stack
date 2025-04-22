@@ -103,7 +103,7 @@ vars:
   BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
   #BASE_PACK_PATH: '{{joinPath .BASE_SRC_PATH .BASE_PACK_NAME }}'
 
-  BASE_ENV_PATH: '{{.PATH}}'
+  #BASE_ENV_PATH: '{{.PATH}}'
   
 
 
@@ -157,10 +157,10 @@ tasks:
       - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
       - echo 'BASE_PACK_PATH:'        {{.BASE_PACK_PATH}}
       - echo ''
-      - echo 'BASE_ENV_PATH:'         {{.BASE_ENV_PATH}}
+      #- echo 'BASE_ENV_PATH:'         {{.BASE_ENV_PATH}}
       - echo ''
       - echo '- env path'
-      - echo 'PATH:'                  {{.PATH}}
+      #- echo 'PATH:'                  {{.PATH}}
       - echo ''
       - echo '- task'
       - echo ''
