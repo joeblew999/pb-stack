@@ -53,6 +53,9 @@ jobs:
         #os: [macos-15]
       fail-fast: false
     runs-on: ${{matrix.os}}
+    defaults:
+      run:
+        shell: bash
 
     steps:
       # https://github.com/actions/checkout

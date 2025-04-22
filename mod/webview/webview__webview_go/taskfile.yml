@@ -8,6 +8,11 @@ tasks:
   default:
     desc: Welcome. 
     cmds:
+
+  init:
+    cmds:
+      - touch go.work
+      - go work use .
       
   run:
     cmds:
