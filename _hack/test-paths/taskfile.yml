@@ -2,6 +2,7 @@ version: '3'
 
 vars:
   UWD: '{{.USER_WORKING_DIR}}'
+  BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
   FOLDER01_NAME: 'outfolder01'
   FOLDER01_PATH: '{{joinPath .USER_WORKING_DIR .FOLDER01_NAME}}'
   FOLDER02_NAME: "outbar/foo"
@@ -11,14 +12,17 @@ tasks:
   default:
     cmds:
       - echo 'UWD:' {{.UWD}}
+
+      - echo 'BASE_BINARY_EXTENSION:' {{.BASE_BINARY_EXTENSION}}
       - echo 'FOLDER01_NAME:' {{.FOLDER01_NAME}}
       - echo 'FOLDER01_PATH:' {{.FOLDER01_PATH}}
       - echo 'FOLDER02_NAME:' {{.FOLDER02_NAME}}
       - echo 'FOLDER02_PATH:' {{.FOLDER02_PATH}}
       - go install github.com/a8m/tree/cmd/tree@latest
-      - tree -a -l --dirsfirst -C .
+      # Its need the .exe to work on Windows arm64 native.
+      - tree{{.BASE_BINARY_EXTENSION}} -a -l --dirsfirst -C .
       - mkdir -p {{.FOLDER01_PATH}}
       - mkdir -p {{.FOLDER02_PATH}}
       - ls -al .
-      - tree -a -l --dirsfirst -C .
+      - tree{{.BASE_BINARY_EXTENSION}} -a -l --dirsfirst -C .
     silent: false
