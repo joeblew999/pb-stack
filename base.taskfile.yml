@@ -149,7 +149,7 @@ tasks:
       - echo 'BASE_SRC_PATH:'         {{.BASE_SRC_PATH}}
       - echo ''
       - echo 'BASE_BIN_NAME:'         {{.BASE_BIN_NAME}}
-      - echo 'BASE_BIN_PATH:'         {{.BASE_BIN_PATH}}
+      - 'echo BASE_BIN_PATH:     {{.BASE_BIN_PATH}}'
       - echo ''
       - echo 'BASE_DEP_NAME:'         {{.BASE_DEP_NAME}}
       - echo 'BASE_DEP_PATH:'         {{.BASE_DEP_PATH}}
@@ -320,7 +320,7 @@ tasks:
       - echo ''
       - echo '1. Creating base folders ...'
       - echo '.bin ...'
-      - mkdir -p {{.BASE_BIN_PATH}}
+      - 'mkdir -p {{.BASE_BIN_PATH}}'
       - echo '.dep ...'
       - mkdir -p {{.BASE_DEP_PATH}}
       - echo '.pack ...'
