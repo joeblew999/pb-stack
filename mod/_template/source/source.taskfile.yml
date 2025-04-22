@@ -27,9 +27,17 @@ vars:
 
 tasks:
   default:
-    desc: Welcome. 
+    desc: print 
     cmds:
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
+      
+      - echo 'BASE_SHELL:'            {{.BASE_SHELL}}
+      - echo 'GO_VAR_BUILD_PRE:'      {{.GO_VAR_BUILD_PRE}}
+      - echo 'GO_VAR_BUILD_POST:'     {{.GO_VAR_BUILD_POST}}
+    silent: false
+
+
+
     silent: false
 
   this:

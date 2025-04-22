@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# taskfile.yml
+
+version: '3'
+
+tasks:
+  default:
+    desc: Welcome. 
+    cmds:
+      
+  run:
+    cmds:
+      - go run .
+  bin:
+    cmds:
+      - go build -o .bin/webview
+  play:
+    cmds:
+      - .bin/webview
