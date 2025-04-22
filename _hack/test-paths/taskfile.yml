@@ -17,4 +17,5 @@ tasks:
       - echo 'FOLDER02_PATH:' {{.FOLDER02_PATH}}
       - mkdir -p {{.FOLDER01_PATH}}
       - mkdir -p {{.FOLDER02_PATH}}
+      - ls -al .
     silent: false
