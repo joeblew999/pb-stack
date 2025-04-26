@@ -205,11 +205,11 @@ tasks:
       # The Task executable name or path.
       - echo 'TASK_EXE:'              {{.TASK_EXE}}
       # The absolute path of the root Taskfile
-      - echo 'ROOT_TASKFILE:'         {{.ROOT_TASKFILE}}
+      - echo 'ROOT_TASKFILE:'         {shellQuote .ROOT_TASKFILE}}
       # The absolute path of the root Taskfile directory
-      - echo 'ROOT_DIR:'              {{.ROOT_DIR}}
+      - echo 'ROOT_DIR:'              {shellQuote .ROOT_DIR}}
       # The absolute path of the included Taskfile.
-      - echo 'TASKFILE:'              {{.TASKFILE}}
+      - echo 'TASKFILE:'              {shellQuote .TASKFILE}}
       # The absolute path of the included Taskfile directory.
       - echo 'TASKFILE_DIR:'          {{.TASKFILE_DIR}}
       # The absolute path of the directory where the task is executed.
