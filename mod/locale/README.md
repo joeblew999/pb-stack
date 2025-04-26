@@ -20,6 +20,9 @@ ICU, or International Components for Unicode, is a set of open-source libraries 
 
 There are so many formats that its gotten ridiculous and ICU works well but had not been well adapter to golang yet.
 
+https://github.com/romshark/toki
+https://github.com/romshark/icumsg
+
 ## Compile versus Runtime
 
 The module support CompileTime and RunTime.

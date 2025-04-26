@@ -8,26 +8,41 @@ env:
   
 vars:
   ### bin
-  TOFU_BIN_NAME: tofu
-  TOFU_BIN_WHICH: #/usr/local/bin/cloudflared
-  # https://github.com/opentofu/opentofu/releases/tag/v1.9.0
-  TOFU_BIN_VERSION: v1.9.0
+  NATS_BIN_NAME: nats-server
+  # https://github.com/nats-io/nats-server/releases/tag/v2.11.2
+  NATS_BIN_VERSION: v2.11.2
+  #NATS_BIN_WHICH: 
+    #sh: 'which {{.NATS_BIN_NAME}}'
+  #NATS_BIN_WHICH_VERSION:
+    #sh: '{{.NATS_BIN_NAME}} version'
   
-  # https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_darwin_arm64.zip
+  # https://github.com/nats-io/nats-server/releases/download/v2.11.2/nats-server-v2.11.2-darwin-arm64.tar.gz
   # TODO: adapt to each OS.
-  TOFU_BIN_URL_NAME: tofu_1.9.0_darwin_arm64.zip
-  TOFU_BIN_URL: https://github.com/opentofu/opentofu/releases/download/{{.TOFU_BIN_VERSION}}_{{.TOFU_BIN_URL_NAME}}
+  NATS_DEP_URL_COMPRESS_NAME: nats-server-{{.NATS_BIN_VERSION}}-darwin-arm64.tar.gz
+  NATS_DEP_URL_FOLDER_NAME: nats-server-{{.NATS_BIN_VERSION}}-darwin-arm64
+  NATS_DEP_URL_EXTRACT_NAME: nats-server
+  NATS_DEP_URL: https://github.com/nats-io/nats-server/releases/download/{{.NATS_BIN_VERSION}}/{{.NATS_DEP_URL_COMPRESS_NAME}}
 
 tasks:
   default:
-    desc:  cloudflare print
+    desc:  print
     cmds:
       - echo ''
       - echo '- bin'
-      - echo 'TOFU_BIN_NAME:'       {{.TOFU_BIN_NAME}}
-      - echo 'TOFU_BIN_WHICH:'      {{.TOFU_BIN_WHICH}}
-      - echo 'TOFU_BIN_VERSION:'    {{.TOFU_BIN_VERSION}}
-      - echo 'TOFU_BIN_URL:'        {{.TOFU_BIN_URL}}
+      - echo 'NATS_BIN_NAME:'                   {{.NATS_BIN_NAME}}
+      - echo 'NATS_BIN_VERSION:'                {{.NATS_BIN_VERSION}}
+      - echo 'NATS_BIN_WHICH:'                  which {{.NATS_BIN_NAME}}
+      - echo 'NATS_BIN_WHICH_VERSION:'          {{.NATS_BIN_NAME}} version
+      
+
+      - echo '- dep'
+      - echo 'NATS_DEP_URL_COMPRESS_NAME:'      {{.NATS_DEP_URL_COMPRESS_NAME}}
+      - echo 'NATS_DEP_URL_FOLDER_NAME:'        {{.NATS_DEP_URL_FOLDER_NAME}}
+      - echo 'NATS_DEP_URL_EXTRACT_NAME:'       {{.NATS_DEP_URL_EXTRACT_NAME}}
+      - echo 'NATS_DEP_URL:'                    {{.NATS_DEP_URL}}
+
+      - 'which {{.NATS_BIN_NAME}}'
+      - '{{.NATS_BIN_NAME}} version'
       - echo ''
       - echo '- vars:'
       - echo ''
@@ -35,13 +50,27 @@ tasks:
 
   dep:
     cmds:
-      - brew install opentofu
-      #- task base:shell-wgot -- {{.TOFU_BIN_URL}}
+      # download and extract
+      - task base:shell-wgot-tocwd -- {{.NATS_DEP_URL}}
+      - task base:shell-arc-extract-tocwd -- {{.NATS_DEP_URL_COMPRESS_NAME}}
+      - mv {{.BASE_SRC_PATH}}/{{.NATS_DEP_URL_FOLDER_NAME}}/{{.NATS_DEP_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}
+      # cleanup
+      - rm -f {{.BASE_SRC_PATH}}/{{.NATS_DEP_URL_COMPRESS_NAME}}
+      - rm -rf {{.BASE_SRC_PATH}}/{{.NATS_DEP_URL_FOLDER_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}
+    silent: false
+  dep:del:
+    cmds:
+      - rm -f {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}*
+    silent: false
+
+
 
   run:
-    desc: run tofu
+    desc: run
     cmds:
-      - '{{.TOFU_BIN_NAME}} -h'
+      - '{{.NATS_BIN_NAME}} -h'
     silent: false
 
 

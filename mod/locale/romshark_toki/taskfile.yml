@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  local: 
+    taskfile: ./../../../remote-taskfile.yml
+    flatten: true
+
+vars:
+  #GIT_GITROOT_PATH: "x"
+
+tasks:
+  print:
+    cmds:
+      - echo ""
+  src:
+    cmds:
+      - git clone https://github.com/romshark/toki
+      - touch go.work && go work use toki
+      - touch .gitignore && echo toki >> .gitignore
+  src-del:
+    cmds:
+      - rm -rf toki
+      - rm go.work
+  bin:
+    cmds:
+      - cd toki/cmd/toki && go build -o ./../../.bin/toki
+  run:
+    cmds:
+      - ./toki/.bin/toki -h
+  run-gen:
+    cmds:
+      - ./toki/.bin/toki generate -h
+  run-lint:
+    cmds:
+      - ./toki/.bin/toki lint -h
+

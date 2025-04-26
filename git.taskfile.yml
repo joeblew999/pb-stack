@@ -59,6 +59,7 @@ vars:
   GIT_GITROOT_VERSION:
     sh: '{{.GIT_BIN_NAME}} rev-parse HEAD'
 
+  # For actual taskfile:
   # E.g: 'workers'
   # GIT_VAR_NAME: 
   # E.g: 'https://github.com/syumai/workers'
