@@ -324,7 +324,7 @@ tasks:
       - echo ''
       - echo '1. Creating base folders ...'
       - echo '.bin ...'
-      - 'mkdir {{.BASE_BIN_PATH}}'
+      - mkdir {{.BASE_BIN_PATH}}
       - echo '.dep ...'
       - 'mkdir {{.BASE_DEP_PATH}}'
       - echo '.pack ...'
