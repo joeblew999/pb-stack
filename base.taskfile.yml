@@ -14,7 +14,8 @@ vars:
   BASE_TASK_CMD: '{{.TASK_EXE}} --yes'
 
   # Version
-  BASE_TASK_VERSION_DEFAULT: v3.42.1
+  # https://github.com/go-task/task/releases/tag/v3.43.2
+  BASE_TASK_VERSION_DEFAULT: v3.43.2
   # For bootstrapping off all.env, so everyone is definitely on the same version.
   #BASE_TASK_VERSION_ENV: v3.42.1
   BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
@@ -509,7 +510,7 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} --dir {{.BASE_SRC_PATH}} {{.CLI_ARGS}} '
   shell-wgot-github-releases-tocwd:
-    desc: wgot pulls files over http and places the file in CWD BASE_SRC_PATH. E:G task base:shell-wgot -- https://example.com/file.mp4 
+    desc: pulls the github releases list for a repo. E.G task base:shell-wgot-github-releases-tocwd -- https://api.github.com/repos/OWNER/REPO/releases/tags/TAG
     cmds:
       # docs: https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release-by-tag-name
       # template: # https://api.github.com/repos/OWNER/REPO/releases/tags/TAG

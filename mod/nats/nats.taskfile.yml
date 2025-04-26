@@ -32,8 +32,10 @@ tasks:
       - echo '- bin'
       - echo 'NATS_SERVER_BIN_NAME:'                   {{.NATS_SERVER_BIN_NAME}}
       - echo 'NATS_SERVER_BIN_VERSION:'                {{.NATS_SERVER_BIN_VERSION}}
-      - echo 'NATS_SERVER_BIN_WHICH:'                  which {{.NATS_SERVER_BIN_NAME}}
-      - echo 'NATS_SERVER_BIN_WHICH_VERSION:'          {{.NATS_SERVER_BIN_NAME}} version
+      - echo 'NATS_SERVER_BIN_WHICH:'                  
+      - 'which {{.NATS_SERVER_BIN_NAME}}'
+      - echo 'NATS_SERVER_BIN_WHICH_VERSION:'          
+      - '{{.NATS_SERVER_BIN_NAME}} version'
       - echo ''
       - echo '- dep'
       - echo 'NATS_SERVER_DEP_URL_COMPRESS_NAME:'      {{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
@@ -67,6 +69,7 @@ tasks:
       - gojq -r '.assets[] | select(.name | contains("darwin")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
       - gojq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
       - gojq -r '.assets[] | select(.name | contains("windows")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
+      # loop: https://taskfile.dev/usage/#looping-over-tasks
     silent: false
   dep:del:
     cmds:
@@ -74,6 +77,7 @@ tasks:
       - ls -al {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}*
     silent: false
   dep:list:
+    desc: download and extract all releases meta data from github.
     cmds:
       - task base:shell-wgot-github-releases-tocwd -- {{.NATS_SERVER_DEP_LIST_URL}} 
     silent: false
