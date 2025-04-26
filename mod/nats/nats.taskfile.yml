@@ -8,69 +8,83 @@ env:
   
 vars:
   ### bin
-  NATS_BIN_NAME: nats-server
+  NATS_SERVER_BIN_NAME: nats-server
   # https://github.com/nats-io/nats-server/releases/tag/v2.11.2
-  NATS_BIN_VERSION: v2.11.2
-  #NATS_BIN_WHICH: 
-    #sh: 'which {{.NATS_BIN_NAME}}'
-  #NATS_BIN_WHICH_VERSION:
-    #sh: '{{.NATS_BIN_NAME}} version'
+  NATS_SERVER_BIN_VERSION: v2.11.2
+  #NATS_SERVER_BIN_WHICH: 
+    #sh: 'which {{.NATS_SERVER_BIN_NAME}}'
+  #NATS_SERVER_BIN_WHICH_VERSION:
+    #sh: '{{.NATS_SERVER_BIN_NAME}} version'
   
   # https://github.com/nats-io/nats-server/releases/download/v2.11.2/nats-server-v2.11.2-darwin-arm64.tar.gz
   # TODO: adapt to each OS.
-  NATS_DEP_URL_COMPRESS_NAME: nats-server-{{.NATS_BIN_VERSION}}-darwin-arm64.tar.gz
-  NATS_DEP_URL_FOLDER_NAME: nats-server-{{.NATS_BIN_VERSION}}-darwin-arm64
-  NATS_DEP_URL_EXTRACT_NAME: nats-server
-  NATS_DEP_URL: https://github.com/nats-io/nats-server/releases/download/{{.NATS_BIN_VERSION}}/{{.NATS_DEP_URL_COMPRESS_NAME}}
+  NATS_SERVER_DEP_URL_COMPRESS_NAME: nats-server-{{.NATS_SERVER_BIN_VERSION}}-darwin-arm64.tar.gz
+  NATS_SERVER_DEP_URL_FOLDER_NAME: nats-server-{{.NATS_SERVER_BIN_VERSION}}-darwin-arm64
+  NATS_SERVER_DEP_URL_EXTRACT_NAME: nats-server
+  NATS_SERVER_DEP_URL: https://github.com/nats-io/nats-server/releases/download/{{.NATS_SERVER_BIN_VERSION}}/{{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
 
+  NATS_SERVER_DEP_LIST_URL: https://api.github.com/repos/nats-io/nats-server/releases/tags/{{.NATS_SERVER_BIN_VERSION}}
 tasks:
   default:
     desc:  print
     cmds:
       - echo ''
       - echo '- bin'
-      - echo 'NATS_BIN_NAME:'                   {{.NATS_BIN_NAME}}
-      - echo 'NATS_BIN_VERSION:'                {{.NATS_BIN_VERSION}}
-      - echo 'NATS_BIN_WHICH:'                  which {{.NATS_BIN_NAME}}
-      - echo 'NATS_BIN_WHICH_VERSION:'          {{.NATS_BIN_NAME}} version
-      
-
-      - echo '- dep'
-      - echo 'NATS_DEP_URL_COMPRESS_NAME:'      {{.NATS_DEP_URL_COMPRESS_NAME}}
-      - echo 'NATS_DEP_URL_FOLDER_NAME:'        {{.NATS_DEP_URL_FOLDER_NAME}}
-      - echo 'NATS_DEP_URL_EXTRACT_NAME:'       {{.NATS_DEP_URL_EXTRACT_NAME}}
-      - echo 'NATS_DEP_URL:'                    {{.NATS_DEP_URL}}
-
-      - 'which {{.NATS_BIN_NAME}}'
-      - '{{.NATS_BIN_NAME}} version'
+      - echo 'NATS_SERVER_BIN_NAME:'                   {{.NATS_SERVER_BIN_NAME}}
+      - echo 'NATS_SERVER_BIN_VERSION:'                {{.NATS_SERVER_BIN_VERSION}}
+      - echo 'NATS_SERVER_BIN_WHICH:'                  which {{.NATS_SERVER_BIN_NAME}}
+      - echo 'NATS_SERVER_BIN_WHICH_VERSION:'          {{.NATS_SERVER_BIN_NAME}} version
       - echo ''
-      - echo '- vars:'
+      - echo '- dep'
+      - echo 'NATS_SERVER_DEP_URL_COMPRESS_NAME:'      {{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
+      - echo 'NATS_SERVER_DEP_URL_FOLDER_NAME:'        {{.NATS_SERVER_DEP_URL_FOLDER_NAME}}
+      - echo 'NATS_SERVER_DEP_URL_EXTRACT_NAME:'       {{.NATS_SERVER_DEP_URL_EXTRACT_NAME}}
+      - echo 'NATS_SERVER_DEP_URL:'                    {{.NATS_SERVER_DEP_URL}}
+
+      - echo 'NATS_SERVER_DEP_LIST_URL:'              {{.NATS_SERVER_DEP_LIST_URL}}
+      - echo ''
+      - echo '- run'
       - echo ''
     silent: true
 
   dep:
+    desc: download and extract single.
     cmds:
       # download and extract
-      - task base:shell-wgot-tocwd -- {{.NATS_DEP_URL}}
-      - task base:shell-arc-extract-tocwd -- {{.NATS_DEP_URL_COMPRESS_NAME}}
-      - mv {{.BASE_SRC_PATH}}/{{.NATS_DEP_URL_FOLDER_NAME}}/{{.NATS_DEP_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}
+      - task base:shell-wgot-tocwd -- {{.NATS_SERVER_DEP_URL}}
+      - task base:shell-arc-extract-tocwd -- {{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
+      - mv {{.BASE_SRC_PATH}}/{{.NATS_SERVER_DEP_URL_FOLDER_NAME}}/{{.NATS_SERVER_DEP_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
       # cleanup
-      - rm -f {{.BASE_SRC_PATH}}/{{.NATS_DEP_URL_COMPRESS_NAME}}
-      - rm -rf {{.BASE_SRC_PATH}}/{{.NATS_DEP_URL_FOLDER_NAME}}
-      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}
+      - rm -f {{.BASE_SRC_PATH}}/{{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
+      - rm -rf {{.BASE_SRC_PATH}}/{{.NATS_SERVER_DEP_URL_FOLDER_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
+    silent: false
+  dep:all:
+    desc: download and extract all.
+    cmds:
+      - task nats:dep:list
+      - go install github.com/itchyny/gojq/cmd/gojq@latest
+      - gojq -r '.assets[] | select(.name | contains("darwin")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
+      - gojq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
+      - gojq -r '.assets[] | select(.name | contains("windows")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
     silent: false
   dep:del:
     cmds:
-      - rm -f {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}
-      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_BIN_NAME}}*
+      - rm -f {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}*
     silent: false
+  dep:list:
+    cmds:
+      - task base:shell-wgot-github-releases-tocwd -- {{.NATS_SERVER_DEP_LIST_URL}} 
+    silent: false
+  
 
 
 
   run:
     desc: run
     cmds:
-      - '{{.NATS_BIN_NAME}} -h'
+      - '{{.NATS_SERVER_BIN_NAME}} -h'
     silent: false
 
 

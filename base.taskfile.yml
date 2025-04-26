@@ -477,8 +477,10 @@ tasks:
     desc: installs wgot, if not present.
     cmds:
        - echo '- wgot tool ...'
+      # https://github.com/melbahja/got/forks
       # https://github.com/bitrise-io/got
-       - '{{.GO_BIN_NAME}} install github.com/bitrise-io/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}'
+      # https://github.com/PokeGuys/got
+       - '{{.GO_BIN_NAME}} install github.com/pokeguys/got/cmd/wgot@{{.BASE_SHELL_WGOT_BIN_VERSION}}'
        - mv {{.GO_ENV_BIN_PATH}}/wgot{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WGOT_BIN_NAME}}
        - echo ''
   shell-wgot-h:
@@ -506,6 +508,14 @@ tasks:
       # got -o /path/to/save https://example.com/file.mp4
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} --dir {{.BASE_SRC_PATH}} {{.CLI_ARGS}} '
+  shell-wgot-github-releases-tocwd:
+    desc: wgot pulls files over http and places the file in CWD BASE_SRC_PATH. E:G task base:shell-wgot -- https://example.com/file.mp4 
+    cmds:
+      # docs: https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#get-a-release-by-tag-name
+      # template: # https://api.github.com/repos/OWNER/REPO/releases/tags/TAG
+      - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
+      - '{{.BASE_SHELL_WGOT_BIN_NAME}} --dir {{.BASE_SRC_PATH}} --output github-releases-list.json --header "Accept: application/vnd.github+json, Authorization: Bearer {{.GITHUB_TOKEN}}, X-GitHub-Api-Version: 2022-11-28" {{.CLI_ARGS}} '
+    # --output
 
 
 
