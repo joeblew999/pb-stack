@@ -32,20 +32,26 @@ tasks:
     desc: for ci. same for local and remote
     cmds:
       - echo ''
-      - echo 'Building all ...'
-
+      - echo ' *** Building all ...'
+      - echo ''
 
       # base
-      - echo 'test base is working ...'
+      - echo ''
+      - echo ' *** test base is working ...'
       - '{{.BASE_TASK_CMD}} base:test'
+      - echo ''
 
       # git
-      - echo 'test git is working ...'
+      - echo ''
+      - echo '*** test git is working ...'
       - '{{.BASE_TASK_CMD}} git'
+      - echo ''
 
       # go
-      - echo 'test go is working ...'
+      - echo ''
+      - echo '*** test go is working ...'
       - '{{.BASE_TASK_CMD}} go'
+      - echo ''
 
       # mod
       #-  echo 'Build my Modules, that my projects need ...'

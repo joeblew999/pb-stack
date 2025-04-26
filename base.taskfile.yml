@@ -459,6 +459,7 @@ tasks:
       - echo '- tree tool ...'
       # https://github.com/a8m/tree/cmd/tree
       - '{{.GO_BIN_NAME}} install github.com/a8m/tree/cmd/tree@{{.BASE_SHELL_TREE_BIN_VERSION}}'
+      - ls {{.GO_ENV_BIN_PATH}}
       - mv {{.GO_ENV_BIN_PATH}}/tree{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_TREE_BIN_NAME}}
       - echo ''
   shell-tree-h:

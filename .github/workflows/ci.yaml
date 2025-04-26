@@ -85,7 +85,7 @@ jobs:
         run: 	go install github.com/go-task/task/v3/cmd/task@latest
 
       - name: task all
-        run: task --yes all
+        run: task --version --yes all
 
       
           
