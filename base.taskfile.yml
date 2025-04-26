@@ -144,19 +144,19 @@ tasks:
       - echo 'BASE_USER:'             {{.BASE_USER}}
       - echo ''
       - echo '- dot folders'
-      - echo 'BASE_GITROOT_PATH:'     {{.BASE_GITROOT_PATH}}
+      - echo 'BASE_GITROOT_PATH:'     {{shellQuote .BASE_GITROOT_PATH}}
       - echo ''
       - echo 'BASE_SRC_NAME:'         {{.BASE_SRC_NAME}}
-      - echo 'BASE_SRC_PATH:'         {{.BASE_SRC_PATH}}
+      - echo 'BASE_SRC_PATH:'         {{shellQuote .BASE_SRC_PATH}}
       - echo ''
       - echo 'BASE_BIN_NAME:'         {{.BASE_BIN_NAME}}
-      - 'echo BASE_BIN_PATH:     {{.BASE_BIN_PATH}}'
+      - echo 'BASE_BIN_PATH:'         {{shellQuote .BASE_BIN_PATH}} 
       - echo ''
       - echo 'BASE_DEP_NAME:'         {{.BASE_DEP_NAME}}
-      - echo 'BASE_DEP_PATH:'         {{.BASE_DEP_PATH}}
+      - echo 'BASE_DEP_PATH:'         {{shellQuote .BASE_DEP_PATH}}
       - echo ''
       - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
-      - echo 'BASE_PACK_PATH:'        {{.BASE_PACK_PATH}}
+      - echo 'BASE_PACK_PATH:'        {{shellQuote .BASE_PACK_PATH}}
       - echo ''
       #- echo 'BASE_ENV_PATH:'         {{.BASE_ENV_PATH}}
       - echo ''
@@ -211,11 +211,11 @@ tasks:
       # The absolute path of the included Taskfile.
       - echo 'TASKFILE:'              {{shellQuote .TASKFILE}}
       # The absolute path of the included Taskfile directory.
-      - echo 'TASKFILE_DIR:'          {{.TASKFILE_DIR}}
+      - echo 'TASKFILE_DIR:'          {{shellQuote .TASKFILE_DIR}}
       # The absolute path of the directory where the task is executed.
-      - echo 'TASK_DIR:'              {{.TASK_DIR}}
+      - echo 'TASK_DIR:'              {{shellQuote .TASK_DIR}}
       # The absolute path of the directory task was called from.
-      - echo 'USER_WORKING_DIR:'      {{.USER_WORKING_DIR}}
+      - echo 'USER_WORKING_DIR:'      {{shellQuote .USER_WORKING_DIR}}
       # The checksum of the files listed in sources. Only available within the status prop and if method is set to checksum.
       - echo 'CHECKSUM:'              {{.CHECKSUM}}
       # The date object of the greatest timestamp of the files listed in sources. Only available within the status prop and if method is set to timestamp.
