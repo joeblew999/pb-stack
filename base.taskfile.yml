@@ -82,7 +82,7 @@ vars:
 
   # Root of the repo.
   BASE_GITROOT_PATH: '{{.GIT_GITROOT_PATH}}'
-  BASE_GITROOT_PATH_QUOTED: '{{shellQuote .BASE_GITROOT_PATH}}'
+
     
 
   # The SRC is where a developer does their the git clone into.
