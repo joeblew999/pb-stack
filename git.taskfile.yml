@@ -102,11 +102,31 @@ tasks:
       - echo ''
     silent: true
 
-  run-dep:
+  dep:
     desc: git run any deps needed ...
     cmds:
       - task git:ssh-set
       - task git:sign-set
+      # https://github.com/go-git/cli  
+      # cli
+      - go install github.com/go-git/cli/cmd/gogit@latest
+      # server
+      - go install github.com/go-git/cli/cmd/gogit-http-server@latest
+      
+  test:
+    desc: checks that git is working.
+    cmds:
+      - echo ''
+      - echo 'testing git  ...'
+      - task git:dep
+      - echo ''
+      # git cli.
+      - gogit -h
+      # starts git server
+      - gogit-http-server --prefix test .
+      # http://localhost:8080
+      # http://localhost:8080/test
+
 
   status:
     desc: git status
@@ -154,7 +174,7 @@ tasks:
   pull:
     desc: git pull
     cmds:
-      - task git:run-dep
+      - task git:dep
       - echo 'Pulling ...'
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} pull --rebase
 
@@ -164,7 +184,7 @@ tasks:
     vars:
       COMMIT_MESSAGE: 'ci'
     cmds:
-      - task git:run-dep
+      - task git:dep
       - echo 'Pushing ...'
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} add . 
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
@@ -208,7 +228,7 @@ tasks:
       
       
   ssh-set:
-    desc: git ssh setup. Part of run-dep.
+    desc: git ssh setup. Part of dep.
     cmds:
       - echo 'Adding the ssh keys to the ssh agent ...'
       - ssh-add -l

@@ -147,7 +147,6 @@ tasks:
       - echo ''
       - echo '- dot folders'
       - echo 'BASE_GITROOT_PATH:'     {{shellQuote .BASE_GITROOT_PATH}}
-      - echo 'BASE_GITROOT_PATH_QUOTED:'     {{.BASE_GITROOT_PATH_QUOTED}}
       - echo ''
       - echo 'BASE_SRC_NAME:'         {{.BASE_SRC_NAME}}
       - echo 'BASE_SRC_PATH:'         {{shellQuote .BASE_SRC_PATH}}
