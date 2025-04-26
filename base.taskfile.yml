@@ -271,8 +271,8 @@ tasks:
       - echo 'Upgrading base ...'
       - echo ''
       - echo '1. Installing Task ...'
-      - echo 'BASE_TASK_VERSION_ENV:'   {{.BASE_TASK_VERSION_ENV}}
-      - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION_ENV}}'
+      - echo 'BASE_TASK_VERSION_DEFAULT:'   {{.BASE_TASK_VERSION_DEFAULT}}
+      - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION_DEFAULT}}'
       - echo ''
     silent: false
 
