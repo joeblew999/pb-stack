@@ -25,4 +25,8 @@ tasks:
       - mkdir -p {{.FOLDER02_PATH}}
       - ls -al .
       - tree{{.BASE_BINARY_EXTENSION}} -a -l --dirsfirst -C .
+      - go install github.com/shiquda/treex@latest
+      - treex{{.BASE_BINARY_EXTENSION}}
+      - treex{{.BASE_BINARY_EXTENSION}} -I
+
     silent: false
