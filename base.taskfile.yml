@@ -203,7 +203,7 @@ tasks:
       - echo 'The alias used for the current task, otherwise matches TASK:'  
       - echo 'ALIAS:'                 {{.ALIAS}}
       # The Task executable name or path.
-      - echo 'TASK_EXE:'              {{.TASK_EXE}}
+      - echo 'TASK_EXE:'              {{shellQuote .TASK_EXE}}
       # The absolute path of the root Taskfile
       - echo 'ROOT_TASKFILE:'         {{shellQuote .ROOT_TASKFILE}}
       # The absolute path of the root Taskfile directory
