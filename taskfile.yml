@@ -28,27 +28,36 @@ tasks:
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
      
     silent: false
-  all:
-    desc: build all explicitly.
+  ci:
+    desc: for ci. same for local and remote
     cmds:
       - echo ''
       - echo 'Building all ...'
 
+
       # base
-      - echo 'test system is working ...'
+      - echo 'test base is working ...'
       - '{{.BASE_TASK_CMD}} base:test'
 
+      # git
+      - echo 'test git is working ...'
+      - '{{.BASE_TASK_CMD}} git'
+
+      # go
+      - echo 'test go is working ...'
+      - '{{.BASE_TASK_CMD}} go'
+
       # mod
-      -  echo 'Build my Modules, that my projects need ...'
-      - cd mod/charm/soft_serve && {{.BASE_TASK_CMD}}
+      #-  echo 'Build my Modules, that my projects need ...'
+      #- cd mod/charm/soft_serve && {{.BASE_TASK_CMD}}
       # mod example ( that uses a module task file.)
-      - cd mod/process_compose/example/local && {{.BASE_TASK_CMD}}
-      - cd mod/process_compose/example/remote && {{.BASE_TASK_CMD}} 
+      #- cd mod/process_compose/example/local && {{.BASE_TASK_CMD}}
+      #- cd mod/process_compose/example/remote && {{.BASE_TASK_CMD}} 
       
       # proj
-      - echo 'Build my Projects ...'
+      #- echo 'Build my Projects ...'
       # works, but only with explicit calls, otherwise it self loops.
-      - cd proj/todo-with-task-includes && {{.BASE_TASK_CMD}}
+      #- cd proj/todo-with-task-includes && {{.BASE_TASK_CMD}}
       # work, calling all. I guess because of "remote" at start of calls.
-      - cd proj/todo-with-task-remote && {{.BASE_TASK_CMD}}
+      #- cd proj/todo-with-task-remote && {{.BASE_TASK_CMD}}
     silent: false
