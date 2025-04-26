@@ -26,9 +26,9 @@ tasks:
     desc: Welcome. 
     cmds:
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
-     
     silent: false
-  ci:
+
+  all:
     desc: for ci. same for local and remote
     cmds:
       - echo ''
