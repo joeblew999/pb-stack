@@ -321,20 +321,25 @@ tasks:
       - echo ''
       - echo '1. Creating base folders ...'
       - echo '.bin ...'
-      - 'mkdir -p {{.BASE_BIN_PATH}}'
+      - 'mkdir {{.BASE_BIN_PATH}}'
       - echo '.dep ...'
-      - mkdir -p {{.BASE_DEP_PATH}}
+      - 'mkdir {{.BASE_DEP_PATH}}'
       - echo '.pack ...'
-      - mkdir -p {{.BASE_PACK_PATH}}
+      - 'mkdir {{.BASE_PACK_PATH}}'
       - echo ''
       - echo '2. Installing base shell tools ...'
       - echo ''
+      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
+      - echo ''
+      - '{{.BASE_TASK_CMD}} base:shell-arc-dep'
       - '{{.BASE_TASK_CMD}} base:shell-tree-dep'
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_TASK_CMD}} base:shell-replace-dep'
       - '{{.BASE_TASK_CMD}} base:shell-redress-dep'
+    status:
+      - test -f {{.BASE_BIN_PATH}}
 
-      - '{{.BASE_TASK_CMD}} base:shell-which-dep'
+      
       - echo ''
      
   tools-print:
