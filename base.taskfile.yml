@@ -277,6 +277,16 @@ tasks:
       - echo '1. Installing Task ...'
       - echo 'BASE_TASK_VERSION_DEFAULT:'   {{.BASE_TASK_VERSION_DEFAULT}}
       - '{{.GO_BIN_NAME}} install github.com/go-task/task/v3/cmd/task@{{.BASE_TASK_VERSION_DEFAULT}}'
+      # https://github.com/aleksandersh/task-tui
+      - echo ''
+      - echo '2. Installing task-tui ...'
+      - '{{.GO_BIN_NAME}} install github.com/aleksandersh/task-tui@latest'
+      # https://github.com/titpetric/task-ui
+      - echo ''
+      - echo '3. Installing task-ui ...'
+      - '{{.GO_BIN_NAME}} install github.com/titpetric/task-ui@latest'
+    
+      - echo ''
       - echo ''
     silent: false
 
