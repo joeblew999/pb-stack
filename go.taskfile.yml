@@ -35,7 +35,7 @@ vars:
   # https://github.com/burrowers/garble/releases/tag/v0.14.2
   GO_GARBLE_BIN_VERSION: v0.14.2
   GO_GARBLE_BIN_WHICH:
-    #sh: '{{.BASE_TASK_CMD}} base:shell-which -- {{.GO_GARBLE_BIN_NAME}}'
+    sh: 'command -v {{.GO_GARBLE_BIN_NAME}}'
   # TODO Issue: https://github.com/burrowers/garble/issues/941
   GO_GARBLE_BIN_WHICH_VERSION:
     #sh: '{{.GO_GARBLE_BIN_NAME}} version'
@@ -66,20 +66,17 @@ tasks:
       - echo ''
       - echo '- bin'
       - echo 'GO_BIN_NAME:'                 {{.GO_BIN_NAME}}
-      - echo 'GO_BIN_WHICH:'                {{.GO_BIN_WHICH}}
+      - echo 'GO_BIN_WHICH:'                {{shellQuote .GO_BIN_WHICH}}
       - echo 'GO_BIN_VERSION:'              {{.GO_BIN_VERSION}}
       - echo ''
       - echo '- env'
-      - echo 'GO_ENV_PATH:'                 {{shellQuote .GO_ENV_PATH}}
-      - echo 'GO_ENV_BIN_PATH:'             {{shellQuote .GO_ENV_BIN_PATH}}
-      - echo '- env shellQuote'
       - echo 'GO_ENV_PATH:'                 {{shellQuote .GO_ENV_PATH}}
       - echo 'GO_ENV_BIN_PATH:'             {{shellQuote .GO_ENV_BIN_PATH}}
       - echo ''
       - echo '- garble bin'
       - echo 'GO_GARBLE_BIN_NAME:'          {{.GO_GARBLE_BIN_NAME}}
       - echo 'GO_GARBLE_BIN_VERSION:'       {{.GO_GARBLE_BIN_VERSION}}
-      - echo 'GO_GARBLE_BIN_WHICH:'         {{.GO_GARBLE_BIN_WHICH}}
+      - echo 'GO_GARBLE_BIN_WHICH:'         {{shellQuote .GO_GARBLE_BIN_WHICH}}
       - echo 'GO_GARBLE_BIN_WHICH_VERSION:' {{.GO_GARBLE_BIN_WHICH_VERSION}}
       
       - echo ''
