@@ -14,14 +14,19 @@ version: '3'
 vars:
   ### bins 
 
-  GO_BIN_NAME: go
-  #GO_BIN_NAME: 'go{{.BASE_BINARY_EXTENSION}}'
-  
+  #GO_BIN_NAME: go
+  GO_BIN_NAME: 'go{{.BASE_BINARY_EXTENSION}}'
   GO_BIN_WHICH:
     #sh: 'command -v {{.GO_BIN_NAME}}'
     #sh: '{{.BASE_TASK_CMD}} base:shell-which -- {{.GO_BIN_NAME}}'
   GO_BIN_VERSION:
     sh: '{{.GO_BIN_NAME}} version'
+
+  ### envs
+
+  GO_ENV_PATH:
+    sh: '{{.GO_BIN_NAME}} env GOPATH'
+  GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
 
    # https://github.com/burrowers/garble
   GO_GARBLE_BIN_NAME: garble
@@ -33,11 +38,7 @@ vars:
   GO_GARBLE_BIN_WHICH_VERSION:
     #sh: '{{.GO_GARBLE_BIN_NAME}} version'
 
-  ### envs
-
-  GO_ENV_PATH:
-    sh: '{{.GO_BIN_NAME}} env GOPATH'
-  GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
+  
 
   ### vars
 
@@ -63,15 +64,19 @@ tasks:
       - echo 'GO_BIN_WHICH:'                {{.GO_BIN_WHICH}}
       - echo 'GO_BIN_VERSION:'              {{.GO_BIN_VERSION}}
       - echo ''
+      - echo '- env'
+      - echo 'GO_ENV_PATH:'                 {{shellQuote .GO_ENV_PATH}}
+      - echo 'GO_ENV_BIN_PATH:'             {{shellQuote .GO_ENV_BIN_PATH}}
+      - echo '- env shellQuote'
+      - echo 'GO_ENV_PATH:'                 {{shellQuote .GO_ENV_PATH}}
+      - echo 'GO_ENV_BIN_PATH:'             {{shellQuote .GO_ENV_BIN_PATH}}
+      - echo ''
       - echo '- garble bin'
       - echo 'GO_GARBLE_BIN_NAME:'          {{.GO_GARBLE_BIN_NAME}}
       - echo 'GO_GARBLE_BIN_VERSION:'       {{.GO_GARBLE_BIN_VERSION}}
       - echo 'GO_GARBLE_BIN_WHICH:'         {{.GO_GARBLE_BIN_WHICH}}
       - echo 'GO_GARBLE_BIN_WHICH_VERSION:' {{.GO_GARBLE_BIN_WHICH_VERSION}}
-      - echo ''
-      - echo '- env'
-      - echo 'GO_ENV_PATH:'                 {{.GO_ENV_PATH}}
-      - echo 'GO_ENV_BIN_PATH:'             {{.GO_ENV_BIN_PATH}}
+      
       - echo ''
       - echo '- var'
       - echo 'GO_VAR_SRC_PATH:'             {{.GO_VAR_SRC_PATH}}
@@ -113,9 +118,8 @@ tasks:
     desc: go install. E.G task go:install -- github.com/oligot/go-mod-upgrade@latest
     cmds:
       - echo ''
-      - echo 'installing go binary to .dep'
+      - echo 'installing go binary ... '
       - '{{.GO_BIN_NAME}} install {{.CLI_ARGS}}'
-      #- mv {{.GO_ENV_BIN_PATH}}/redress{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_REDRESS_BIN_NAME}}
       - echo ''
     silent: false
 
