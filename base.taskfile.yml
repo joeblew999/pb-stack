@@ -324,11 +324,11 @@ tasks:
       - echo ''
       - echo '1. Creating base folders ...'
       - echo '.bin ...'
-      - mkdir -p "{{.BASE_BIN_PATH}}"
+      - mkdir {{.BASE_BIN_PATH}}
       - echo '.dep ...'
-      - 'mkdir -p {{.BASE_DEP_PATH}}'
+      - mkdir {{.BASE_DEP_PATH}}
       - echo '.pack ...'
-      - 'mkdir -p {{.BASE_PACK_PATH}}'
+      - mkdir {{.BASE_PACK_PATH}}
       - echo ''
       - echo '2. Installing base shell tools ...'
       - echo ''
@@ -578,5 +578,10 @@ tasks:
       - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - '{{.BASE_TASK_CMD}} base:shell-which -- {{.TASK_EXE}}'
   
-      
+  shell-mkdir-h:
+    desc: mkdir is a cross platform **mkdir** command.
+    cmds:
+      #- '{{if eq OS "windows"}}.exe{{end}}'
+      #- mkdir -h
+
 
