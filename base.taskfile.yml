@@ -87,6 +87,7 @@ vars:
     
 
   # The SRC is where a developer does their the git clone into.
+  # "base" FAILS on windows. I get: c:Usersadmingosrcgithubjoeblew99pb-stack
   BASE_SRC_NAME: '{{base .USER_WORKING_DIR}}'
   BASE_SRC_PATH: '{{.USER_WORKING_DIR}}'
 

@@ -28,7 +28,9 @@ vars:
     sh: '{{.GO_BIN_NAME}} env GOPATH'
   GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
 
-   # https://github.com/burrowers/garble
+  ### garble
+
+  # https://github.com/burrowers/garble
   GO_GARBLE_BIN_NAME: garble
   # https://github.com/burrowers/garble/releases/tag/v0.14.2
   GO_GARBLE_BIN_VERSION: v0.14.2
@@ -41,11 +43,13 @@ vars:
   
 
   ### vars
-
+  # path to src
   GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
+  # name of binary we want when we compile this src.
   GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
-
+  # path to the binary.
   GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
+  # extensions, based on the way we compile the src.
   GO_VAR_BIN_WASM_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}_wasm'
   #GO_VAR_BIN_NATIVE_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
 
