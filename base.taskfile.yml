@@ -285,7 +285,7 @@ tasks:
       - echo ''
       - echo '3. Installing task-ui ...'
       - '{{.GO_BIN_NAME}} install github.com/titpetric/task-ui@latest'
-    
+
       - echo ''
       - echo ''
     silent: false
@@ -447,7 +447,7 @@ tasks:
     cmds:
       # The fully reflective version does not work. How to EVAL the args passed in ?
       #- '{{.TASK_EXE}} base:shell-redress -- /Users/apple/workspace/go/bin/task'
-      #- '{{.TASK_EXE}} base:shell-redress -- {{.TASK_EXE}} base:shell-which {{.TASK_EXE}}'
+      #- '{{.TASK_EXE}} base:shell-redress -- {{.TASK_EXE}} base:shell-which -- {{.TASK_EXE}}'
       
 
 
@@ -564,7 +564,7 @@ tasks:
       #- env GOBIN={{.BASE_DEP_PATH}} {{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}
       - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
       # DEBUG: Wtf is windows seeing ??
-      - ls -al {{.GO_ENV_BIN_PATH}}
+      #- ls -al {{.GO_ENV_BIN_PATH}}
       - mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
   shell-which-dep-del:
