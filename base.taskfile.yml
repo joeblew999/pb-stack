@@ -565,13 +565,17 @@ tasks:
       - '{{.GO_BIN_NAME}} install github.com/hairyhenderson/go-which/cmd/which@{{.BASE_SHELL_WHICH_BIN_VERSION}}'
       # DEBUG: Wtf is windows seeing ??
       #- ls -al {{.GO_ENV_BIN_PATH}}
-      - mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      #- mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
       - echo ''
   shell-which-dep-del:
     desc: deletes which
     cmds:
       - echo '- which tool del ...'
-      - rm -rf {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      #- rm -rf {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      - cmd: powershell Remove-item {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+        platforms: [windows]
+      - cmd: rm -f {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+        platforms: [linux, darwin]
       - echo ''
   shell-which-h: 
     desc: which is a cross platform **which** command.
