@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# process_compose.taskfile.yml
+
+version: '3'
+
+env:
+  
+vars:
+  ### bin
+  AQUA_BIN_NAME: mod-process-compose
+  # https://github.com/F1bonacc1/process-compose/releases/tag/v1.46.0
+  AQUA_BIN_VERSION: v1.46.0
+  AQUA_BIN_WHICH: 
+    #sh: 'which {{.AQUA_BIN_NAME}}'
+  AQUA_BIN_WHICH_VERSION:
+    # Its too many lines.
+    # My Issue: https://github.com/F1bonacc1/process-compose/issues/330
+    #sh: '{{.AQUA_BIN_NAME}} version'
+  
+  # https://github.com/F1bonacc1/process-compose/releases/download/v1.46.0/process-compose_darwin_arm64.tar.gz
+  # TODO: adapt to each OS.
+  AQUA_BIN_URL_COMPRESS_NAME: process-compose_darwin_arm64.tar.gz
+  AQUA_BIN_URL_EXTRACT_NAME: process-compose
+  AQUA_BIN_URL: https://github.com/F1bonacc1/process-compose/releases/download/{{.AQUA_BIN_VERSION}}/{{.AQUA_BIN_URL_COMPRESS_NAME}}
+
+tasks:
+  default:
+    desc: print
+    cmds:
+      - echo ''
+      - echo '- bin'
+      - echo 'AQUA_BIN_NAME:'                 {{.AQUA_BIN_NAME}}
+      - echo 'AQUA_BIN_VERSION:'              {{.AQUA_BIN_VERSION}}
+      - echo 'AQUA_BIN_WHICH:'                {{.AQUA_BIN_WHICH}}
+      - 'which {{.AQUA_BIN_NAME}}'
+      - echo 'AQUA_BIN_WHICH_VERSION:'        {{.AQUA_BIN_WHICH_VERSION}}
+      - echo ''
+      - echo '- bin url'
+      - echo 'AQUA_BIN_URL_COMPRESS_NAME:'    {{.AQUA_BIN_URL_COMPRESS_NAME}}
+      - echo 'AQUA_BIN_URL:'                  {{.AQUA_BIN_URL}}
+      - echo ''
+      - echo '- vars:'
+      - echo ''
+    silent: true
+
+  dep:
+    cmds:
+      #- brew install f1bonacc1/tap/process-compose
+      # OR
+      # works !
+      # todo; add check if binary exist in .DEP_PATH, if else. 
+      - task base:shell-wgot-tocwd -- {{.AQUA_BIN_URL}}
+      - task base:shell-arc-extract-tocwd -- {{.AQUA_BIN_URL_COMPRESS_NAME}}
+      - mv {{.BASE_SRC_PATH}}/{{.AQUA_BIN_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
+      - rm -f {{.BASE_SRC_PATH}}/{{.AQUA_BIN_URL_COMPRESS_NAME}}
+      - rm -f {{.BASE_SRC_PATH}}/{{.AQUA_BIN_URL_EXTRACT_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
+    silent: false
+  dep-del:
+    cmds:
+      - rm -f {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
+    silent: false
+  
+
+  run:
+    cmds:
+      - '{{.AQUA_BIN_NAME}} -h'
+    silent: false
+  version:
+    cmds:
+      - '{{.AQUA_BIN_NAME}} version'
+    silent: false
+  up:
+    cmds:
+      - '{{.AQUA_BIN_NAME}} up'
+    silent: false
+  down:
+    cmds:
+      - '{{.AQUA_BIN_NAME}} down'
+    silent: false
+  list:
+    cmds:
+      - '{{.AQUA_BIN_NAME}} list'
+    silent: false
+
+
