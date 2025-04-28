@@ -28,21 +28,30 @@ vars:
 
 
   # env ( expected )
-  # GIT_VAR_ORG_NAME
+  # TODO: Need this to be a VAR, because Operators will need to pull different git repo's using task variables.
+  # SO, we need these 2 variables to be the ROOT Git variables, and then for the Non ROOT git variables.
+  # That way an Operator has a root repo and then can act on sub reps as that Root Operator.
   GIT_VAR_ORG_NAME: 'joeblew999'
-  GIT_VAR_REPO_NAME: xxx
+  GIT_VAR_REPO_NAME: 'pb-stack'
   # GIT_SIGNING_USER_NAME=joeblew999
   # GIT_SIGNING_USER_EMAIL=joeblew99@gmail.com
-  # GIT_SIGNING_KEY_PRIV=$HOME/.ssh/jowblew999_github.com
+  # GIT_SIGNING_KEY_PRIVATE_PATH=$HOME/.ssh/jowblew999_github.com
 
   GIT_SIGNING_USER_NAME: '{{.GIT_VAR_ORG_NAME}}'
   GIT_SIGNING_USER_EMAIL: '{{.GIT_VAR_ORG_NAME}}@gmail.com'
 
-  GIT_SIGNING_KEY_PRIV: '{{.BASE_HOME}}/.ssh/{{.GIT_VAR_ORG_NAME}}_github.com'
-  #GIT_SIGNING_KEY_PRIV: '{{joinPath "~" ".ssh" .GIT_VAR_ORG_NAME "_github.com"}}'
+  
+  # EX: joeblew999_github.com
+  GIT_SSH_KEY_PRIVATE_NAME: '{{.GIT_VAR_ORG_NAME}}_github.com'
+  # EX: joeblew999_github.com.pub
+  GIT_SSH_KEY_PUBLIC_NAME: '{{.GIT_VAR_ORG_NAME}}_github.com.pub'
 
-  GIT_SIGNING_KEY: '{{.BASE_HOME}}/.ssh/{{.GIT_VAR_ORG_NAME}}_github.com'
-  #GIT_SIGNING_KEY: '{{joinPath "~" ".ssh" .GIT_VAR_ORG_NAME "_github.com"}}'
+  GIT_SIGNING_KEY_PRIVATE_PATH: '{{.BASE_HOME}}/.ssh/{{.GIT_SSH_KEY_PRIVATE_NAME}}'
+  #GIT_SIGNING_KEY_PRIVATE_PATH: '{{joinPath {{.BASE_HOME}} ".ssh" .GIT_VAR_ORG_NAME "_github.com"}}'
+
+  # EX: /Users/apple/.ssh/joeblew999_github.com.pub
+  GIT_SIGNING_KEY_PUBLIC_PATH: '{{.BASE_HOME}}/.ssh/{{.GIT_SSH_KEY_PUBLIC_NAME}}'
+  #GIT_SIGNING_KEY_PUBLIC_PATH: '{{joinPath {{.BASE_HOME}} ".ssh" .GIT_VAR_ORG_NAME "_github.com"}}'
 
   
   # ssh based:  https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-ssh-key
@@ -52,7 +61,7 @@ vars:
   # vars
 
   GIT_GITROOT_PATH:
-    #sh: git rev-parse --show-toplevel
+    # BUG: On windows its as forward slashes. Should be back slashes.
     sh: '{{.GIT_BIN_NAME}} rev-parse --show-toplevel'
   GIT_GITROOT_VERSION:
     sh: '{{.GIT_BIN_NAME}} rev-parse HEAD'
@@ -63,10 +72,10 @@ vars:
   # E.g: 'https://github.com/syumai/workers'
   # GIT_VAR_URL: 
 
-  # GIT_VAR_RELEASE_VERSION
+  GIT_VAR_RELEASE_VERSION: 'latest'
 
   # EX: https://api.github.com/repos/nats-io/nats-server/releases/tags/{{.NATS_SERVER_BIN_VERSION}}
-  GIT_VAR_RELEASE_LIST_URL: https://api.github.com/repos/{{.GIT_VAR_ORG_NAME}}/{{.GIT_VAR_REPO_NAME}}/releases/tags/{{.GIT_VAR_RELEASE_VERSION}}
+  GIT_VAR_RELEASE_LIST_URL: 'https://api.github.com/repos/{{.GIT_VAR_ORG_NAME}}/{{.GIT_VAR_REPO_NAME}}/releases/tags/{{.GIT_VAR_RELEASE_VERSION}}'
 
 
 tasks:
@@ -92,17 +101,21 @@ tasks:
       - echo '- signing (env)'
       - echo 'GIT_SIGNING_USER_NAME:'       {{.GIT_SIGNING_USER_NAME}}
       - echo 'GIT_SIGNING_USER_EMAIL:'      {{.GIT_SIGNING_USER_EMAIL}}
-      - echo 'GIT_SIGNING_KEY_PRIV:'        {{.GIT_SIGNING_KEY_PRIV}}
-      - echo 'GIT_SIGNING_KEY:'             {{.GIT_SIGNING_KEY}}
+      - echo ''
+      - echo 'GIT_SSH_KEY_PRIVATE_NAME:'    {{.GIT_SSH_KEY_PRIVATE_NAME}}
+      - echo 'GIT_SSH_KEY_PUBLIC_NAME:'     {{.GIT_SSH_KEY_PUBLIC_NAME}}
+      - echo ''
+      - echo 'GIT_SIGNING_KEY_PRIVATE_PATH:'{{shellQuote .GIT_SIGNING_KEY_PRIVATE_PATH}}
+      - echo 'GIT_SIGNING_KEY_PUBLIC_PATH:' {{shellQuote .GIT_SIGNING_KEY_PUBLIC_PATH}}
       - echo '- signing (var)'
       - echo 'GIT_SIGNING_PROGRAM:'         {{.GIT_SIGNING_PROGRAM}}
       - echo 'GIT_SIGNING_FORMAT:'          {{.GIT_SIGNING_FORMAT}}
       - echo ''
       - echo '- var'
-      - echo 'GIT_GITROOT_PATH:'            {{.GIT_GITROOT_PATH}}
+      - echo 'GIT_GITROOT_PATH:'            {{shellQuote .GIT_GITROOT_PATH}}
       - echo 'GIT_GITROOT_VERSION:'         {{.GIT_GITROOT_VERSION}}
       - echo ''
-      - echo 'GIT_VAR_REPO_NAME:'                {{.GIT_VAR_REPO_NAME}}
+      - echo 'GIT_VAR_REPO_NAME:'           {{.GIT_VAR_REPO_NAME}}
       - echo 'GIT_VAR_URL:'                 {{.GIT_VAR_URL}}
       - echo ''
       - echo ''
@@ -230,8 +243,8 @@ tasks:
   ssh-del:
     desc: deletes ssh keys and their config. Tricky to be idempotent
     cmds:
-      #- rm {{.GIT_SIGNING_KEY_PRIV}}
-      #- rm {{.GIT_SIGNING_KEY}}
+      #- rm {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
+      #- rm {{.GIT_SIGNING_KEY_PUBLIC_PATH}}
 
   ssh-list:
     desc: list all ssh keys
@@ -246,18 +259,18 @@ tasks:
       - echo 'Creating up ssh keys and config ...'
       # 1. create ssh keys 
       # https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
-      #- ssh-keygen -t ed25519 -C 'gedw99_github.com' -f  {{.GIT_SIGNING_KEY_PRIV}}
+      #- ssh-keygen -t ed25519 -C 'gedw99_github.com' -f  {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       
       - echo '... the pub and private will be generated ...'
       # ~/.ssh/gedw99_github.com
-      - echo '{{.GIT_SIGNING_KEY_PRIV}}'
+      - echo '{{.GIT_SIGNING_KEY_PRIVATE_PATH}}'
       # ~/.ssh/gedw99_github.com.pub
-      - echo '{{.GIT_SIGNING_KEY}}'
+      - echo '{{.GIT_SIGNING_KEY_PUBLIC_PATH}}'
 
       # 2. Add ssh key to the ssh config. This is tricky to be idempotent.
       # ssh-add ~/.ssh/gedw99_github.com
       #- echo '... adding to OS Identity Provider ...'
-      #- ssh-add {{.GIT_SIGNING_KEY_PRIV}}
+      #- ssh-add {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       
       
   ssh-set:
@@ -265,7 +278,7 @@ tasks:
     cmds:
       - echo 'Adding the ssh keys to the ssh agent ...'
       - ssh-add -l
-      - ssh-add {{.GIT_SIGNING_KEY_PRIV}}
+      - ssh-add {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       - ssh-add -l
 
 
@@ -287,7 +300,7 @@ tasks:
       - echo 'Setting signing up into your git config ...'
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_SIGNING_USER_NAME}}
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.email {{.GIT_SIGNING_USER_EMAIL}}
-      - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIV}}
+      - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
   sign-get:
