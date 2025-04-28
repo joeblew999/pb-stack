@@ -8,9 +8,9 @@ env:
   
 vars:
   ### bin
-  AQUA_BIN_NAME: mod-process-compose
-  # https://github.com/F1bonacc1/process-compose/releases/tag/v1.46.0
-  AQUA_BIN_VERSION: v1.46.0
+  AQUA_BIN_NAME: mod-aqua
+  # https://github.com/aquaproj/aqua/releases/tag/v2.50.0
+  AQUA_BIN_VERSION: v2.50.0
   AQUA_BIN_WHICH: 
     #sh: 'which {{.AQUA_BIN_NAME}}'
   AQUA_BIN_WHICH_VERSION:
@@ -18,12 +18,17 @@ vars:
     # My Issue: https://github.com/F1bonacc1/process-compose/issues/330
     #sh: '{{.AQUA_BIN_NAME}} version'
   
-  # https://github.com/F1bonacc1/process-compose/releases/download/v1.46.0/process-compose_darwin_arm64.tar.gz
+  # https://github.com/aquaproj/aqua/releases/download/v2.50.0/aqua_darwin_arm64.tar.gz
   # TODO: adapt to each OS.
-  AQUA_BIN_URL_COMPRESS_NAME: process-compose_darwin_arm64.tar.gz
-  AQUA_BIN_URL_EXTRACT_NAME: process-compose
-  AQUA_BIN_URL: https://github.com/F1bonacc1/process-compose/releases/download/{{.AQUA_BIN_VERSION}}/{{.AQUA_BIN_URL_COMPRESS_NAME}}
+  AQUA_BIN_URL_COMPRESS_NAME: aqua_darwin_arm64.tar.gz
+  AQUA_BIN_URL_EXTRACT_NAME: aqua
+  AQUA_BIN_URL: https://github.com/aquaproj/aqua/releases/download/{{.AQUA_BIN_VERSION}}/{{.AQUA_BIN_URL_COMPRESS_NAME}}
 
+  # git
+  GIT_VAR_ORG_NAME: aquaproj
+  GIT_VAR_REPO_NAME: aqua
+
+  GIT_VAR_RELEASE_LIST_URL: ??
 tasks:
   default:
     desc: print
@@ -62,6 +67,10 @@ tasks:
       - rm -f {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
       - ls -al {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
     silent: false
+
+  release-list:
+    cmds:
+      - task git:release-list
   
 
   run:

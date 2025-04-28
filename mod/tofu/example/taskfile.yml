@@ -27,7 +27,7 @@ includes:
 vars:
  
 
-  THIS_SRC: '{{.GIT_VAR_NAME}}/_examples/r2-image-server'
+  THIS_SRC: '{{.GIT_VAR_REPO_NAME}}/_examples/r2-image-server'
 
 tasks:
   default:

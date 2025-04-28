@@ -382,7 +382,7 @@ BASE_TASK_VERSION_ENV=v3.42.1
 
 ### git
 
-GIT_ORG_NAME=xxx
+GIT_VAR_ORG_NAME=xxx
 
 # below settings are not needed because my files conform,
 # to the conventions expected at git.taskfile.yml

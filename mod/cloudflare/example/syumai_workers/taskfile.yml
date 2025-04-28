@@ -25,10 +25,10 @@ includes:
   #   flatten: true
 
 vars:
-  GIT_VAR_NAME: 'workers'
+  GIT_VAR_REPO_NAME: 'workers'
   GIT_VAR_URL: 'https://github.com/syumai/workers'
 
-  THIS_SRC: '{{.GIT_VAR_NAME}}/_examples/r2-image-server'
+  THIS_SRC: '{{.GIT_VAR_REPO_NAME}}/_examples/r2-image-server'
 
 tasks:
   default:

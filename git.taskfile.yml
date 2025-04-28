@@ -31,20 +31,21 @@ vars:
 
 
   # env ( expected )
-  # GIT_ORG_NAME
-  GIT_ORG_NAME: 'joeblew999'
+  # GIT_VAR_ORG_NAME
+  GIT_VAR_ORG_NAME: 'joeblew999'
+  GIT_VAR_REPO_NAME: xxx
   # GIT_SIGNING_USER_NAME=joeblew999
   # GIT_SIGNING_USER_EMAIL=joeblew99@gmail.com
   # GIT_SIGNING_KEY_PRIV=$HOME/.ssh/jowblew999_github.com
 
-  GIT_SIGNING_USER_NAME: '{{.GIT_ORG_NAME}}'
-  GIT_SIGNING_USER_EMAIL: '{{.GIT_ORG_NAME}}@gmail.com'
+  GIT_SIGNING_USER_NAME: '{{.GIT_VAR_ORG_NAME}}'
+  GIT_SIGNING_USER_EMAIL: '{{.GIT_VAR_ORG_NAME}}@gmail.com'
 
-  GIT_SIGNING_KEY_PRIV: '{{.BASE_HOME}}/.ssh/{{.GIT_ORG_NAME}}_github.com'
-  #GIT_SIGNING_KEY_PRIV: '{{joinPath "~" ".ssh" .GIT_ORG_NAME "_github.com"}}'
+  GIT_SIGNING_KEY_PRIV: '{{.BASE_HOME}}/.ssh/{{.GIT_VAR_ORG_NAME}}_github.com'
+  #GIT_SIGNING_KEY_PRIV: '{{joinPath "~" ".ssh" .GIT_VAR_ORG_NAME "_github.com"}}'
 
-  GIT_SIGNING_KEY: '{{.BASE_HOME}}/.ssh/{{.GIT_ORG_NAME}}_github.com'
-  #GIT_SIGNING_KEY: '{{joinPath "~" ".ssh" .GIT_ORG_NAME "_github.com"}}'
+  GIT_SIGNING_KEY: '{{.BASE_HOME}}/.ssh/{{.GIT_VAR_ORG_NAME}}_github.com'
+  #GIT_SIGNING_KEY: '{{joinPath "~" ".ssh" .GIT_VAR_ORG_NAME "_github.com"}}'
 
   
   # ssh based:  https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-ssh-key
@@ -61,9 +62,14 @@ vars:
 
   # For actual taskfile:
   # E.g: 'workers'
-  # GIT_VAR_NAME: 
+  # GIT_VAR_REPO_NAME: 
   # E.g: 'https://github.com/syumai/workers'
   # GIT_VAR_URL: 
+
+  # GIT_VAR_RELEASE_VERSION
+
+  # EX: https://api.github.com/repos/nats-io/nats-server/releases/tags/{{.NATS_SERVER_BIN_VERSION}}
+  GIT_VAR_RELEASE_LIST_URL: https://api.github.com/repos/{{.GIT_VAR_ORG_NAME}}/{{.GIT_VAR_REPO_NAME}}/releases/tags/{{.GIT_VAR_RELEASE_VERSION}}
 
 
 tasks:
@@ -82,7 +88,7 @@ tasks:
       - echo 'GIT_SSH_BIN_VERSION:'         {{.GIT_SSH_BIN_VERSION}}
       - echo ''
       - echo '- github (env)'
-      - echo 'GIT_ORG_NAME:'                {{.GIT_ORG_NAME}}
+      - echo 'GIT_VAR_ORG_NAME:'                {{.GIT_VAR_ORG_NAME}}
       - echo ''
       - echo '- signing (env)'
       - echo 'GIT_SIGNING_USER_NAME:'       {{.GIT_SIGNING_USER_NAME}}
@@ -97,8 +103,12 @@ tasks:
       - echo 'GIT_GITROOT_PATH:'            {{.GIT_GITROOT_PATH}}
       - echo 'GIT_GITROOT_VERSION:'         {{.GIT_GITROOT_VERSION}}
       - echo ''
-      - echo 'GIT_VAR_NAME:'                {{.GIT_VAR_NAME}}
+      - echo 'GIT_VAR_REPO_NAME:'                {{.GIT_VAR_REPO_NAME}}
       - echo 'GIT_VAR_URL:'                 {{.GIT_VAR_URL}}
+      - echo ''
+      - echo ''
+      - echo 'GIT_VAR_RELEASE_VERSION:'     {{.GIT_VAR_RELEASE_VERSION}}
+      - echo 'GIT_VAR_RELEASE_LIST_URL:'    {{.GIT_VAR_RELEASE_LIST_URL}}
       - echo ''
     silent: true
 
@@ -168,12 +178,12 @@ tasks:
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
-      - cd {{.BASE_SRC_PATH}} && touch .gitignore && echo '{{.GIT_VAR_NAME}}' >> .gitignore
+      - cd {{.BASE_SRC_PATH}} && touch .gitignore && echo '{{.GIT_VAR_REPO_NAME}}' >> .gitignore
   clone:src:del:
     desc: delete the src code.
     cmds:
       - echo 'Deleting the src ...'
-      - cd {{.BASE_SRC_PATH}} && rm -rf {{.GIT_VAR_NAME}}
+      - cd {{.BASE_SRC_PATH}} && rm -rf {{.GIT_VAR_REPO_NAME}}
       - cd {{.BASE_SRC_PATH}} && rm -f .gitignore
   pull:
     desc: git pull
@@ -193,6 +203,26 @@ tasks:
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} add . 
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
       - cd {{.GIT_GITROOT_PATH}} && {{.GIT_BIN_NAME}} push
+
+  ### github specific release stuff
+
+  release-list-dep:
+    desc: download and extract all releases meta data from github.
+    cmds:
+      - task base:shell-wgot-github-releases-tocwd -- {{.GIT_VAR_RELEASE_LIST_URL}} 
+    silent: false
+
+  release-list:
+    desc: lists the releases on github
+    cmds:
+      - task git:release-list-dep
+      - go install github.com/itchyny/gojq/cmd/gojq@latest
+      - gojq -r '.assets[] | select(.name | contains("darwin")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
+      - gojq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
+      - gojq -r '.assets[] | select(.name | contains("windows")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
+      # loop: https://taskfile.dev/usage/#looping-over-tasks
+    silent: false
+
   
 
 
