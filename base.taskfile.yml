@@ -566,6 +566,11 @@ tasks:
       # DEBUG: Wtf is windows seeing ??
       #- ls -al {{.GO_ENV_BIN_PATH}}
       #- mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+      # Move-item -Path 'c:\source\data.txt' -destination 'c:\dest\data.txt' -Force
+      - cmd: powershell Move-item {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}} -Force
+        platforms: [windows]
+      - cmd: mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
+        platforms: [linux, darwin]
       - echo ''
   shell-which-dep-del:
     desc: deletes which
