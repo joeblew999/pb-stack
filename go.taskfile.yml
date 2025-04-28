@@ -81,10 +81,10 @@ tasks:
       
       - echo ''
       - echo '- var'
-      - echo 'GO_VAR_SRC_PATH:'             {{.GO_VAR_SRC_PATH}}
+      - echo 'GO_VAR_SRC_PATH:'             {{shellQuote .GO_VAR_SRC_PATH}}
       - echo 'GO_VAR_BIN_NAME:'             {{.GO_VAR_BIN_NAME}}
-      - echo 'GO_VAR_BIN_NATIVE_PATH:'      {{.GO_VAR_BIN_NATIVE_PATH}}
-      - echo 'GO_VAR_BIN_WASM_PATH:'        {{.GO_VAR_BIN_WASM_PATH}}
+      - echo 'GO_VAR_BIN_NATIVE_PATH:'      {{shellQuote .GO_VAR_BIN_NATIVE_PATH}}
+      - echo 'GO_VAR_BIN_WASM_PATH:'        {{shellQuote .GO_VAR_BIN_WASM_PATH}}
       - echo ''
       - echo 'GO_VAR_BUILD_PRE:'            {{.GO_VAR_BUILD_PRE}}
       - echo 'GO_VAR_BUILD_POST:'           {{.GO_VAR_BUILD_POST}}
