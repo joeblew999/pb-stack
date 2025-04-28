@@ -1,7 +1,12 @@
 # datastar
 
-
 A HTMX web system that uses SSE for real time Web GUI.
+
+There is no main.go for datastar. there could be If the runtime has typescript.
+
+```sh
+go get -tool github.com/a-h/templ/cmd/templ@latest
+```
 
 It can run an embedded NATS, so that you can send and review with nats KV, for example.
 

@@ -15,7 +15,8 @@ vars:
 
   # Version
   # https://github.com/go-task/task/releases/tag/v3.43.2
-  BASE_TASK_VERSION_DEFAULT: v3.43.2
+  # https://github.com/go-task/task/releases/tag/v3.43.3
+  BASE_TASK_VERSION_DEFAULT: v3.43.3
   # For bootstrapping off all.env, so everyone is definitely on the same version.
   #BASE_TASK_VERSION_ENV: v3.42.1
   BASE_TASK_VERSION_WHICH: '{{.TASK_VERSION}}' 
