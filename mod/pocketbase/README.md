@@ -10,7 +10,9 @@ https://github.com/pocketbase/pocketbase
 
 ## pocketbase gogen
 
-https://github.com/Snonky/pocketbase-gogen
+golang https://github.com/Snonky/pocketbase-gogen
+
+typescript: https://github.com/patmood/pocketbase-typegen
 
 ## ERD
 
