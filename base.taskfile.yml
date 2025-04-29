@@ -105,8 +105,8 @@ vars:
 
   # The PACK folder is above the SRC.
   BASE_PACK_NAME: '.pack'
-  BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
-  #BASE_PACK_PATH: '{{joinPath .BASE_SRC_PATH .BASE_PACK_NAME }}'
+  #BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
+  BASE_PACK_PATH: '{{joinPath .BASE_SRC_PATH .BASE_PACK_NAME }}'
 
   #BASE_ENV_PATH: '{{.PATH}}'
   
@@ -294,6 +294,7 @@ tasks:
   path:
     desc: modifies the shell PATH, adding our special Dot folders.
     cmds:
+      # no idea if this works at all...
       - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
         platforms: [darwin]
       - cmd: export '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_PATH}}'
