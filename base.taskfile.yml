@@ -72,12 +72,12 @@ vars:
 
   # OS User
   # E.G: '/Users/apple'
-  #BASE_HOME: '{{.HOME}}'
-  BASE_HOME: '~'
+  #BASE_HOME_PATH: '{{.HOME}}'
+  BASE_HOME_PATH: '~'
 
 
   # E.G: 'apple'
-  BASE_USER: '{{.USER}}'
+  BASE_HOME_NAME: '{{.USER}}'
 
   # dot folder conventions for all modules and projects
 
@@ -144,8 +144,8 @@ tasks:
       - echo 'BASE_BINARY_EXTENSION:' {{.BASE_BINARY_EXTENSION}}
       - echo ''
       - echo '- user'
-      - echo 'BASE_HOME:'             {{.BASE_HOME}}
-      - echo 'BASE_USER:'             {{.BASE_USER}}
+      - echo 'BASE_HOME_PATH:'        {{.BASE_HOME_PATH}}
+      - echo 'BASE_HOME_NAME:'        {{.BASE_HOME_NAME}}
       - echo ''
       - echo '- dot folders'
       - echo 'BASE_GITROOT_PATH:'     {{shellQuote .BASE_GITROOT_PATH}}

@@ -2549,10 +2549,10 @@ base-pwd-init-del:
 
 ## base-pwd-open
 base-pwd-open:
-	open $(BASE_HOME)
+	open $(BASE_HOME_PATH)
 
 base-pwd-list:
-	ls -al $(BASE_HOME)
+	ls -al $(BASE_HOME_PATH)
 
 ## base-pwd-bin-deploy
 base-pwd-bin-deploy:
