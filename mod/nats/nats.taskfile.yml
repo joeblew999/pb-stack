@@ -24,6 +24,13 @@ vars:
   NATS_SERVER_DEP_URL: https://github.com/nats-io/nats-server/releases/download/{{.NATS_SERVER_BIN_VERSION}}/{{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
 
   NATS_SERVER_DEP_LIST_URL: https://api.github.com/repos/nats-io/nats-server/releases/tags/{{.NATS_SERVER_BIN_VERSION}}
+
+  # '{{ .VAR | default "value-from-child" }}'
+  #NATS_SERVER_VAR_CONFIG_NAME: 'nats-server.conf' | default
+  NATS_SERVER_VAR_CONFIG_NAME: '{{ .NATS_SERVER_VAR_CONFIG_NAME | default "nats-server.conf" }}'
+  NATS_SERVER_VAR_CONFIG_PATH: '{{.BASE_SRC_PATH}}'
+  NATS_SERVER_VAR_CONFIG_WHICH: '{{.NATS_SERVER_VAR_CONFIG_PATH}}/{{.NATS_SERVER_VAR_CONFIG_NAME}}'
+
 tasks:
   default:
     desc:  print
@@ -43,9 +50,13 @@ tasks:
       - echo 'NATS_SERVER_DEP_URL_EXTRACT_NAME:'       {{.NATS_SERVER_DEP_URL_EXTRACT_NAME}}
       - echo 'NATS_SERVER_DEP_URL:'                    {{.NATS_SERVER_DEP_URL}}
 
-      - echo 'NATS_SERVER_DEP_LIST_URL:'              {{.NATS_SERVER_DEP_LIST_URL}}
+      - echo 'NATS_SERVER_DEP_LIST_URL:'               {{.NATS_SERVER_DEP_LIST_URL}}
       - echo ''
-      - echo '- run'
+      - echo '- var'
+      - echo 'NATS_SERVER_VAR_CONFIG_NAME:'             {{.NATS_SERVER_VAR_CONFIG_NAME}}
+      - echo 'NATS_SERVER_VAR_CONFIG_PATH:'             {{.NATS_SERVER_VAR_CONFIG_PATH}}
+      - echo 'NATS_SERVER_VAR_CONFIG_WHICH:'            {{.NATS_SERVER_VAR_CONFIG_WHICH}}
+      
       - echo ''
     silent: true
 
@@ -82,13 +93,15 @@ tasks:
       - task base:shell-wgot-github-releases-tocwd -- {{.NATS_SERVER_DEP_LIST_URL}} 
     silent: false
   
-
-
-
   run:
     desc: run
     cmds:
       - '{{.NATS_SERVER_BIN_NAME}} -h'
+    silent: false
+  run:serve:
+    desc: run
+    cmds:
+      - '{{.NATS_SERVER_BIN_NAME}} -c {{.NATS_SERVER_VAR_CONFIG_NAME}}'
     silent: false
 
 

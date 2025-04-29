@@ -8,11 +8,21 @@ TODO:
 
 https://github.com/pocketbase/pocketbase
 
+tags: https://github.com/pocketbase/pocketbase/tags
+
+## hosted
+
+https://pockethost.io/instances/js8jvh024leia5f
+
 ## pocketbase gogen
 
 golang https://github.com/Snonky/pocketbase-gogen
 
 typescript: https://github.com/patmood/pocketbase-typegen
+
+## NATS
+
+https://github.com/nats-tower/nats-tower
 
 ## ERD
 

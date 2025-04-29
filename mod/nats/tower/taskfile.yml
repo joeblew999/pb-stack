@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  local: 
+    taskfile: ./../../../remote-taskfile.yml
+    flatten: true
+  nats:
+    taskfile: ./../nats.taskfile.yml
+  pb:
+    taskfile: ./../../pocketbase/pocketbase.taskfile.yml
+  pc:
+    taskfile: ./../../process-compose/process-compose.taskfile.yml
+
+vars:
+
+  GIT_REPO_NAME: 'nats-tower'
+  BIN_MAIN_NAME: 'nats-tower'
+
+  NATS_SERVER_VAR_CONFIG_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_REPO_NAME}}/supercluster'
+  NATS_SERVER_VAR_CONFIG_NAME: 'central.conf'
+
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo 'GIT_REPO_NAME:'                 {{.GIT_REPO_NAME}}
+
+      - task nats
+      #- echo 'NATS_SERVER_VAR_CONFIG_NAME:'   {{.NATS_SERVER_VAR_CONFIG_NAME}}
+      #- echo 'NATS_SERVER_VAR_CONFIG_PATH:'   {{.NATS_SERVER_VAR_CONFIG_PATH}}
+      - echo ''
+
+  src:
+    cmds:
+      - git clone https://github.com/nats-tower/nats-tower
+      - touch go.work && go work use {{.GIT_REPO_NAME}}
+      - touch .gitignore && echo {{.GIT_REPO_NAME}} >> .gitignore
+  src-del:
+    cmds:
+      - rm -rf {{.GIT_REPO_NAME}}
+      - rm go.work
+
+  dep:
+    cmds:
+      - go install github.com/a-h/templ/cmd/templ@latest
+
+  mod:upgrade:
+    cmds:
+      - cd {{.GIT_REPO_NAME}} && go mod tidy
+      - cd {{.GIT_REPO_NAME}} && go-mod-upgrade -force
+      - cd {{.GIT_REPO_NAME}} && go mod tidy
+  mod:tidy:
+      - cd {{.GIT_REPO_NAME}} && go mod tidy
+
+  bin:
+    cmds:
+      - cd {{.GIT_REPO_NAME}}/cmd && go build -o ./../../.bin/{{.BIN_MAIN_NAME}}
+
+  run:
+    cmds:
+      # old version of PB
+      - .//.bin/{{.BIN_MAIN_NAME}} -h
+  run:init:
+      # hack where we create a supr user every time
+      - .//.bin/{{.BIN_MAIN_NAME}} superuser upsert gedw99@gmail.com password10
+  run:serve:
+    cmds:
+      # old version of PB
+      - .//.bin/{{.BIN_MAIN_NAME}} serve
+  
+
