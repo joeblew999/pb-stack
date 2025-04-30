@@ -1,9 +1,6 @@
-# https://github.com/webview/webview_go
+# https://github.com/gioui-plugins/gio-plugins
 
+web view without needing gio.
 
-```sh
-task run
-```
-
-works easily.
+or using gio..
 

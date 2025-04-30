@@ -17,6 +17,8 @@ cp ./.env-template ./.env
 
 ## BUGS
 
+Raised at: https://github.com/go-task/task/discussions/2229
+
 this folder: 
 
 - BUG: VAR variable does not override ENV variable.

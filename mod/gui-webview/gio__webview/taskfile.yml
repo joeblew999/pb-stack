@@ -4,22 +4,44 @@
 
 version: '3'
 
+vars:
+
+  THIS_SRC_NAME: gio-plugins
+  THIS_SRC_PATH: '{{.THIS_SRC_NAME}}/webviewer/demo'
+  THIS_BIN_NAME: 'demo'
+  THIS_BIN_PATH: '{{.THIS_SRC_PATH}}/.bin/{{.THIS_BIN_NAME}}/'
+
 tasks:
   default:
     desc: Welcome. 
     cmds:
+      - echo '{{.THIS_SRC_NAME}}'
+      - echo '{{.THIS_SRC_PATH}}'
+      - echo '{{.THIS_BIN_NAME}}'
+      - echo '{{.THIS_BIN_PATH}}'
+    silent: true
 
-  init:
+  src-gio:
+    cmds:
+      # gio cmd
+      - git clone https://github.com/inkeliz/gio.git
+      - echo {{gio}} >> .gitignore
+
+  src-plugins:
+    cmds:
+      # plugins
+      - git clone https://github.com/gioui-plugins/gio-plugins.git
+      - echo {{.THIS_SRC_NAME}} >> .gitignore
+  mod:
     cmds:
       - touch go.work
-      - go work use .
-      
-  run:
+      - go work use {{.THIS_SRC_PATH}}
+  dev:
     cmds:
-      - go run .
+      - cd {{.THIS_SRC_PATH}} && go run .
   bin:
     cmds:
-      - go build -o .bin/webview
-  play:
+      - cd {{.THIS_SRC_PATH}} && go build -o .bin/{{.THIS_BIN_NAME}}
+  run:
     cmds:
-      - .bin/webview
+      - .{{.THIS_BIN_PATH}} 
