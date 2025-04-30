@@ -1,13 +1,14 @@
 # source-remote template
 
+Testing
 
-We need Operators to easily build off code remotely.
+I am using the Default trick to allow overriding, but i am getting some bugs...
 
-This is a Compiler as a Service (CAS).
+```yaml
+  GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default-from-git.taskfile.yml" }}'
+```
 
-https://github.com/joeblew999/pb-stack-example
-
-## setup
+## Setup
 
 ```sh
 cp ./.env-template ./.env
@@ -16,11 +17,17 @@ cp ./.env-template ./.env
 
 ## BUGS
 
-BUG: VAR variable does not override ENV variable . See this folder.
+this folder: 
 
-BUG: VAR variable overrides are not working at all. See test01-vars folder.
+- BUG: VAR variable does not override ENV variable.
 
-BUG: ENV variable from the parent folder not working. See test02-envs folder.
+test01-vars folder:
+
+- BUG: Does not get the values from the .env in the parent folder.
+
+test02-envs folder: 
+
+- BUG: Does not pick up ENV variable from the parent folder not working. 
 
 
 ```sh

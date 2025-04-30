@@ -3,7 +3,7 @@
 
 ## BUGS
 
-BUG: Does not pick up VAR variable from its  own task file.
+BUG: Does not pickup  VAR variable from its own task file, to override the ENV variables OR DEFAULT variables.
 
 ```sh
 task
