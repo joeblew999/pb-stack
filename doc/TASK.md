@@ -1,4 +1,4 @@
-# Github
+# Task
 
 https://github.com/joeblew999/pb-stack
 
@@ -10,8 +10,7 @@ code:   https://github.com/go-task/task
 
 ## Usage
 
-
-Task file path: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+Other developers should use the URL path: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
 
 All other code needs this remote-taskfile.yml.
 
