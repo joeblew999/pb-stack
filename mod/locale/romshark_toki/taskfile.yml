@@ -12,7 +12,7 @@ includes:
     flatten: true
 
 vars:
-  #GIT_GITROOT_PATH: "x"
+  #GIT_VAR_ROOT_PATH: "x"
 
 tasks:
   print:

@@ -25,10 +25,10 @@ vars:
   AQUA_BIN_URL: https://github.com/aquaproj/aqua/releases/download/{{.AQUA_BIN_VERSION}}/{{.AQUA_BIN_URL_COMPRESS_NAME}}
 
   # git
-  GIT_VAR_ORG_NAME: aquaproj
-  GIT_VAR_REPO_NAME: aqua
+  GIT_VAR_ROOT_ORG_NAME: aquaproj
+  GIT_VAR_ROOT_REPO_NAME: aqua
 
-  GIT_VAR_RELEASE_LIST_URL: ??
+  GIT_VAR_ROOT_RELEASE_LIST_URL: ??
 tasks:
   default:
     desc: print

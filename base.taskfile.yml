@@ -82,7 +82,7 @@ vars:
   # dot folder conventions for all modules and projects
 
   # Root of the repo.
-  BASE_GITROOT_PATH: '{{.GIT_GITROOT_PATH}}'
+  BASE_GITROOT_PATH: '{{.GIT_VAR_ROOT_PATH}}'
 
     
 

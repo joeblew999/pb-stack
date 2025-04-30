@@ -21,6 +21,7 @@ vars:
   GIT_REPO_NAME: 'nats-tower'
   BIN_MAIN_NAME: 'nats-tower{{.BASE_BINARY_EXTENSION}}'
 
+  # Vars override. NOT WORKING..
   NATS_SERVER_VAR_CONFIG_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_REPO_NAME}}/supercluster'
   NATS_SERVER_VAR_CONFIG_NAME: 'central.conf'
 

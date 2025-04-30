@@ -382,13 +382,13 @@ BASE_TASK_VERSION_ENV=v3.42.1
 
 ### git
 
-GIT_VAR_ORG_NAME=xxx
+GIT_VAR_ROOT_ORG_NAME=xxx
 
 # below settings are not needed because my files conform,
 # to the conventions expected at git.taskfile.yml
 
-#GIT_SIGNING_USER_NAME=xxx
-GIT_SIGNING_USER_EMAIL=xxx@gmail.com
+#GIT_VAR_ROOT_SIGNING_USER_NAME=xxx
+GIT_VAR_ROOT_SIGNING_USER_EMAIL=xxx@gmail.com
 #GIT_SIGNING_KEY_PRIV={{.HOME}}/.ssh/xxx_github.com
 #GIT_SIGNING_KEY={{.HOME}}/.ssh/xxx_github.com.pub
 
