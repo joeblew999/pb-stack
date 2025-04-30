@@ -38,7 +38,7 @@ tasks:
       - echo {{.THIS_SRC_NAME}} >> .gitignore
   mod:
     cmds:
-      - touch go.work
+      - echo > go.work
       - go work use gio
       - go work use {{.THIS_SRC_PATH}}
   dev:
