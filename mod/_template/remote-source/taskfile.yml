@@ -5,15 +5,14 @@ version: '3'
 # MUST have this ONLY in root for env variables to work.
 dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
-
 includes:
   local: 
     taskfile: ./../../../remote-taskfile.yml
     flatten: true
 
 vars:
-  
-  GIT_VAR_SRC_REPO_URL: repo-name1
-  GIT_VAR_SRC_REPO_NAME: repo-url1
+  # THIS SHOULD BE overiding !!
+  GIT_VAR_SRC_REPO_URL: repo-name-var
+  GIT_VAR_SRC_REPO_NAME: repo-url-var
 
 
