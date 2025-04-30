@@ -14,58 +14,9 @@ Other developers should use the URL path: https://raw.githubusercontent.com/joeb
 
 All other code needs this remote-taskfile.yml.
 
-## Status
-
-Its still very much a WIP, with things changing in the base task files still.
-
-## Terms
-
-**Developer** is a person that works with the compilation of the code.
-
-**Operator** is a person that works with the non compiled code with bun as the interpreter. They are utilising the binaries that the Developer built. An Operator is also a CI and CD system.
-
-**User** is person that uses the final Software Product. They are utilising the code that the Operator build.
-
-**Single sourcing** in data refers to using a single source of information to generate multiple outputs or documents, rather than creating separate content for each need. 
-
-## Philosophy
-
-**Interoperable**:  The system is designed so that the same code can be used by Developers, CI / CD ( in github ), Operators ( on cloud or on premise ), Users.
-
-After many years building systems for large teams, you tend to start using a fair bit of code gen. Golang templates go along way in this regards.
-
-**Heramtic**: This system extends that idea of software productivity to allow different Actors in the Software flow to run using the same system, to reduce the complexity. This is similar to the concept of "Single Sourcing", but applied deeply. 
-
-For example, when you Package a project, the task files, binary dependencies ( for each OS and ARCH) and configuration files are put into the Package. This allows the next Actor in the Software flow to have everything they need to run the system. 
-
-The other aspect is self sovereignty.  This means reducing your dependency on other external systems. NATS Jetstream is a huge help with this, allowing you to for example bootstrap the public SSH Keys onto any device, via a NATS Public system. Of course you do need NATS running somewhere. Another example is data sync between offline apps, which can be easily done using NATS running in a Leaf Node setup.
-
-**GUI** Lastly, there is the GUI aspect. Web, Desktop and Mobile can all be built using simple HTMX constructs with a good quality Webview.  This applies to all Actors in the Software Flow. For example, a Developers laptop can run some tools, an Operator actor can also run some GUI to help with the process, as well as A Web GUI for end users. 
-
 ## Base Stack
 
-The basis underneath everything is:
 
-Task provides the cross platform bootstrap.
-
-SQLITE provides the DB. You can scale this out with Master Master copies. You can have ephemeral DB's feed off data, with the DB acting a as Materialised view.
-
-Benthos provides a workflow system.
-
-NATS provides a base connectivity system under everything else.
-
-
-## Containerisation
-
-Process-compose provides the ability to run a stack of binaries on any OS without docker.
-
-Its configuration is similar to Docker Compose. 
-
-K3, Docker, Fly, Anything can run this. 
-
-An **Operator** will run this for an Org on A Cloud somewhere using Docker or k3.
-
-A **User** will run locally on their own Server and their Desktop, Mobile. No Containerisation is needed.
 
 
 ## TODO
