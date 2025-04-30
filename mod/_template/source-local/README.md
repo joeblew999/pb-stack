@@ -1,3 +1,3 @@
 # source-local template
 
-Shows how the system can work with local code.
+We need Operators to easily build off code locally.

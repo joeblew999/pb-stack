@@ -18,3 +18,6 @@ https://github.com/justinmoon/wails3-datastar uses wail3, datastar and  task
 - needs makensis install. where is that ?  
         winget install -e --id NSIS.NSIS
 
+https://github.com/gioui-plugins/gio-plugins/tree/main/webviewer
+
+
