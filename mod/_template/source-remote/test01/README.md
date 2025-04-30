@@ -9,14 +9,10 @@ https://github.com/joeblew999/pb-stack-example
 
 ## BUGS
 
-BUG: Var overrides are NOT working at all. Only ENV If the .env is in the same folder.
-
-
+BUG: Does not get the values from the .env in the parent folder 
 
 ```sh
-# first copy the .env-template to .env as task needs this.
-
-task git
+task
 
 - git src
 GIT_VAR_SRC_REPO_URL: repo-name-default-from-git.taskfile.yml

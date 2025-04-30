@@ -85,8 +85,8 @@ vars:
   # E.g: 'workers'
   # GIT_VAR_ROOT_REPO_NAME: 
   # E.g: 'https://github.com/syumai/workers'
-  GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default" }}'
-  GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default" }}'
+  GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default-from-git.taskfile.yml" }}'
+  GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default-from-git.taskfile.ym" }}'
 
 
 tasks:

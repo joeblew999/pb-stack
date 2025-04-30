@@ -8,6 +8,11 @@ docs:   https://taskfile.dev
 
 code:   https://github.com/go-task/task
 
+## Status
+
+Its still very much a WIP, with things changing, but the constructs do work. 
+
+I have built systems like this before and the philosophy does work exceeding well. This is a refactoring of those previous systems that uses Task files and Process Compose. 
 
 ## Terms
 
@@ -37,19 +42,27 @@ The other aspect is self sovereignty.  This means reducing your dependency on ot
 
 The basis underneath everything is:
 
-Task provides a cross platform shell.
+Task provides the cross platform bootstrap.
 
-SQLITE provides the DB. You can scale this out with Master Master copies. YOu can have ephemeral DB's feed off dates, with the DB acting a as Materialised view.
+SQLITE provides the DB. You can scale this out with Master Master copies. You can have ephemeral DB's feed off data, with the DB acting a as Materialised view.
 
 Benthos provides a workflow system.
 
 NATS provides a base connectivity system under everything else.
 
-## Status
 
-Its still very much a WIP, with things changing, but the constructs do work. 
+## Containerisation
 
-I have built systems like this before and the philosophy does work exceeding well. This is a refactoring of those previous systems that uses Task files and Process Compose. 
+Process-compose provides the ability to run a stack of binaries on any OS without docker.
+
+Its configuration is similar to Docker Compose. 
+
+K3, Docker, Fly, Anything can run this. 
+
+An **Operator** will run this for an Org on A Cloud somewhere using Docker or k3.
+
+A **User** will run locally on their own Server and their Desktop, Mobile. No Containerisation is needed.
+
 
 ## TODO
 

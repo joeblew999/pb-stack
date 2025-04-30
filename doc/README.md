@@ -4,7 +4,7 @@ https://github.com/joeblew999/pb-stack
 
 This project came about due to the need for Developers to be Users and Users to be Developers. 
 
-Hopefully the way things work will make sense to you based on this need.
+You do not have to use all the stack. Its a composition where you can pick what you want.
 
 
 A Stack based on Pocketbase ( PB )  where:
@@ -19,11 +19,14 @@ A Stack based on Pocketbase ( PB )  where:
 
 5. Each Developer and / or User can pick a Data Center within their region for GDPR, and then choose other regions for replication. Marmot does this.
 
-You do not have to use all the stack. Its a composition where you can pick what you want.
-
 ## Repo Structure
 
-I use mono repos, cause life is short. Long story.
+**mod** ia for modules that are reused everywhere.
+
+**proj** is for projects built by developers that are reused by users.
+
+**user** is for projects built by users.
+
 
 Users and Developers have the exact same structure, but Users will not have the Modules, unless they are developing their own Modules of course.
 
