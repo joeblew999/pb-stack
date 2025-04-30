@@ -42,7 +42,7 @@ So as you might have guessed this is Git OPS based, where each user has Git on t
 
 A Playground is a Project or Module experiment.
 
-Each PlayGround has a TASK file, with the common TASK file manipulating these git folder:
+Each PlayGround has a TASK file, with the common TASK file manipulating these folders:
 
 - .bin for produced binaries.
 - .dep for consumed binaries.
@@ -55,10 +55,6 @@ Task files do 2 things:
 - Run the binary of what they represent. 
 
 We can embed Task in the main binary also
-
-https://github.com/hypershift-community/hyper-console
-
-We can also embed NATS.go, so that its reachable over NATS Servers, and thus eliminates SSH or HTTP for management, which is a security nightmare.
 
 
 ## Stack of Modules

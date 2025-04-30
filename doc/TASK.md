@@ -8,11 +8,16 @@ docs:   https://taskfile.dev
 
 code:   https://github.com/go-task/task
 
+## Usage
+
+
+Task file path: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+
+All other code needs this remote-taskfile.yml.
+
 ## Status
 
-Its still very much a WIP, with things changing, but the constructs do work. 
-
-I have built systems like this before and the philosophy does work exceeding well. This is a refactoring of those previous systems that uses Task files and Process Compose. 
+Its still very much a WIP, with things changing in the base task files still.
 
 ## Terms
 
@@ -103,7 +108,6 @@ go install github.com/go-task/task/v3/cmd/task@latest
 
 
 ## Documentation
-
 
 You can use the Docs folder for your Project documentation for each Actor type.
 
