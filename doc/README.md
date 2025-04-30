@@ -6,15 +6,6 @@ This project came about due to the need for Developers to be Users and Users to 
 
 You do not have to use all the stack. Its a composition where you can pick what you want.
 
-## Setup
-
-### Developer 
-
-This Project uses Task files.  See [TASK](TASK.md)
-
-### User
-
-Will be off the Github Pages, where binaries can be pulled.
 
 ## Terms
 
@@ -25,6 +16,25 @@ Will be off the Github Pages, where binaries can be pulled.
 **User** is person that uses the final Software Product. They are utilising the code that the Operator build.
 
 **Single sourcing** in data refers to using a single source of information to generate multiple outputs or documents, rather than creating separate content for each need. 
+
+
+## Setup
+
+### Developer
+
+This Project uses Task files.  See [TASK](TASK.md)
+
+### Operator
+
+Will be off the Github Pages, where binaries can be pulled.
+
+Task files will be run by the Binaries.
+
+### User
+
+Will be off the Web and App Stores ( Desktop and Mobile )
+
+Task files will be run by the packaged App.
 
 
 ## Philosophy
