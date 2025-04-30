@@ -13,8 +13,9 @@ includes:
     flatten: true
 
 vars:
-  GIT_VAR_ROOT_REPO_NAME: 'packer-plugin-utm'
   GIT_VAR_SRC_REPO_URL: 'https://github.com/naveenrajm7/packer-plugin-utm'
+  GIT_VAR_SRC_REPO_NAME: 'packer-plugin-utm'
+  
 
   #THIS_SRC_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_VAR_ROOT_REPO_NAME}}'
   #THIS_SRC_PATH: '{{joinPath .BASE_SRC_PATH .GIT_VAR_ROOT_REPO_NAME }}' 
@@ -24,8 +25,9 @@ tasks:
     desc: Welcome. 
     cmds:
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
-      - echo 'GIT_VAR_ROOT_REPO_NAME:'      {{.GIT_VAR_ROOT_REPO_NAME}}
-      - echo 'GIT_VAR_SRC_REPO_URL:'       {{.GIT_VAR_SRC_REPO_URL}}
+
+      - echo 'GIT_VAR_ROOT_REPO_NAME:'      {{.GIT_VAR_SRC_REPO_NAME}}
+      - echo 'GIT_VAR_SRC_REPO_URL:'        {{.GIT_VAR_SRC_REPO_URL}}
       - echo 'THIS_SRC_PATH:'     {{.THIS_SRC_PATH}}
 
     silent: false
