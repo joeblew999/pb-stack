@@ -3,7 +3,7 @@
 
 ## BUGS
 
-BUG: Does not get the values from the .env in the parent folder 
+BUG: Does not pick up ENV variable from the parent folder.
 
 ```sh
 task
