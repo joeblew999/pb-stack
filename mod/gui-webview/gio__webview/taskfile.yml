@@ -35,6 +35,7 @@ tasks:
   mod:
     cmds:
       - touch go.work
+      - go work use gio
       - go work use {{.THIS_SRC_PATH}}
   dev:
     cmds:
