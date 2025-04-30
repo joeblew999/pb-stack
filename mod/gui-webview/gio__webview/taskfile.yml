@@ -11,7 +11,7 @@ vars:
   THIS_SRC_NAME: gio-plugins
   THIS_SRC_PATH: '{{.THIS_SRC_NAME}}/webviewer/demo'
   THIS_BIN_NAME: 'demo{{.BASE_BINARY_EXTENSION}}'
-  THIS_BIN_PATH: '{{.THIS_SRC_PATH}}/.bin/{{.THIS_BIN_NAME}}/'
+  THIS_BIN_PATH: '{{.THIS_SRC_PATH}}/.bin/{{.THIS_BIN_NAME}}'
 
 tasks:
   default:
