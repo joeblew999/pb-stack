@@ -4,9 +4,9 @@ https://github.com/joeblew999/pb-stack
 
 Task files for cross platform development and runtimes.
 
-https://taskfile.dev
+docs:   https://taskfile.dev
 
-https://github.com/go-task/task
+code:   https://github.com/go-task/task
 
 
 ## Terms
@@ -70,7 +70,9 @@ File path joins is broken in TASK on Windows, so we need a golang tool for that,
 We need a cross platform way to manipulate the ssh config, and call it.
 When i installed openssh to Darwin, git stopped working in vscode for example.
 
-4. Packaging for golang stuff
+4. Packaging for Desktop
+
+This is Task at Compile time, but then used at Runtime also by Operators.
 
 https://github.com/imjamesonzeller/tasklight-v3 has a good one for Desktops.
 
@@ -96,7 +98,7 @@ This Project uses the top level docs folder.  See [Doc](../doc/README.md) folder
 
 ## Boostrapping 
 
-Boostrapping runs at 2 level: 
+Bootstrapping runs at 2 level: 
 
 - OS level setup
 
