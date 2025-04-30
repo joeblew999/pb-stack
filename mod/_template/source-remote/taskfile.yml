@@ -5,14 +5,19 @@ version: '3'
 # MUST have this ONLY in root for env variables to work.
 dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
-
 includes:
-  local: 
+  remote: 
     taskfile: ./../../../remote-taskfile.yml
     flatten: true
-  binary: 
-    taskfile: ./binary.taskfile.yml
 
-  #process-compose-remote: 
-  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/mod/process_compose/process_compose-taskfile.yml
-  #  flatten: true
+vars:
+  # BUG: THIS SHOULD BE overriding !!
+  GIT_VAR_SRC_REPO_URL: https://github.com/joeblew999/pb-stack-example
+  GIT_VAR_SRC_REPO_NAME: pb-stack-example
+
+tasks:
+  default:
+    cmds:
+      - task git
+
+

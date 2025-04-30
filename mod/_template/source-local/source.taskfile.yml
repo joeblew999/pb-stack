@@ -8,7 +8,7 @@ version: '3'
 #dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  local: 
+  remote: 
     taskfile: ././../../../remote-taskfile.yml
     flatten: true
   #remote: 
@@ -34,10 +34,6 @@ tasks:
       - echo 'BASE_SHELL:'            {{.BASE_SHELL}}
       - echo 'GO_VAR_BUILD_PRE:'      {{.GO_VAR_BUILD_PRE}}
       - echo 'GO_VAR_BUILD_POST:'     {{.GO_VAR_BUILD_POST}}
-    silent: false
-
-
-
     silent: false
 
   this:

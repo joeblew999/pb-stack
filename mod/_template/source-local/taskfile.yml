@@ -7,7 +7,7 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 
 includes:
-  local: 
+  remote: 
     taskfile: ./../../../remote-taskfile.yml
     flatten: true
   source: 
@@ -16,3 +16,9 @@ includes:
   #process-compose-remote: 
   #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/mod/process_compose/process_compose-taskfile.yml
   #  flatten: true
+
+
+tasks:
+  default:
+    cmds:
+      - task git

@@ -25,11 +25,11 @@ tasks:
   default:
     desc: Welcome. 
     cmds:
-      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
+      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none --verbose'
     silent: false
 
   all:
-    desc: for ci. same for local and remote
+    desc: all
     cmds:
       - echo ''
       - echo ' *** Building all ...'
@@ -54,16 +54,21 @@ tasks:
       - echo ''
 
       # mod
-      #-  echo 'Build my Modules, that my projects need ...'
-      #- cd mod/charm/soft_serve && {{.BASE_TASK_CMD}}
-      # mod example ( that uses a module task file.)
-      #- cd mod/process_compose/example/local && {{.BASE_TASK_CMD}}
-      #- cd mod/process_compose/example/remote && {{.BASE_TASK_CMD}} 
-      
-      # proj
-      #- echo 'Build my Projects ...'
-      # works, but only with explicit calls, otherwise it self loops.
-      #- cd proj/todo-with-task-includes && {{.BASE_TASK_CMD}}
-      # work, calling all. I guess because of "remote" at start of calls.
-      #- cd proj/todo-with-task-remote && {{.BASE_TASK_CMD}}
+      -  echo 'Build modules, that my projects need ...'
+      - cd mod/_template/binary-local && {{.BASE_TASK_CMD}}
+      - cd mod/_template/binary-remote && {{.BASE_TASK_CMD}}
+      - cd mod/_template/source-local && {{.BASE_TASK_CMD}}
+      - cd mod/_template/source-remote && {{.BASE_TASK_CMD}}
+     
+    
+      # Operators projects
+      - echo 'Build projects, that my Operators need ...'
+      - cd proj/_template/binary-local && {{.BASE_TASK_CMD}}
+
+      # Users Projects
+      - echo 'Build projects, that my Users need ...'
+      - echo 'These are all non '
+
+
+     
     silent: false
