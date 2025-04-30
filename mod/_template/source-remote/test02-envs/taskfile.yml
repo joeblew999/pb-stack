@@ -11,7 +11,6 @@ includes:
     flatten: true
 
 vars:
-  # BUG: THIS SHOULD BE overriding !!
   GIT_VAR_SRC_REPO_URL: repo-name-from-local-task
   GIT_VAR_SRC_REPO_NAME: repo-url-from-local-task
 

@@ -16,9 +16,11 @@ cp ./.env-template ./.env
 
 ## BUGS
 
-BUG: VAR overrides are NOT working at all. See test01-vars folder.
+BUG: VAR variable does not override ENV variable . See this folder.
 
-BUG: BUG: Does not pick up ENV variable from the parent folder. See test02-envs folder.
+BUG: VAR variable overrides are not working at all. See test01-vars folder.
+
+BUG: ENV variable from the parent folder not working. See test02-envs folder.
 
 
 ```sh
@@ -26,8 +28,9 @@ BUG: BUG: Does not pick up ENV variable from the parent folder. See test02-envs 
 task git
 
 - git src
-GIT_VAR_SRC_REPO_URL: repo-name-default-from-git.taskfile.yml
-GIT_VAR_SRC_REPO_NAME: repo-url-default-from-git.taskfile.ym
+GIT_VAR_SRC_REPO_URL: repo-name-from-local-env
+GIT_VAR_SRC_REPO_NAME: repo-url-from-local-env
+
 ```
 
 Correct should be:
@@ -37,8 +40,8 @@ Correct should be:
 task git
 
 - git src
-GIT_VAR_SRC_REPO_URL: repo-name-from-local-env
-GIT_VAR_SRC_REPO_NAME: repo-url-from-local-env
+GIT_VAR_SRC_REPO_URL: repo-name-from-local-task
+GIT_VAR_SRC_REPO_NAME: repo-url-from-local-task
 ```
 
 
