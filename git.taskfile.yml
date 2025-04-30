@@ -205,7 +205,7 @@ tasks:
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_SRC_REPO_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_SRC_REPO_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
-      - cd {{.BASE_SRC_PATH}} && touch .gitignore && echo '{{.GIT_VAR_ROOT_REPO_NAME}}' >> .gitignore
+      - cd {{.BASE_SRC_PATH}} && echo > .gitignore && echo '{{.GIT_VAR_ROOT_REPO_NAME}}' >> .gitignore
   clone:src:del:
     desc: delete the src code.
     cmds:

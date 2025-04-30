@@ -148,7 +148,7 @@ flare-wrangler-dep-all: flare-wrangler-dep-template
 	rm -rf $(FLARE_WRANGLER_DEP_REPO)
 	$(BASE_DEP_BIN_GIT_NAME) clone $(FLARE_WRANGLER_DEP_REPO_URL) -b $(FLARE_WRANGLER_DEP_VERSION)
 	@echo $(FLARE_WRANGLER_DEP_REPO) >> .gitignore
-	touch go.work
+	echo > go.work
 	go work use $(FLARE_WRANGLER_DEP_REPO)
 
 	@echo ""
@@ -165,7 +165,7 @@ flare-wrangler-dep-all: flare-wrangler-dep-template
 	rm -f go.work
 	rm -f go.work.sum
 
-	#touch go.work
+	#echo > go.work
 	#go work use $(OS_MOD)
 
 flare-wrangler-run-h: flare-wrangler-dep

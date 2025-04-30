@@ -153,7 +153,7 @@ flare-cli-dep-start:
 
 	cd $(BASE_CWD_DEPTMP) && $(BASE_DEP_BIN_GIT_NAME) clone $(FLARE_CLI_DEP_REPO_URL) -b $(FLARE_CLI_DEP_VERSION) --single-branch
 	cd $(BASE_CWD_DEPTMP) && echo $(FLARE_CLI_DEP_REPO) >> .gitignore
-	cd $(BASE_CWD_DEPTMP) && touch go.work
+	cd $(BASE_CWD_DEPTMP) && echo > go.work
 	cd $(BASE_CWD_DEPTMP) && $(BASE_DEP_BIN_GO_NAME) work use $(FLARE_CLI_DEP_REPO)
 
 flare-cli-dep-end:

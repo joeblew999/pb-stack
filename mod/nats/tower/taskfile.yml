@@ -42,8 +42,8 @@ tasks:
   src:
     cmds:
       - git clone https://github.com/nats-tower/nats-tower
-      - touch go.work && go work use {{.GIT_REPO_NAME}}
-      - touch .gitignore && echo {{.GIT_REPO_NAME}} >> .gitignore
+      - echo > go.work && go work use {{.GIT_REPO_NAME}}
+      - echo > .gitignore && echo {{.GIT_REPO_NAME}} >> .gitignore
   src-del:
     cmds:
       - rm -rf {{.GIT_REPO_NAME}}

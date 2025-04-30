@@ -1372,7 +1372,7 @@ base-src-ls-all:
 base-src-init-deep:
 	# just the .src/name for my testing
 	mkdir -p $(BASE_SRC)
-	touch $(BASE_SRC)/test.md
+	echo > $(BASE_SRC)/test.md
 
 ## base-src-init
 base-src-init:
@@ -1829,7 +1829,7 @@ base-bin-init-golang:
 	@echo ""
 	@echo "- config go work file"
 	@echo ""
-	cd $(BASE_CWD_SRC) && touch go.work
+	cd $(BASE_CWD_SRC) && echo > go.work
 	#cd $(BASE_CWD_SRC) && $(BASE_DEP_BIN_GO_NAME) work use $(BASE_SRC_NAME)/$(BASE_BIN_ENTRY)
 	cd $(BASE_CWD_SRC) && $(BASE_DEP_BIN_GO_NAME) work use $(BASE_SRC_NAME)/$(BASE_BIN_MOD)
 

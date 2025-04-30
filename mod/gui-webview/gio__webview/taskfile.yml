@@ -49,4 +49,4 @@ tasks:
       - cd {{.THIS_SRC_PATH}} && go build -o .bin/{{.THIS_BIN_NAME}}
   run:
     cmds:
-      - .{{.THIS_BIN_PATH}} 
+      - '{{.THIS_BIN_PATH}}'

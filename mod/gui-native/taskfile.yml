@@ -20,8 +20,8 @@ tasks:
   src:
     cmds:
       - git clone https://github.com/hajimehoshi/guigui
-      - touch go.work && go work use guigui
-      - touch .gitignore && echo guigui >> .gitignore
+      - echo > go.work && go work use guigui
+      - echo > .gitignore && echo guigui >> .gitignore
   src-del:
     cmds:
       - rm -rf guigui

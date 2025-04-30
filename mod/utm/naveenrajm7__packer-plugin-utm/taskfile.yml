@@ -39,7 +39,7 @@ tasks:
       - '{{.BASE_TASK_CMD}} git:clone:src:del'
   bin:
     cmds:
-      - touch go.work && go work use {{.THIS_SRC_PATH}}
+      - echo > go.work && go work use {{.THIS_SRC_PATH}}
       - '{{.BASE_TASK_CMD}} go:bin'
   run:
     cmds:

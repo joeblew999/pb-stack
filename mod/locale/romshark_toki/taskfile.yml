@@ -21,8 +21,8 @@ tasks:
   src:
     cmds:
       - git clone https://github.com/romshark/toki
-      - touch go.work && go work use toki
-      - touch .gitignore && echo toki >> .gitignore
+      - echo > go.work && go work use toki
+      - echo > .gitignore && echo toki >> .gitignore
   src-del:
     cmds:
       - rm -rf toki

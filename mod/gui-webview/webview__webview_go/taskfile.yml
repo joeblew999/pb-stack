@@ -11,7 +11,7 @@ tasks:
 
   init:
     cmds:
-      - touch go.work
+      - echo > go.work
       - go work use .
       
   run:
