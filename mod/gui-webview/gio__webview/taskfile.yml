@@ -6,15 +6,18 @@ version: '3'
 
 vars:
 
+  BASE_BINARY_EXTENSION: '{{if eq OS "windows"}}.exe{{end}}'
+
   THIS_SRC_NAME: gio-plugins
   THIS_SRC_PATH: '{{.THIS_SRC_NAME}}/webviewer/demo'
-  THIS_BIN_NAME: 'demo'
+  THIS_BIN_NAME: 'demo{{.BASE_BINARY_EXTENSION}}'
   THIS_BIN_PATH: '{{.THIS_SRC_PATH}}/.bin/{{.THIS_BIN_NAME}}/'
 
 tasks:
   default:
     desc: Welcome. 
     cmds:
+      - echo '{{.BASE_BINARY_EXTENSION}}'
       - echo '{{.THIS_SRC_NAME}}'
       - echo '{{.THIS_SRC_PATH}}'
       - echo '{{.THIS_BIN_NAME}}'
