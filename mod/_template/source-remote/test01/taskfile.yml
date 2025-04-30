@@ -7,13 +7,13 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   remote: 
-    taskfile: ./../../../../remote-taskfile.yml
+    taskfile: ./../../../remote-taskfile.yml
     flatten: true
 
 vars:
   # BUG: THIS SHOULD BE overriding !!
-  GIT_VAR_SRC_REPO_URL: https://github.com/joeblew999/pb-stack-example
-  GIT_VAR_SRC_REPO_NAME: pb-stack-example
+  GIT_VAR_SRC_REPO_URL: repo-name-from-local-task
+  GIT_VAR_SRC_REPO_NAME: repo-url-from-local-task
 
 tasks:
   default:
