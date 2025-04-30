@@ -6,6 +6,15 @@ This project came about due to the need for Developers to be Users and Users to 
 
 You do not have to use all the stack. Its a composition where you can pick what you want.
 
+## Developer Setup
+
+This Project uses Task files.  See [TASK](TASK.md)
+
+## User Setup
+
+Will be off the Github Pages, where binaries can be pulled.
+
+## The Stack
 
 A Stack based on Pocketbase ( PB )  where:
 
