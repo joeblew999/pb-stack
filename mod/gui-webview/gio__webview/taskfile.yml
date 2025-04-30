@@ -21,6 +21,10 @@ tasks:
       - echo '{{.THIS_BIN_PATH}}'
     silent: true
 
+  src:
+    cmds:
+      - task src-gio
+      - task src-plugins
   src-gio:
     cmds:
       # gio cmd
