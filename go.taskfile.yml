@@ -22,9 +22,12 @@ vars:
   GO_BIN_VERSION:
     sh: '{{.GO_BIN_NAME}} version'
 
+  GO_ENV_ROOT_PATH:
+    sh: '{{.GO_BIN_NAME}} env GOROOT'
   GO_ENV_PATH:
     sh: '{{.GO_BIN_NAME}} env GOPATH'
   GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
+
 
 
 
@@ -80,6 +83,7 @@ tasks:
       - echo 'GO_BIN_VERSION:'              {{.GO_BIN_VERSION}}
       - echo ''
       - echo '- env'
+      - echo 'GO_ENV_ROOT_PATH:'            {{shellQuote .GO_ENV_ROOT_PATH}}
       - echo 'GO_ENV_PATH:'                 {{shellQuote .GO_ENV_PATH}}
       - echo 'GO_ENV_BIN_PATH:'             {{shellQuote .GO_ENV_BIN_PATH}}
       - echo ''
@@ -116,6 +120,16 @@ tasks:
       - cd {{.GO_VAR_SRC_MAIN_PATH}}/{{.GO_VAR_BIN_ENTRY_PATH}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
       - echo ''
     silent: false
+  test:wasm:
+    desc: go test wasm
+    cmds:
+      # see: https://go.dev/wiki/WebAssembly#running-tests-in-the-browser
+      # https://github.com/agnivade/wasmbrowsertest
+      - go install github.com/agnivade/wasmbrowsertest@latest
+      - mv {{.GO_ENV_BIN_PATH}}/wasmbrowsertest{{.BASE_BINARY_EXTENSION}} $GOPATH/bin/go_js_wasm_exec{{.BASE_BINARY_EXTENSION}}
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} test
+    silent: false
+
   mod:tidy:
     desc: go mod tidy
     cmds:
@@ -130,7 +144,7 @@ tasks:
       - echo ''
       - echo 'mod upgrade ...'
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} install github.com/oligot/go-mod-upgrade@latest
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && go-mod-upgrade
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && go-mod-upgrade{{.BASE_BINARY_EXTENSION}}
       - echo ''
     silent: false
   install:
@@ -197,6 +211,18 @@ tasks:
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} run ./...
       - echo ''
     silent: false
+  dev:wasm:
+    desc: go dev wasm
+    cmds:
+      - echo ''
+      - echo 'dev wasm'
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} run ./...
+  dev:wasm:chrome:
+    desc: go dev wasm in chrome
+    cmds:
+      - echo ''
+      - echo 'dev wasm in chrome'
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && WASM_HEADLESS=off GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} run ./...
 
   bin:
     desc: build binary
@@ -214,7 +240,8 @@ tasks:
     cmds:
       - echo ''
       - echo 'bin'
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
+      - cp {{.GO_ENV_ROOT_PATH}}/lib/wasm/wasm_exec.js {{.BASE_BIN_PATH}}/wasm_exec.js
       - echo ''
 
   run:
@@ -225,4 +252,17 @@ tasks:
       - '{{.GO_VAR_BIN_NATIVE_PATH}}'
       - echo ''
     silent: false
+  run:web:
+    desc: run static web server off .bin
+    cmds:
+      # see: https://go.dev/wiki/WebAssembly#getting-started
+      - '{{.GO_BIN_NAME}} install github.com/shurcooL/goexec@latest'
+      # FAILS with: go get github.com/shurcooL/go-goon
+      - cd {{.BASE_BIN_PATH}} && goexec{{.BASE_BINARY_EXTENSION}} 'http.ListenAndServe(`:8080`, http.FileServer(http.Dir(`.`)))'
+  run:wasm:
+    desc: run wasm at cli level.
+    cmds:
+      # see: 
+      - cd {{.BASE_BIN_PATH}} && goexec{{.BASE_BINARY_EXTENSION}} 'http.ListenAndServe(`:8080`, http.FileServer(http.Dir(`.`)))'
+      
    

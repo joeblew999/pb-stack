@@ -3,7 +3,7 @@
 version: '3'
 
 # MUST have this ONLY in root for env variables to work.
-dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 
 includes:
@@ -11,25 +11,6 @@ includes:
     taskfile: ./../../remote-taskfile.yml
     flatten: true
 
-vars:
 
-tasks:
-  print:
-    cmds:
-      - echo ""
-  src:
-    cmds:
-      - git clone https://github.com/hajimehoshi/guigui
-      - echo > go.work && go work use guigui
-      - echo > .gitignore && echo guigui >> .gitignore
-  src-del:
-    cmds:
-      - rm -rf guigui
-      - rm go.work
 
-  run:
-    cmds:
-      - cd guigui/example/gallery && go run .
-      - cd guigui/example/gridlayout && go run .
-      - cd guigui/example/todo && go run .
 
