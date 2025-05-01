@@ -46,12 +46,20 @@ vars:
   ### vars
 
   # path to src ( we add the repo name to the path )
-  GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_VAR_SRC_REPO_NAME}}'
+  GO_VAR_SRC_ROOT_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_VAR_SRC_REPO_NAME}}'
+  # where to compile from
+  GO_VAR_SRC_MAIN_PATH: '{{.GO_VAR_SRC_ROOT_PATH}}/{{.GO_VAR_BIN_ENTRY_PATH}}'
+
   # name of binary we want when we compile this src.
   GO_VAR_BIN_NAME: '{{ .GO_VAR_BIN_NAME | default "main" }}'
+  GO_VAR_BIN_ENTRY_PATH: '{{ .GO_VAR_BIN_ENTRY_PATH | default "." }}'
+  GO_VAR_BIN_MOD_PATH: '{{ .GO_VAR_BIN_ENTRY_PATH | default "." }}'
+
   # path to the binary.
   #GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
-  GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}'
+  GO_VAR_BIN_NATIVE_NAME: '{{.GO_VAR_BIN_NAME}}_{{.BASE_SHELL_OS_NAME}}_{{.BASE_SHELL_OS_ARCH}}'
+  GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NATIVE_NAME}}'
+  # path to the binary, but for wasm.
   # extensions, based on the way we compile the src.
   GO_VAR_BIN_WASM_PATH: '{{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_wasm'
   #GO_VAR_BIN_NATIVE_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
@@ -80,11 +88,18 @@ tasks:
       - echo 'GO_GARBLE_BIN_VERSION:'       {{.GO_GARBLE_BIN_VERSION}}
       - echo 'GO_GARBLE_BIN_WHICH:'         {{shellQuote .GO_GARBLE_BIN_WHICH}}
       - echo 'GO_GARBLE_BIN_WHICH_VERSION:' {{.GO_GARBLE_BIN_WHICH_VERSION}}
-      
       - echo ''
       - echo '- var'
-      - echo 'GO_VAR_SRC_PATH:'             {{shellQuote .GO_VAR_SRC_PATH}}
+      - echo 'GO_VAR_SRC_ROOT_PATH:'        {{shellQuote .GO_VAR_SRC_ROOT_PATH}}
+      - echo 'GO_VAR_SRC_MAIN_PATH:'        {{shellQuote .GO_VAR_SRC_MAIN_PATH}}
+      - echo ''
+      - echo '- in'
       - echo 'GO_VAR_BIN_NAME:'             {{.GO_VAR_BIN_NAME}}
+      - echo 'GO_VAR_BIN_ENTRY_PATH:'            {{shellQuote .GO_VAR_BIN_ENTRY_PATH}}
+      - echo 'GO_VAR_BIN_MOD_PATH:'              {{shellQuote .GO_VAR_BIN_MOD_PATH}}
+      - echo ''
+      - echo '- out'
+      - echo 'GO_VAR_BIN_NATIVE_NAME:'      {{.GO_VAR_BIN_NATIVE_NAME}}
       - echo 'GO_VAR_BIN_NATIVE_PATH:'      {{shellQuote .GO_VAR_BIN_NATIVE_PATH}}
       - echo 'GO_VAR_BIN_WASM_PATH:'        {{shellQuote .GO_VAR_BIN_WASM_PATH}}
       - echo ''
@@ -98,7 +113,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'bin'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
+      - cd {{.GO_VAR_SRC_MAIN_PATH}}/{{.GO_VAR_BIN_ENTRY_PATH}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
       - echo ''
     silent: false
   mod:tidy:
@@ -106,7 +121,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'mod tidy'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} mod tidy
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} mod tidy
       - echo ''
     silent: false
   mod:upgrade:
@@ -114,8 +129,8 @@ tasks:
     cmds:
       - echo ''
       - echo 'mod upgrade ...'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} install github.com/oligot/go-mod-upgrade@latest
-      - cd {{.GO_VAR_SRC_PATH}} && go-mod-upgrade
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} install github.com/oligot/go-mod-upgrade@latest
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && go-mod-upgrade
       - echo ''
     silent: false
   install:
@@ -142,7 +157,7 @@ tasks:
       - echo ''
       - echo 'garble'
       - '{{.BASE_TASK_CMD}} go:garble:dep'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_GARBLE_BIN_NAME}} -h
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_GARBLE_BIN_NAME}} -h
       - echo ''
     silent: false
 
@@ -152,7 +167,7 @@ tasks:
       - echo ''
       - echo 'garble'
       - '{{.BASE_TASK_CMD}} go:garble:dep'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_GARBLE_BIN_NAME}} build -o {{.GO_VAR_BIN_NATIVE_PATH}}
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_GARBLE_BIN_NAME}} build -o {{.GO_VAR_BIN_NATIVE_PATH}}
       - echo ''
     silent: false
 
@@ -170,7 +185,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'gen'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} generate ./...
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} generate ./...
       - echo ''
     silent: false
 
@@ -179,7 +194,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'dev'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} run ./...
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} run ./...
       - echo ''
     silent: false
 
@@ -190,7 +205,7 @@ tasks:
       - echo ''
       - echo 'bin'
       #- task go:mod-tidy
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_VAR_BUILD_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BUILD_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_VAR_BUILD_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BUILD_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
       - echo ''
     silent: false
 
@@ -199,7 +214,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'bin'
-      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
       - echo ''
 
   run:
@@ -207,11 +222,7 @@ tasks:
     cmds:
       - echo ''
       - echo 'run'
-      # Best to not cd in...
-      #- cd {{.BASE_BIN_PATH}} && ./{{.GO_VAR_BIN_NAME}}
-
-      # Seems to be good enough, without mounting path.
-      - '{{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}'
+      - '{{.GO_VAR_BIN_NATIVE_PATH}}'
       - echo ''
     silent: false
    

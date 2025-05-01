@@ -3,7 +3,7 @@
 version: '3'
 
 # MUST have this ONLY in root for env variables to work.
-dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+dotenv: ['dev.env', 'operator.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   common: 

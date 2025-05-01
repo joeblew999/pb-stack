@@ -80,10 +80,9 @@ vars:
 
   ### src ( for pulling repos inside this mono repo )
   # Override via .env
-
   GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default-from-git.taskfile.yml" }}'
   GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default-from-git.taskfile.ym" }}'
-  GIT_VAR_SRC_REPO_VERSION: '{{ .GIT_VAR_SRC_REPO_VERSION | default "latest" }}'
+  GIT_VAR_SRC_REPO_VERSION: '{{ .GIT_VAR_SRC_REPO_VERSION | default "main" }}'
 
 
 tasks:
@@ -203,7 +202,7 @@ tasks:
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_SRC_REPO_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_SRC_REPO_URL}}
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
-      - cd {{.BASE_SRC_PATH}} && echo > .gitignore && echo '{{.GIT_VAR_ROOT_REPO_NAME}}' >> .gitignore
+      - cd {{.BASE_SRC_PATH}} && echo > .gitignore && echo '{{.GIT_VAR_SRC_REPO_NAME}}' >> .gitignore
   clone:src:del:
     desc: delete the src code.
     cmds:
