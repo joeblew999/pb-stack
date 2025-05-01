@@ -1,0 +1,6 @@
+{"ImportPath":".","Action":"build-output","Output":"# .\n"}
+{"ImportPath":".","Action":"build-output","Output":"no Go files in /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/nats/qrochet__qrochet\n"}
+{"ImportPath":".","Action":"build-fail"}
+{"Time":"2025-05-01T14:43:12.021316+10:00","Action":"start","Package":"."}
+{"Time":"2025-05-01T14:43:12.021554+10:00","Action":"output","Package":".","Output":"FAIL\t. [setup failed]\n"}
+{"Time":"2025-05-01T14:43:12.021559+10:00","Action":"fail","Package":".","Elapsed":0,"FailedBuild":"."}

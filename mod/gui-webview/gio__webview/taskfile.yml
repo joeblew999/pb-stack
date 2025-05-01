@@ -39,11 +39,28 @@ tasks:
       # plugins
       - git clone https://github.com/gioui-plugins/gio-plugins.git
       - echo {{.THIS_SRC_NAME}} >> .gitignore
-  mod:
+  mod:work:
     cmds:
       - echo > go.work
       - go work use gio
       - go work use {{.THIS_SRC_PATH}}
+  mod:upgrade:
+    cmds:
+      - cd {{.THIS_SRC_PATH}} && go mod tidy
+      # https://github.com/marwan-at-work/mod
+      # can migrate UP or Down...
+      - go install github.com/marwan-at-work/mod/cmd/mod@latest
+      - cd {{.THIS_SRC_PATH}} && mod upgrade -h
+      - cd {{.THIS_SRC_PATH}} && go mod tidy
+  mod:downgrade:
+    cmds:
+      - cd {{.THIS_SRC_PATH}} && go mod tidy
+      # https://github.com/marwan-at-work/mod
+      # can migrate UP or Down...
+      - go install github.com/marwan-at-work/mod/cmd/mod@latest
+      - cd {{.THIS_SRC_PATH}} && mod downgrade -h
+      - cd {{.THIS_SRC_PATH}} && go mod tidy
+
   dev:
     cmds:
       - cd {{.THIS_SRC_PATH}} && go run .
@@ -53,3 +70,7 @@ tasks:
   run:
     cmds:
       - '{{.THIS_BIN_PATH}}'
+  release:
+    cmds:
+      # send up so others can use it.
+      - echo 'release'

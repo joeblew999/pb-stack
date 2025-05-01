@@ -78,15 +78,12 @@ vars:
   GIT_SIGNING_PROGRAM: '{{.GIT_SSH_BIN_NAME}}'
   GIT_SIGNING_FORMAT: '{{.GIT_SSH_BIN_NAME}}'
 
-  ### src ( for pulling repos inside this mono repo)
+  ### src ( for pulling repos inside this mono repo )
+  # Override via .env
 
-
-  # For actual taskfile:
-  # E.g: 'workers'
-  # GIT_VAR_ROOT_REPO_NAME: 
-  # E.g: 'https://github.com/syumai/workers'
   GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default-from-git.taskfile.yml" }}'
   GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default-from-git.taskfile.ym" }}'
+  GIT_VAR_SRC_REPO_VERSION: '{{ .GIT_VAR_SRC_REPO_VERSION | default "latest" }}'
 
 
 tasks:
@@ -135,6 +132,7 @@ tasks:
       - echo '- git src'
       - echo 'GIT_VAR_SRC_REPO_URL:'              {{.GIT_VAR_SRC_REPO_URL}}
       - echo 'GIT_VAR_SRC_REPO_NAME:'             {{.GIT_VAR_SRC_REPO_NAME}}
+      - echo 'GIT_VAR_SRC_REPO_VERSION:'          {{.GIT_VAR_SRC_REPO_VERSION}}
     
       - echo ''
     silent: true
@@ -197,7 +195,7 @@ tasks:
     desc: git clone the src code.
     cmds:
       - echo 'Cloning the src ...'
-      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} clone {{.GIT_VAR_SRC_REPO_URL}} --single-branch --depth 1
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} clone {{.GIT_VAR_SRC_REPO_URL}} -b {{.GIT_VAR_SRC_REPO_VERSION}} --single-branch --depth 1
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.eol lf
       #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.sparseCheckout true
@@ -210,7 +208,7 @@ tasks:
     desc: delete the src code.
     cmds:
       - echo 'Deleting the src ...'
-      - cd {{.BASE_SRC_PATH}} && rm -rf {{.GIT_VAR_ROOT_REPO_NAME}}
+      - cd {{.BASE_SRC_PATH}} && rm -rf {{.GIT_VAR_SRC_REPO_NAME}}
       - cd {{.BASE_SRC_PATH}} && rm -f .gitignore
   pull:
     desc: git pull
@@ -218,8 +216,6 @@ tasks:
       - task git:dep
       - echo 'Pulling ...'
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} pull --rebase
-
-  
   push:
     desc: 'git push ( eg: COMMIT_MESSAGE=?? task git:push )'
     vars:

@@ -31,27 +31,29 @@ vars:
   ### garble
 
   # https://github.com/burrowers/garble
-  GO_GARBLE_BIN_NAME: garble
+  GO_GARBLE_BIN_NAME: 'garble{{.BASE_BINARY_EXTENSION}}'
   # https://github.com/burrowers/garble/releases/tag/v0.14.2
   GO_GARBLE_BIN_VERSION: v0.14.2
   GO_GARBLE_BIN_WHICH:
     sh: 'command -v {{.GO_GARBLE_BIN_NAME}}'
-  # TODO Issue: https://github.com/burrowers/garble/issues/941
+  
   GO_GARBLE_BIN_WHICH_VERSION:
+    # Its too long and blows up task. # TODO Issue: https://github.com/burrowers/garble/issues/941 Will not fix.
     #sh: '{{.GO_GARBLE_BIN_NAME}} version'
 
 
 
   ### vars
 
-  # path to src
-  GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}'
+  # path to src ( we add the repo name to the path )
+  GO_VAR_SRC_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_VAR_SRC_REPO_NAME}}'
   # name of binary we want when we compile this src.
-  GO_VAR_BIN_NAME: '{{.BASE_SRC_NAME}}'
+  GO_VAR_BIN_NAME: '{{ .GO_VAR_BIN_NAME | default "main" }}'
   # path to the binary.
-  GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
+  #GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}'
+  GO_VAR_BIN_NATIVE_PATH: '{{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}'
   # extensions, based on the way we compile the src.
-  GO_VAR_BIN_WASM_PATH: '{{.BASE_BIN_PATH}}/{{.BASE_SRC_NAME}}_wasm'
+  GO_VAR_BIN_WASM_PATH: '{{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_wasm'
   #GO_VAR_BIN_NATIVE_PATH: '{{joinPath .BASE_BIN_PATH .BASE_SRC_NAME }}'
 
   # Can be set at Mod or Proj level.
@@ -99,7 +101,7 @@ tasks:
       - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} test -json > go_test_results.json
       - echo ''
     silent: false
-  mod-tidy:
+  mod:tidy:
     desc: go mod tidy
     cmds:
       - echo ''
@@ -107,7 +109,7 @@ tasks:
       - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} mod tidy
       - echo ''
     silent: false
-  mod-upgrade:
+  mod:upgrade:
     desc: go mod upgrade
     cmds:
       - echo ''
@@ -169,6 +171,15 @@ tasks:
       - echo ''
       - echo 'gen'
       - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} generate ./...
+      - echo ''
+    silent: false
+
+  dev:
+    desc: go dev
+    cmds:
+      - echo ''
+      - echo 'dev'
+      - cd {{.GO_VAR_SRC_PATH}} && {{.GO_BIN_NAME}} run ./...
       - echo ''
     silent: false
 

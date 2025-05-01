@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  common: 
+    taskfile: ./../../../remote-taskfile.yml
+    flatten: true
+  nats:
+    taskfile: ./../nats.taskfile.yml
+
+vars:
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo ''
+
+  src:
+    cmds:
+      - task git:clone:src
+      #- git clone {{.GIT_VAR_SRC_REPO_URL}}
+      #- echo > go.work && go work use {{.GIT_VAR_SRC_REPO_NAME}}
+      #- echo > .gitignore && echo {{.GIT_VAR_SRC_REPO_NAME}} >> .gitignore
+  src-del:
+    cmds:
+      - task git:clone:src:del
+      
+  dep:
+    cmds:
+      - go install github.com/a-h/templ/cmd/templ@latest
+
+  mod:upgrade:
+    cmds:
+      - task go:mod:upgrade
+  mod:tidy:
+    cmds:
+      - task go:mod:tidy
+
+  dev:
+    - task go:dev
+
+  bin:
+    cmds:
+      - task go:bin
+      
+  run:serve:
+    cmds:
+      # old version of PB
+      - .//.bin/{{.BIN_MAIN_NAME}} serve
+  
+
