@@ -17,17 +17,17 @@ vars:
 
   # git bin
   GIT_BIN_NAME: 'git{{.BASE_BINARY_EXTENSION}}'
-  GIT_BIN_WHICH:
-    sh: 'command -v {{.GIT_BIN_NAME}}'
-  GIT_BIN_VERSION_WHICH:
-    sh: '{{.GIT_BIN_NAME}} -v'
+  GIT_BIN_WHICH: ''
+    #sh: 'command -v {{.GIT_BIN_NAME}}'
+  GIT_BIN_VERSION_WHICH: ''
+    #sh: '{{.GIT_BIN_NAME}} -v'
 
   # ssh bin
   GIT_SSH_BIN_NAME: 'ssh{{.BASE_BINARY_EXTENSION}}'
-  GIT_SSH_BIN_WHICH:
-    sh: 'command -v {{.GIT_SSH_BIN_NAME}}'
-  GIT_SSH_BIN_VERSION_WHICH:
-    sh: '{{.GIT_SSH_BIN_NAME}} -V'
+  GIT_SSH_BIN_WHICH: ''
+    #sh: 'command -v {{.GIT_SSH_BIN_NAME}}'
+  GIT_SSH_BIN_VERSION_WHICH: ''
+    #sh: '{{.GIT_SSH_BIN_NAME}} -V'
 
 
   # env ( expected )
