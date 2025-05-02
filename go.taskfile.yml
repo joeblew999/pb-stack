@@ -39,7 +39,6 @@ vars:
   GO_GARBLE_BIN_VERSION: v0.14.2
   GO_GARBLE_BIN_WHICH:
     sh: 'command -v {{.GO_GARBLE_BIN_NAME}}'
-  
   GO_GARBLE_BIN_WHICH_VERSION:
     # Its too long and blows up task. # TODO Issue: https://github.com/burrowers/garble/issues/941 Will not fix.
     #sh: '{{.GO_GARBLE_BIN_NAME}} version'

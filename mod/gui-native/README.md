@@ -1,17 +1,19 @@
-# guigui
+# gui-native
 
-
+## guigui
 https://github.com/hajimehoshi/guigui
 
 A Native GUI system for web, desktop and mobile that uses golang.
 
-## status
+status: working
 
-working
+## ebitenui
 
-## usage
+https://github.com/ebitenui/ebitenui
 
-go run for now..
+
+
+
 
 
 
