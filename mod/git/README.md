@@ -25,7 +25,4 @@ https://github.com/charmbracelet/huh/releases/tag/v0.7.0
 
 example: https://github.com/charmbracelet/huh/blob/main/examples/ssh-form/main.go
 
-```sh
-go install github.com/charmbracelet/huh/examples/ssh-form@latest
-ssh-form
-```
+works :)
