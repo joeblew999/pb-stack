@@ -49,7 +49,24 @@ vars:
   BASE_BINARY_WINDOWS_AMD64_EXTENSION: 'windows_amd64{{.BASE_BINARY_EXTENSION}}'
   BASE_BINARY_WINDOWS_ARM64_EXTENSION: 'windows_arm64{{.BASE_BINARY_EXTENSION}}'
 
+  # wasm and wasi
   BASE_BINARY_JS_WASM_EXTENSION: 'js.wasm'
+  BASE_BINARY_JS_WASI_EXTENSION: 'js.wasi'
+
+  # packaging
+  BASE_PACK_EXT_ANDROID_AMD64: 'android_amd64.apk'
+  BASE_PACK_EXT_ANDROID_ARM64: 'android_arm64.apk'
+  # Should be a .pkg
+  BASE_PACK_EXT_DARWIN_AMD64: 'darwin_amd64.app'
+  BASE_PACK_EXT_DARWIN_ARM64: 'darwin_arm64.app'
+
+  BASE_PACK_EXT_IOS_AMD64: 'ios_amd64.app'
+  BASE_PACK_EXT_IOS_ARM64: 'ios_arm64.ipa'
+  # there is no bundle ? check wails
+  BASE_PACK_EXT_WINDOWS_AMD64: 'windows_amd64.msi'
+  BASE_PACK_EXT_WINDOWS_ARM64: 'windows_arm64.msi'
+
+  
 
   # base shell tools.
 

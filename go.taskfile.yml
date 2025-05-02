@@ -96,6 +96,8 @@ tasks:
       - echo 'GO_GARBLE_BIN_WHICH_VERSION:' {{.GO_GARBLE_BIN_WHICH_VERSION}}
       - echo ''
       - echo '- var'
+      - echo ' -git'
+      - echo 'GO_VAR_SRC_ROOT_PATH:'        {{shellQuote .GO_VAR_SRC_ROOT_PATH}}
       - echo '- src'
       - echo 'GO_VAR_SRC_ROOT_PATH:'        {{shellQuote .GO_VAR_SRC_ROOT_PATH}}
       - echo 'GO_VAR_SRC_MAIN_PATH:'        {{shellQuote .GO_VAR_SRC_MAIN_PATH}}
@@ -135,9 +137,11 @@ tasks:
       - echo ''
       - echo 'ROOT_TASKFILE:'           {{.ROOT_TASKFILE}}
       - echo 'BASE_SRC_PATH:'           {{.BASE_SRC_PATH}}
+      - echo 'GO_VAR_SRC_MAIN_PATH:'    {{.GO_VAR_SRC_MAIN_PATH}}
+      - 
 
-      - cd {{.BASE_SRC_PATH}} && touch go.work
-      - cd {{.BASE_SRC_PATH}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}
+      #- cd {{.BASE_SRC_PATH}} && touch go.work
+      #- cd {{.BASE_SRC_PATH}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}
   mod:tidy:
     desc: go mod tidy
     cmds:

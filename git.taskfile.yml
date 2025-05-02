@@ -39,10 +39,16 @@ vars:
 
   #GIT_VAR_ROOT_ORG_NAME: 'joeblew999'
   GIT_VAR_ROOT_ORG_NAME: '{{ .GIT_VAR_ROOT_ORG_NAME | default "joeblew999" }}'
-  GIT_VAR_ROOT_REPO_NAME: '{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
+  # Should ask git ? Jump to USER_WORKING_DIR to find out,
+  GIT_VAR_ROOT_REPO_NAME: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
+    #sh: 'cd {{.USER_WORKING_DIR}} && basename {{.GIT_VAR_ROOT_PATH}} rev-parse --show-toplevel'
+    #sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} remote show origin'
+    sh: 'cd {{.USER_WORKING_DIR}} &&  git config --get remote.origin.url'
   GIT_VAR_ROOT_PATH:
     # BUG: On windows its as forward slashes. Should be back slashes.
-    sh: '{{.GIT_BIN_NAME}} rev-parse --show-toplevel'
+    # We jump to USER_WORKING_DIR and then check Which level we are at. 
+    sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} rev-parse --show-toplevel'
+    
   GIT_VAR_ROOT_VERSION:
     sh: '{{.GIT_BIN_NAME}} rev-parse HEAD'
   GIT_VAR_ROOT_RELEASE_VERSION: 'latest'
@@ -51,7 +57,7 @@ vars:
 
 
 
-  GIT_VAR_ROOT_SIGNING_USER_NAME: '{{.GIT_VAR_ROOT_ORG_NAME}}'
+  GIT_VAR_ROOT_SIGNING_USER_NAME: '{{.GIT_VAR_ROOT_ORG_NAME}}' 
   GIT_VAR_ROOT_SIGNING_USER_EMAIL: '{{.GIT_VAR_ROOT_ORG_NAME}}@gmail.com'
 
   # EX: joeblew999_github.com
@@ -82,7 +88,7 @@ vars:
   GIT_SIGNING_FORMAT: '{{.GIT_SSH_BIN_NAME}}'
 
   ### src ( for pulling repos inside this mono repo )
-  # Override via .env
+  # Looks to .env to be told. TODO: Make it work it out.
   GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default-from-git.taskfile.yml" }}'
   GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default-from-git.taskfile.ym" }}'
   GIT_VAR_SRC_REPO_VERSION: '{{ .GIT_VAR_SRC_REPO_VERSION | default "main" }}'
@@ -136,7 +142,7 @@ tasks:
       - echo 'GIT_SIGNING_FORMAT:'                {{.GIT_SIGNING_FORMAT}}
       - echo ''
       - echo ''
-      - echo '- git src'
+      - echo '- git src env overrides'
       - echo 'GIT_VAR_SRC_REPO_URL:'              {{.GIT_VAR_SRC_REPO_URL}}
       - echo 'GIT_VAR_SRC_REPO_NAME:'             {{.GIT_VAR_SRC_REPO_NAME}}
       - echo 'GIT_VAR_SRC_REPO_VERSION:'          {{.GIT_VAR_SRC_REPO_VERSION}}
@@ -179,10 +185,14 @@ tasks:
       # http://localhost:8080/test
 
 
-  status:
-    desc: git status
+  status:root:
+    desc: git status of root
     cmds:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} status
+  status:src:
+    desc: git status of src
+    cmds:
+      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} status
     
   config:root:
     desc: git config
