@@ -49,6 +49,8 @@ vars:
   BASE_BINARY_WINDOWS_AMD64_EXTENSION: 'windows_amd64{{.BASE_BINARY_EXTENSION}}'
   BASE_BINARY_WINDOWS_ARM64_EXTENSION: 'windows_arm64{{.BASE_BINARY_EXTENSION}}'
 
+  BASE_BINARY_JS_WASM_EXTENSION: 'js.wasm'
+
   # base shell tools.
 
   # bun

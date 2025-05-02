@@ -22,8 +22,8 @@ includes:
   #   flatten: true
 
 vars:
-  #GO_VAR_BUILD_PRE: 'CGO_ENABLED=1'
-  #GO_VAR_BUILD_POST: '-tags production -ldflags="-X"'
+  #GO_VAR_BIN_FLAG_PRE: 'CGO_ENABLED=1'
+  #GO_VAR_BIN_FLAG_POST: '-tags production -ldflags="-X"'
 
 tasks:
   default:

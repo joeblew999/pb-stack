@@ -22,8 +22,8 @@ includes:
 
 
 vars:
-  GO_VAR_BUILD_PRE: 'CGO_ENABLED=0'
-  GO_VAR_BUILD_POST: '-tags production -ldflags="-s -w"'
+  GO_VAR_BIN_FLAG_PRE: 'CGO_ENABLED=0'
+  GO_VAR_BIN_FLAG_POST: '-tags production -ldflags="-s -w"'
 
 tasks:
   default:
@@ -32,8 +32,8 @@ tasks:
       - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
       
       - echo 'BASE_SHELL:'            {{.BASE_SHELL}}
-      - echo 'GO_VAR_BUILD_PRE:'      {{.GO_VAR_BUILD_PRE}}
-      - echo 'GO_VAR_BUILD_POST:'     {{.GO_VAR_BUILD_POST}}
+      - echo 'GO_VAR_BIN_FLAG_PRE:'      {{.GO_VAR_BIN_FLAG_PRE}}
+      - echo 'GO_VAR_BIN_FLAG_POST:'     {{.GO_VAR_BIN_FLAG_POST}}
     silent: false
 
   this:
