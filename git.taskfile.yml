@@ -170,7 +170,7 @@ tasks:
       - task git:dep
       - echo ''
       # git cli.
-      - gogit -h
+      #- gogit -h
   test:bin:
     cmds:
       # starts git server. Is still useless
