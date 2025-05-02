@@ -57,9 +57,11 @@ vars:
   GO_VAR_BIN_NAME: '{{ .GO_VAR_BIN_NAME | default "main" }}'
   GO_VAR_BIN_ENTRY_PATH: '{{ .GO_VAR_BIN_ENTRY_PATH | default "." }}'
   GO_VAR_BIN_MOD_PATH: '{{ .GO_VAR_BIN_ENTRY_PATH | default "." }}'
-  GO_VAR_BIN_FLAG_PRE: '{{ .GO_VAR_BIN_FLAG_PRE | default "CGO_ENABLED=0" }}'
+  # EX: "CGO_ENABLED=1"
+  GO_VAR_BIN_FLAG_PRE: '{{ .GO_VAR_BIN_FLAG_PRE | default "" }}'
   # -X flag requires argument of the form importpath.name=value
-  GO_VAR_BIN_FLAG_POST: '{{ .GO_VAR_BIN_FLAG_POST | default "-tags main -ldflags=-X" }}'
+  # ex: -tags main -ldflags=-X
+  GO_VAR_BIN_FLAG_POST: '{{ .GO_VAR_BIN_FLAG_POST | default "" }}'
 
 
   # native build variables
