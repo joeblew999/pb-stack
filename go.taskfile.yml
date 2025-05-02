@@ -50,8 +50,10 @@ vars:
 
   # path to src ( we add the repo name to the path )
   GO_VAR_SRC_ROOT_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_VAR_SRC_REPO_NAME}}'
-  # where to compile from
+  #GO_VAR_SRC_ROOT_PATH: '{{joinPath .BASE_SRC_PATH .GIT_VAR_SRC_REPO_NAME }}'
+  # path to main.go
   GO_VAR_SRC_MAIN_PATH: '{{.GO_VAR_SRC_ROOT_PATH}}/{{.GO_VAR_BIN_ENTRY_PATH}}'
+  #GO_VAR_SRC_MAIN_PATH: '{{joinPath .GO_VAR_SRC_ROOT_PATH .GO_VAR_BIN_ENTRY_PATH }}'
 
   # go build variables
   GO_VAR_BIN_NAME: '{{ .GO_VAR_BIN_NAME | default "main" }}'
