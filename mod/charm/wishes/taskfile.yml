@@ -9,10 +9,10 @@ includes:
   # TODO: Can i get rid of the need to swap between base and remote ?
   # https://taskfile.dev/usage/#flatten-includes  ??
   base: 
-    taskfile: ./../../../remote-taskfile.yml
+    taskfile: ./../../../dev-taskfile.yml
     flatten: true
   #remote:
-  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/dev-taskfile.yml
   #  flatten: true
 
 vars:

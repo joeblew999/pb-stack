@@ -7,7 +7,7 @@ dotenv: ['dev.env', 'operator.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   common: 
-    taskfile: ./../../../remote-taskfile.yml
+    taskfile: ./../../../dev-taskfile.yml
     flatten: true
   nats:
     taskfile: ./../nats.taskfile.yml

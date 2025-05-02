@@ -8,7 +8,7 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   local: 
-    taskfile: ./../../../../remote-taskfile.yml
+    taskfile: ./../../../../dev-taskfile.yml
     flatten: true
   docker: 
     taskfile: ./../../docker.taskfile.yml

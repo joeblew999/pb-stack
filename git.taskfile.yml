@@ -59,9 +59,12 @@ vars:
   # EX: joeblew999_github.com.pub
   GIT_VAR_ROOT_SSH_KEY_PUBLIC_NAME: '{{.GIT_VAR_ROOT_ORG_NAME}}_github.com.pub'
 
-  GIT_SSH_CONFIG_NAME: '.ssh'
-  GIT_SSH_CONFIG_PATH: '{{.BASE_HOME_PATH}}/.ssh/config'
-  #GIT_SSH_CONFIG_PATH: '{{joinPath .BASE_HOME_PATH .GIT_SSH_CONFIG_NAME }}'
+  GIT_SSH_CONFIG_NAME: 'config'
+  GIT_SSH_CONFIG_PATH: '{{.BASE_HOME_PATH}}/.ssh/{{.GIT_SSH_CONFIG_NAME}}'
+
+  GIT_SSH_HOSTS_NAME: 'known_hosts'
+  GIT_SSH_HOSTS_PATH: '{{.BASE_HOME_PATH}}/.ssh/{{.GIT_SSH_HOSTS_NAME}}'
+
 
 
   # GIT_SIGNING_KEY_PRIVATE_PATH=$HOME/.ssh/jowblew999_github.com
@@ -114,6 +117,11 @@ tasks:
       - echo 'GIT_SSH_CONFIG_NAME:'               {{.GIT_SSH_CONFIG_NAME}}
       - echo 'GIT_SSH_CONFIG_PATH:'               {{shellQuote .GIT_SSH_CONFIG_PATH}}
       - echo ''
+      - echo '- ssh hosts'
+      - echo 'GIT_SSH_HOSTS_NAME:'                {{.GIT_SSH_HOSTS_NAME}}
+      - echo 'GIT_SSH_HOSTS_PATH:'                {{shellQuote .GIT_SSH_HOSTS_PATH}}
+      - 
+      - echo ''
       - echo '- ssh signing'
       - echo 'GIT_VAR_ROOT_SIGNING_USER_NAME:'    {{.GIT_VAR_ROOT_SIGNING_USER_NAME}}
       - echo 'GIT_VAR_ROOT_SIGNING_USER_EMAIL:'   {{.GIT_VAR_ROOT_SIGNING_USER_EMAIL}}
@@ -141,6 +149,11 @@ tasks:
     cmds:
       - task git:ssh-set
       - task git:sign-set
+  dep:which:
+    desc: check dep are there returns 0 or 1
+    cmds:
+      - task base:shell-which -- {{.GIT_BIN_NAME}}
+
   dep:bin:
       # we dont use this yet. Its not at all ready.
       # https://github.com/go-git/cli  

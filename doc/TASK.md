@@ -10,9 +10,12 @@ code:   https://github.com/go-task/task
 
 ## Usage
 
-Other developers should use the URL path: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+Developers should use the URL path: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/dev-taskfile.yml
 
-All other code needs this remote-taskfile.yml.
+Operators are not compiling and so need a different base Taskfile.
+
+Users are just installing and running, and so need a different base task file.
+
 
 ## Base Stack
 

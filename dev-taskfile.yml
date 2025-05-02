@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 
-# remote-taskfile.yml encapsulates our set of includes for local and remote developers.
+# dev-taskfile.yml encapsulates our set of includes for local and remote developers.
 
 version: '3'
 

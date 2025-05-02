@@ -7,7 +7,7 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   remote: 
-    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/dev-taskfile.yml
     flatten: true
   source:
     taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/mod/_template/source/source.taskfile.yml

@@ -11,3 +11,5 @@ This Project uses the top level docs folder.  See [Doc](./doc/README.md) folder 
 ## todo:
 
 OH Shit. Change to .src/reponame. So i can easily search and destroy.
+
+https://taskfile.dev/reference/package#githubcomgo-tasktaskv3taskfile looks like we can call task files from anywhere.

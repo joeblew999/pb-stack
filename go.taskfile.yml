@@ -114,6 +114,16 @@ tasks:
       - echo ''
       - echo ''
     silent: true
+  dep:
+    desc: install deps
+    cmds:
+      - task go:garble:dep
+  dep:which:
+    desc: check deps
+    cmds:
+      - task base:shell-which -- {{.GO_BIN_NAME}}
+      - task base:shell-which -- {{.GO_GARBLE_BIN_NAME}}
+
   test:
     desc: go test
     cmds:

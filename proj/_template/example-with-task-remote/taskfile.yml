@@ -8,10 +8,10 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 includes:
   # Pick if you want local or remote task file loading.
   #local: 
-  #  taskfile: ./../../remote-taskfile.yml
+  #  taskfile: ./../../dev-taskfile.yml
   #  flatten: true
   remote: 
-    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/remote-taskfile.yml
+    taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/dev-taskfile.yml
     flatten: true
                 
 vars:
