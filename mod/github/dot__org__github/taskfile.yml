@@ -16,7 +16,7 @@ tasks:
     cmds:
       - task git:clone:src:del
       - task git:clone:src
-      - task go:bin
+      #- task go:bin
 
 ### Shows break downs for granular control...
 
@@ -26,20 +26,24 @@ tasks:
   src:del:
     cmds:
       - task git:clone:src:del
-
   dep:
     cmds:
-    - #go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest
-
+    #- go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest
+    
   mod:
     cmds:
       - task go:mod:work
   dev:
     cmds:
-      - task go:dev
+      - #task go:dev
+      - cd {{.GIT_VAR_SRC_REPO_NAME}} && task dev
   bin:
     cmds:
-      - task go:bin
+      #- task go:bin
+      - cd {{.GIT_VAR_SRC_REPO_NAME}} && task generate:templ
+      - cd {{.GIT_VAR_SRC_REPO_NAME}} && task build
+      - cd {{.GIT_VAR_SRC_REPO_NAME}} && task package
   run:
     cmds:
-      - task go:run
+      #- task go:run
+      - cd {{.GIT_VAR_SRC_REPO_NAME}} && task run

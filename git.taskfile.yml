@@ -10,6 +10,8 @@
 
 # Make some of this a golang AMP that base installs.
 
+## ssh config parser: https://github.com/kevinburke/ssh_config
+
 version: '3'
 
 vars:
@@ -38,24 +40,36 @@ vars:
   ### root
 
   #GIT_VAR_ROOT_ORG_NAME: 'joeblew999'
-  GIT_VAR_ROOT_ORG_NAME: '{{ .GIT_VAR_ROOT_ORG_NAME | default "joeblew999" }}'
+  GIT_VAR_ROOT_ORG_NAME: #'{{ .GIT_VAR_ROOT_ORG_NAME | default "joeblew999" }}'
+    sh: 'cd {{.USER_WORKING_DIR}} &&  {{.GIT_BIN_NAME}} config --get user.name'
   # Should ask git ? Jump to USER_WORKING_DIR to find out,
-  GIT_VAR_ROOT_REPO_NAME: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
+  GIT_VAR_ROOT_REPO_URL: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
     #sh: 'cd {{.USER_WORKING_DIR}} && basename {{.GIT_VAR_ROOT_PATH}} rev-parse --show-toplevel'
-    #sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} remote show origin'
-    sh: 'cd {{.USER_WORKING_DIR}} &&  git config --get remote.origin.url'
+    sh: 'cd {{.USER_WORKING_DIR}} &&  {{.GIT_BIN_NAME}} config --get remote.origin.url'
+  GIT_VAR_ROOT_REPO_NAME: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
+    sh: 'cd {{.USER_WORKING_DIR}} &&  basename {{.GIT_VAR_ROOT_REPO_URL}}'
+ 
   GIT_VAR_ROOT_PATH:
     # BUG: On windows its as forward slashes. Should be back slashes.
     # We jump to USER_WORKING_DIR and then check Which level we are at. 
     sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} rev-parse --show-toplevel'
     
   GIT_VAR_ROOT_VERSION:
-    sh: '{{.GIT_BIN_NAME}} rev-parse HEAD'
+    sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} rev-parse HEAD'
   GIT_VAR_ROOT_RELEASE_VERSION: 'latest'
+
+  # EX: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/.sops.yaml
+  # EX: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/doc/DOC.md
+  # FOR NOW just hardcoded to MAIN to get going..
+  GIT_VAR_ROOT_FILES_DOWNLOAD_URL: 'https://raw.githubusercontent.com/{{.GIT_VAR_ROOT_ORG_NAME}}/{{.GIT_VAR_ROOT_REPO_NAME}}/refs/heads/main'
+
+
   # EX: https://api.github.com/repos/nats-io/nats-server/releases/tags/{{.NATS_SERVER_BIN_VERSION}}
   GIT_VAR_ROOT_RELEASE_LIST_URL: 'https://api.github.com/repos/{{.GIT_VAR_ROOT_ORG_NAME}}/{{.GIT_VAR_ROOT_REPO_NAME}}/releases/tags/{{.GIT_VAR_ROOT_RELEASE_VERSION}}'
+  # EX: https://github.com/opencode-ai/opencode/releases/download/v
+  GIT_VAR_ROOT_RELEASES_DOWNLOAD_URL: 'https://github.com/{{.GIT_VAR_ROOT_ORG_NAME}}/{{.GIT_VAR_ROOT_REPO_NAME}}/releases/download/{{.GIT_VAR_ROOT_RELEASE_VERSION}}'
 
-
+  
 
   GIT_VAR_ROOT_SIGNING_USER_NAME: '{{.GIT_VAR_ROOT_ORG_NAME}}' 
   GIT_VAR_ROOT_SIGNING_USER_EMAIL: '{{.GIT_VAR_ROOT_ORG_NAME}}@gmail.com'
@@ -113,11 +127,17 @@ tasks:
       - echo ''
       - echo '- git root'
       - echo 'GIT_VAR_ROOT_ORG_NAME:'             {{.GIT_VAR_ROOT_ORG_NAME}}
+      - echo 'GIT_VAR_ROOT_REPO_URL:'             {{.GIT_VAR_ROOT_REPO_URL}}
       - echo 'GIT_VAR_ROOT_REPO_NAME:'            {{.GIT_VAR_ROOT_REPO_NAME}}
       - echo 'GIT_VAR_ROOT_PATH:'                 {{shellQuote .GIT_VAR_ROOT_PATH}}
       - echo 'GIT_VAR_ROOT_VERSION:'              {{.GIT_VAR_ROOT_VERSION}}
       - echo 'GIT_VAR_ROOT_RELEASE_VERSION:'      {{.GIT_VAR_ROOT_RELEASE_VERSION}}
+
+      
+      - echo 'GIT_VAR_ROOT_FILES_DOWNLOAD_URL:'   {{.GIT_VAR_ROOT_FILES_DOWNLOAD_URL}}
       - echo 'GIT_VAR_ROOT_RELEASE_LIST_URL:'     {{.GIT_VAR_ROOT_RELEASE_LIST_URL}}
+      - echo 'GIT_VAR_ROOT_RELEASES_DOWNLOAD_URL:'{{.GIT_VAR_ROOT_RELEASES_DOWNLOAD_URL}}
+      
       - echo ''
       - echo '- ssh config'
       - echo 'GIT_SSH_CONFIG_NAME:'               {{.GIT_SSH_CONFIG_NAME}}
@@ -220,11 +240,6 @@ tasks:
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} clone {{.GIT_VAR_SRC_REPO_URL}} -b {{.GIT_VAR_SRC_REPO_VERSION}} --single-branch --depth 1
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.autocrlf false
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.eol lf
-      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local core.sparseCheckout true
-      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.url {{.GIT_VAR_SRC_REPO_URL}}
-      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --local remote.origin.pushurl {{.GIT_VAR_SRC_REPO_URL}}
-      #- cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
       - cd {{.BASE_SRC_PATH}} && echo > .gitignore && echo '{{.GIT_VAR_SRC_REPO_NAME}}' >> .gitignore
   clone:src:del:
     desc: delete the src code.

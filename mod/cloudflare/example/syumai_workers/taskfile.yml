@@ -15,14 +15,7 @@ includes:
     taskfile: ./../../cloudflare.taskfile.yml
   #  flatten: true
 
-  #remote: 
-  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/dev-taskfile.yml
-  #  flatten: true
-
-  #remote:
-  #   https://github.com/saydulaev/taskfile
-  #   taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
-  #   flatten: true
+  
 
 vars:
   GIT_VAR_ROOT_REPO_NAME: 'workers'

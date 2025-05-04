@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  cloudflare: 
+    taskfile: ./cloudflare.taskfile.yml
+    flatten: true
+
+tasks:
+  all:
+    cmds:
+      - task cloudflare
+      

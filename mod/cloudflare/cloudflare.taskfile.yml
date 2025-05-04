@@ -2,6 +2,13 @@
 
 # cloudflare.taskfile.yml
 
+# TODO
+
+# Seems bun can install it. YEAH
+
+# We can build inside Cloudflare. https://developers.cloudflare.com/pages/configuration/build-image/#supported-languages-and-tools
+
+
 version: '3'
 
 env:
@@ -22,20 +29,32 @@ vars:
   # tunnel
 
   ### bin 
-  CLOUDFLARE_TRUNNEL_BIN_NAME: cloudflared
+  CLOUDFLARE_TUNNEL_BIN_NAME: cloudflared
   # https://github.com/cloudflare/cloudflared/releases/tag/2025.4.0
-  CLOUDFLARE_TRUNNEL_BIN_VERSION: 2025.4.0
-  CLOUDFLARE_TRUNNEL_BIN_WHICH: #/usr/local/bin/cloudflared
-  CLOUDFLARE_TRUNNEL_BIN_WHICH_VERSION:
-    sh: '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} version'
+  CLOUDFLARE_TUNNEL_BIN_VERSION: 2025.4.0
+  # #/usr/local/bin/cloudflared
+  CLOUDFLARE_TUNNEL_BIN_WHICH: ''
+  CLOUDFLARE_TUNNEL_BIN_WHICH_VERSION: ''
+    #sh: '{{.CLOUDFLARE_TUNNEL_BIN_NAME}} version'
   
-  CLOUDFLARE_TRUNNEL_BIN_URL_NAME: cloudflared-darwin-arm64.tgz
-  CLOUDFLARE_TRUNNEL_BIN_URL: https://github.com/cloudflare/cloudflared/releases/download/{{.CLOUDFLARE_TRUNNEL_BIN_VERSION}}/{{.CLOUDFLARE_TRUNNEL_BIN_URL_NAME}}
+  CLOUDFLARE_TUNNEL_BIN_URL_NAME: cloudflared-darwin-arm64.tgz
+  CLOUDFLARE_TUNNEL_BIN_URL: https://github.com/cloudflare/cloudflared/releases/download/{{.CLOUDFLARE_TUNNEL_BIN_VERSION}}/{{.CLOUDFLARE_TUNNEL_BIN_URL_NAME}}
 
   # example: http://localhost:8080
   CLOUDFLARE_TUNNEL_VAR_URL: http://localhost:8080
+  CLOUDFLARE_TUNNEL_CMD: '{{.CLOUDFLARE_TUNNEL_BIN_NAME}}'
 
-  CLOUDFLARE_TUNNEL_CMD: '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}}'
+  # wrangler
+  CLOUDFLARE_WRANGLER_BIN_NAME: wrangler
+  # https://github.com/cloudflare/workers-sdk/releases/tag/wrangler%404.14.1
+  CLOUDFLARE_WRANGLER_BIN_VERSION: 2025.4.0
+  CLOUDFLARE_WRANGLER_BIN_WHICH: #/usr/local/bin/cloudflared
+  CLOUDFLARE_WRANGLER_BIN_WHICH_VERSION:
+    #sh: '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} version'
+
+  CLOUDFLARE_WRANGLER_VAR_PROJECT_NAME: ''
+
+
 
 tasks:
   default:
@@ -56,15 +75,28 @@ tasks:
       - echo 'CLOUDFLARE_ACCOUNT_DOMAIN_NAME:'    {{.CLOUDFLARE_ACCOUNT_DOMAIN_NAME}}
       - echo ''
       - echo '- tunnel bin'
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_NAME:'           {{.CLOUDFLARE_TRUNNEL_BIN_NAME}}
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_VERSION:'        {{.CLOUDFLARE_TRUNNEL_BIN_VERSION}}
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_WHICH:'          {{.CLOUDFLARE_TRUNNEL_BIN_WHICH}}
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_WHICH_VERSION:'  {{.CLOUDFLARE_TRUNNEL_BIN_WHICH_VERSION}}
-      - echo 'CLOUDFLARE_TRUNNEL_BIN_URL:'            {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
+      - echo 'CLOUDFLARE_TUNNEL_BIN_NAME:'           {{.CLOUDFLARE_TUNNEL_BIN_NAME}}
+      - echo 'CLOUDFLARE_TUNNEL_BIN_VERSION:'        {{.CLOUDFLARE_TUNNEL_BIN_VERSION}}
+      - echo 'CLOUDFLARE_TUNNEL_BIN_WHICH:'          {{.CLOUDFLARE_TUNNEL_BIN_WHICH}}
+      - echo 'CLOUDFLARE_TUNNEL_BIN_WHICH_VERSION:'  {{.CLOUDFLARE_TUNNEL_BIN_WHICH_VERSION}}
+      - echo 'CLOUDFLARE_TUNNEL_BIN_URL:'            {{.CLOUDFLARE_TUNNEL_BIN_URL}}
       - echo ''
       - echo '- tunnel vars:'
       - echo 'CLOUDFLARE_TUNNEL_VAR_URL:'         {{.CLOUDFLARE_TUNNEL_VAR_URL}}
       - echo ''
+
+      - echo '- wrangle bin'
+      - echo 'CLOUDFLARE_WRANGLER_BIN_NAME:'           {{.CLOUDFLARE_WRANGLER_BIN_NAME}}
+      - echo 'CLOUDFLARE_WRANGLER_BIN_VERSION:'        {{.CLOUDFLARE_WRANGLER_BIN_VERSION}}
+      - echo 'CLOUDFLARE_WRANGLER_BIN_WHICH:'          {{.CLOUDFLARE_WRANGLER_BIN_WHICH}}
+      - echo 'CLOUDFLARE_WRANGLER_BIN_WHICH_VERSION:'  {{.CLOUDFLARE_WRANGLER_BIN_WHICH_VERSION}}
+      - echo 'CLOUDFLARE_WRANGLER_BIN_URL:'            {{.CLOUDFLARE_WRANGLER_BIN_URL}}
+      - echo ''
+      - echo '- wrangle vars:'
+      - echo 'CLOUDFLARE_WRANGLER_VAR_PROJECT_NAME:'    {{.CLOUDFLARE_WRANGLER_VAR_PROJECT_NAME}}
+      
+
+      
     silent: true
 
   dashboard:open:
@@ -73,22 +105,31 @@ tasks:
       - echo 'open cloudflare dashboard'
       - open {{.CLOUDFLARE_ACCOUNT_URL}}
     silent: false
+  
+  cloudflare:bun:install:
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && bun install cloudflare@latest
+  cloudflare:bun:create:
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && bun create cloudflare@latest
 
-
+### tunnel
 
   tunnel:dep:
     cmds:
       - brew install cloudflared
-      #- task base:shell-wgot -- {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
+      #- task base:shell-wgot -- {{.CLOUDFLARE_TUNNEL_BIN_URL}}
   tunnel:dep:del:
     cmds:
       - brew uninstall cloudflared
-      #- task base:shell-wgot -- {{.CLOUDFLARE_TRUNNEL_BIN_URL}}
+      #- task base:shell-wgot -- {{.CLOUDFLARE_TUNNEL_BIN_URL}}
+
+  
 
   tunnel:version:
     desc: run tunnel version
     cmds:
-      - '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} version'
+      - '{{.CLOUDFLARE_TUNNEL_BIN_NAME}} version'
     silent: false
 
   tunnel:run:
@@ -101,17 +142,46 @@ tasks:
     desc: login to tunnel
     cmds:
       - echo 'try to run cloudflared tunnel'
-      - '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} tunnel login'
+      - '{{.CLOUDFLARE_TUNNEL_BIN_NAME}} tunnel login'
     silent: false
 
   tunnel:server:
     desc: run cloudflared tunnel server
     cmds:
       - echo 'try to run cloudflared tunnel'
-      - '{{.CLOUDFLARE_TRUNNEL_BIN_NAME}} tunnel --url {{.CLOUDFLARE_TUNNEL_VAR_URL}} --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'
+      - '{{.CLOUDFLARE_TUNNEL_BIN_NAME}} tunnel --url {{.CLOUDFLARE_TUNNEL_VAR_URL}} --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'
       #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate'
       #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate --loglevel debug'
       #- echo 'cloudflared tunnel --url http://localhost:8080 --no-autoupdate --loglevel debug --logfile /tmp/cloudflared.log'
     silent: false
+
+### wrangler
+  wrangler:help:
+    cmds:
+      - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} -h'
+ 
+  
+
+  wrangler:bun:install:
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && bun install wrangler@latest
+
+  wrangler:auth:login:
+    cmds:
+      - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} login'
+  wrangler:auth:logout:
+    cmds:
+      - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} logout'
+  wrangler:auth:whoami:
+    cmds:
+      - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} whoami'
+
+
+  wrangler:dev:
+    cmds:
+      - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} dev'
+  wrangler:deploy:
+    cmds:
+      - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} deploy'
 
 

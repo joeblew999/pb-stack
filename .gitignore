@@ -35,3 +35,8 @@ go.work.sum
 
 # site root with all other Apps inside.
 site
+
+# any node module shit
+node_modules
+
+

@@ -28,8 +28,14 @@ vars:
     sh: '{{.GO_BIN_NAME}} env GOPATH'
   GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
 
-
-
+  ### goreleaser
+  
+  # https://github.com/goreleaser/goreleaser
+  GO_RELEASER_BIN_NAME: 'goreleaser{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/goreleaser/goreleaser/releases/tag/v2.9.0
+  GO_RELEASER_BIN_VERSION: v2.9.0
+  GO_RELEASER_BIN_WHICH: ''
+  GO_RELEASER_BIN_WHICH_VERSION: ''
 
   ### garble
 
@@ -89,6 +95,12 @@ tasks:
       - echo 'GO_ENV_PATH:'                 {{shellQuote .GO_ENV_PATH}}
       - echo 'GO_ENV_BIN_PATH:'             {{shellQuote .GO_ENV_BIN_PATH}}
       - echo ''
+      - echo '- releaser bin'
+      - echo 'GO_RELEASER_BIN_NAME:'          {{.GO_RELEASER_BIN_NAME}}
+      - echo 'GO_RELEASER_BIN_VERSION:'       {{.GO_RELEASER_BIN_VERSION}}
+      - echo 'GO_RELEASER_BIN_WHICH:'         {{shellQuote .GO_RELEASER_BIN_WHICH}}
+      - echo 'GO_RELEASER_BIN_WHICH_VERSION:' {{.GO_RELEASER_BIN_WHICH_VERSION}}
+      - echo ''
       - echo '- garble bin'
       - echo 'GO_GARBLE_BIN_NAME:'          {{.GO_GARBLE_BIN_NAME}}
       - echo 'GO_GARBLE_BIN_VERSION:'       {{.GO_GARBLE_BIN_VERSION}}
@@ -134,14 +146,9 @@ tasks:
   mod:work:
     desc: go mod work
     cmds:
-      - echo ''
-      - echo 'ROOT_TASKFILE:'           {{.ROOT_TASKFILE}}
-      - echo 'BASE_SRC_PATH:'           {{.BASE_SRC_PATH}}
-      - echo 'GO_VAR_SRC_MAIN_PATH:'    {{.GO_VAR_SRC_MAIN_PATH}}
-      - 
-
-      #- cd {{.BASE_SRC_PATH}} && touch go.work
-      #- cd {{.BASE_SRC_PATH}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}
+      # If .env has override use it. Otherwise use the ROOT
+      - cd {{.USER_WORKING_DIR}} && touch go.work
+      - cd {{.USER_WORKING_DIR}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}
   mod:tidy:
     desc: go mod tidy
     cmds:
@@ -169,6 +176,42 @@ tasks:
       - '{{.GO_BIN_NAME}} install {{.CLI_ARGS}}'
       - echo ''
     silent: false
+
+### releaser ( can make this an extension of bin later..)
+
+  releaser:dep:
+    desc: releaser install
+    cmds:
+      - echo ''
+      - echo 'releaser install'
+      - '{{.GO_BIN_NAME}} install github.com/goreleaser/goreleaser/v2@{{.GO_RELEASER_BIN_VERSION}}'
+      - echo ''
+    silent: false
+
+  releaser:
+    desc: releaser help
+    cmds:
+      - echo ''
+      - echo 'releaser help'
+      - '{{.BASE_TASK_CMD}} go:releaser:dep'
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_RELEASER_BIN_NAME}} -h
+      - echo ''
+    silent: false
+
+  releaser:init:
+    desc: releaser init copies the templates from root into your project.
+    cmds:
+      - echo ''
+      - echo 'releaser init. Coping templates in from Root.'
+      - echo ' using wgot to remote pull from self's repo. This will allow Users to fork and merge, so we are true gitops.'
+      - task base:shell-wgot-tocwd -- {{.GIT_VAR_ROOT_FILES_DOWNLOAD_URL}}/.goreleaser.yaml
+      - echo ''
+    silent: false
+
+  # https://goreleaser.com/customization/winget/
+  # https://goreleaser.com/customization/ko/
+  # https://goreleaser.com/customization/blob/
+
 
 ### gable ( can make this an extension of bin later..)
 
@@ -263,22 +306,30 @@ tasks:
       - echo ''
       - echo 'dev wasm'
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} run .
+  dev:wasm:serve:
+    desc: go dev wasm server with with CLI_ARGS support.
+    cmds:
+      # see: 
+      # https://github.com/hajimehoshi/wasmserve
+      - go install github.com/hajimehoshi/wasmserve@latest
+      # http://localhost:8080/
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && wasmserve {{.CLI_ARGS}}
   dev:wasm:chrome:
-    desc: go dev wasm in chrome
+    desc: go dev wasm in chrome with .CLI_ARGS support.
     cmds:
       - echo ''
       - echo 'dev wasm in chrome'
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && WASM_HEADLESS=off GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} run .
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && WASM_HEADLESS=off GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} run . {{.CLI_ARGS}}
 
 ### bin
 
   bin:
     desc: build binary
     cmds:
-      - task go:mod:work
+      #- task go:mod:work
       - echo ''
       - echo 'bin'
-      #- task go:mod-tidy
+
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
       - echo ''
     silent: false
@@ -348,11 +399,11 @@ tasks:
 ### run
 
   run:
-    desc: run
+    desc: run with CLI_ARGS support.
     cmds:
       - echo ''
       - echo 'run'
-      - '{{.GO_VAR_BIN_NATIVE_PATH}}'
+      - '{{.GO_VAR_BIN_NATIVE_PATH}} {{.CLI_ARGS}}'
       - echo ''
     silent: false
   run:help:
@@ -374,6 +425,15 @@ tasks:
     desc: run wasm at cli level.
     cmds:
       # see: 
-      - cd {{.BASE_BIN_PATH}} && goexec{{.BASE_BINARY_EXTENSION}} 'http.ListenAndServe(`:8080`, http.FileServer(http.Dir(`.`)))'
+      # https://github.com/hajimehoshi/wasmserve
+      - go install github.com/hajimehoshi/wasmserve@latest
+      # http://localhost:8080/
+      - cd {{.BASE_BIN_PATH}} && wasmserve
+
+  release:
+    desc: goreleaser, etc 
+    cmds:
+      # https://github.com/goreleaser/goreleaser/releases/tag/v2.9.0
+      - go install https://github.com/goreleaser/goreleaser/releases/download/v{{.GO_RELEASE_VERSION}}/goreleaser
       
    
