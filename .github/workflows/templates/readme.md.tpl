@@ -1,6 +1,6 @@
 ### Hi there 👋
 
-I'm [Carlos](https://caarlos0.dev), I write and operate software for a living.
+I'm [Carlos](https://ccccc.dev), I write and operate software for a living.
 
 #### 👨‍💻 Repositories I created recently
 
@@ -35,6 +35,6 @@ as well.
 
 #### 📄 Latest blog posts
 
-{{- range rss "https://carlosbecker.com/posts/index.xml" 3 }}
+{{- range rss "https://ccccc.com/posts/index.xml" 3 }}
 - [{{ .Title }}]({{ .URL }}) ({{ humanize .PublishedAt }})
 {{- end }}
