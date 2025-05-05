@@ -3,81 +3,46 @@
 version: '3'
 
 # MUST have this ONLY in root for env variables to work.
-dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
 
 includes:
-  common: 
+  local: 
     taskfile: ./../../../dev-taskfile.yml
     flatten: true
-  nats:
-    taskfile: ./../nats.taskfile.yml
   pb:
     taskfile: ./../../pocketbase/pocketbase.taskfile.yml
-  pc:
-    taskfile: ./../../process-compose/process-compose.taskfile.yml
-
-vars:
-
-  GIT_REPO_NAME: 'nats-tower'
-  BIN_MAIN_NAME: 'nats-tower{{.BASE_BINARY_EXTENSION}}'
-
-  # Vars override. NOT WORKING..
-  NATS_SERVER_VAR_CONFIG_PATH: '{{.BASE_SRC_PATH}}/{{.GIT_REPO_NAME}}/supercluster'
-  NATS_SERVER_VAR_CONFIG_NAME: 'central.conf'
-
 
 tasks:
-  default:
+  all:
     cmds:
-      - echo ''
-      - echo 'GIT_REPO_NAME:'                 {{.GIT_REPO_NAME}}
-      - echo 'BIN_MAIN_NAME:'                 {{.BIN_MAIN_NAME}}
-      - echo ''
-      - echo 'NATS_SERVER_VAR_CONFIG_PATH:'                 {{.NATS_SERVER_VAR_CONFIG_PATH}}
-      - task nats
-      #- echo 'NATS_SERVER_VAR_CONFIG_NAME:'   {{.NATS_SERVER_VAR_CONFIG_NAME}}
-      #- echo 'NATS_SERVER_VAR_CONFIG_PATH:'   {{.NATS_SERVER_VAR_CONFIG_PATH}}
-      - echo ''
+      - task git:clone:src:del
+      - task git:clone:src
+      - task mod
+      - task go:bin
+
+### Shows break downs for granular control...
 
   src:
     cmds:
-      - git clone https://github.com/nats-tower/nats-tower
-      - echo > go.work && go work use {{.GIT_REPO_NAME}}
-      - echo > .gitignore && echo {{.GIT_REPO_NAME}} >> .gitignore
-  src-del:
+      - task git:clone:src
+  src:del:
     cmds:
-      - rm -rf {{.GIT_REPO_NAME}}
-      - rm go.work
+      - task git:clone:src:del
 
   dep:
     cmds:
-      - go install github.com/a-h/templ/cmd/templ@latest
+    - #go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest
 
-  mod:upgrade:
+  mod:
     cmds:
-      - cd {{.GIT_REPO_NAME}} && go mod tidy
-      - cd {{.GIT_REPO_NAME}} && go-mod-upgrade -force
-      - cd {{.GIT_REPO_NAME}} && go mod tidy
-  mod:tidy:
-      - cd {{.GIT_REPO_NAME}} && go mod tidy
-
+      - task go:mod:work
   dev:
-    - cd {{.GIT_REPO_NAME}}/cmd && go run . -- 
-
+    cmds:
+      - task go:dev
   bin:
     cmds:
-      - cd {{.GIT_REPO_NAME}}/cmd && go build -o ./../../.bin/{{.BIN_MAIN_NAME}}
-
+      - task go:bin
   run:
     cmds:
-      # old version of PB
-      - .//.bin/{{.BIN_MAIN_NAME}} -h
-  run:init:
-      # hack where we create a supr user every time
-      - .//.bin/{{.BIN_MAIN_NAME}} superuser upsert gedw99@gmail.com password10
-  run:serve:
-    cmds:
-      # old version of PB
-      - .//.bin/{{.BIN_MAIN_NAME}} serve
-  
-
+      - task go:run

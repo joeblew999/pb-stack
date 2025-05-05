@@ -16,6 +16,7 @@ tasks:
     cmds:
       - task git:clone:src:del
       - task git:clone:src
+      - task go:mod:work
       - task go:bin
 
 ### Shows break downs for granular control...

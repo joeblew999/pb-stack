@@ -27,11 +27,15 @@ https://github.com/nats-io/nsc/releases/tag/v2.11.0
 
 Tools for describing and booting a Cluster.
 
-## Marmot
+https://github.com/nats-tower/nats-tower has some good stuff using PB.
 
-https://github.com/wongfei2009/harmonylite is the new Marmot
+## sql replication using Marmot
 
-Also has nats cluster setup.
+https://github.com/wongfei2009/harmonylite looks like he just renamed the files, etc. bit of a rip off.
+
+https://github.com/maxpert/marmot
+
+
 
 ## Registry
 
@@ -46,6 +50,10 @@ Since we use Marmot anyways, this will be automatic.
 ## JSON DB and htmz (not datastar)
 
 https://github.com/qrochet/qrochet
+
+## Notify
+
+https://github.com/knadh/listmonk 
 
 
 

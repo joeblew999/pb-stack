@@ -149,6 +149,11 @@ tasks:
       # If .env has override use it. Otherwise use the ROOT
       - cd {{.USER_WORKING_DIR}} && touch go.work
       - cd {{.USER_WORKING_DIR}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}
+      - cd {{.USER_WORKING_DIR}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}/{{.GO_VAR_BIN_ENTRY_PATH}}
+  mod:work:del: 
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && rm -f go.work
+      - cd {{.USER_WORKING_DIR}} && rm -f go.work.sum
   mod:tidy:
     desc: go mod tidy
     cmds:
@@ -333,6 +338,9 @@ tasks:
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
       - echo ''
     silent: false
+  bin:del:
+    cmds:
+      - rm -f {{.GO_VAR_BIN_NATIVE_PATH}}
 
   bin:wasm:
     desc: build go wasm
@@ -342,6 +350,11 @@ tasks:
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
       - cp {{.GO_ENV_ROOT_PATH}}/lib/wasm/wasm_exec.js {{.BASE_BIN_PATH}}/wasm_exec.js
       - echo ''
+  bin:wasm:del:
+    cmds:
+      - rm -f {{.GO_VAR_BIN_WASM_PATH}}
+      - rm -f {{.BASE_BIN_PATH}}/wasm_exec.js
+
   bin:all:
     desc: build binary
     cmds:
