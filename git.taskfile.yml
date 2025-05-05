@@ -173,8 +173,8 @@ tasks:
   dep:
     desc: git run any deps needed ...
     cmds:
-      - task git:ssh-set
-      - task git:sign-set
+      - task git:ssh:set
+      - task git:sign:set
   dep:which:
     desc: check dep are there returns 0 or 1
     cmds:
@@ -208,11 +208,22 @@ tasks:
   status:root:
     desc: git status of root
     cmds:
+      - echo ''
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} status
+      - echo ''
+      - echo 'GIT_VAR_ROOT_VERSION' {{.GIT_VAR_ROOT_VERSION}} 
+      - echo ''
+    silent: true
+
   status:src:
     desc: git status of src
     cmds:
+      - echo ''
       - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} status
+      - echo ''
+      - echo 'GIT_VAR_SRC_REPO_VERSION' {{.GIT_VAR_SRC_REPO_VERSION}} 
+      - echo ''
+    silent: true
     
   config:root:
     desc: git config
@@ -266,16 +277,16 @@ tasks:
 
   ### github specific release stuff
 
-  release-list-dep:
+  release:list:dep:
     desc: download and extract all releases meta data from github.
     cmds:
       - task base:shell-wgot-github-releases-tocwd -- {{.GIT_VAR_ROOT_RELEASE_LIST_URL}} 
     silent: false
 
-  release-list:
+  release:list:
     desc: lists the releases on github
     cmds:
-      - task git:release-list-dep
+      - task git:release:list:dep
       - go install github.com/itchyny/gojq/cmd/gojq@latest
       - gojq -r '.assets[] | select(.name | contains("darwin")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
       - gojq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
@@ -288,20 +299,20 @@ tasks:
 
   ### ssh 
 
-  ssh-del:
+  ssh:del:
     desc: deletes ssh keys and their config. Tricky to be idempotent
     cmds:
       #- rm {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       #- rm {{.GIT_SIGNING_KEY_PUBLIC_PATH}}
 
-  ssh-list:
+  ssh:list:
     desc: list all ssh keys
     cmds:
       - echo 'Adding the ssh keys to the ssh agent ...'
       - ssh-add -l
 
 
-  ssh-create:
+  ssh:create:
     desc: git ssh creation. Only once of it not there.
     cmds:
       - echo 'Creating up ssh keys and config ...'
@@ -321,7 +332,7 @@ tasks:
       #- ssh-add {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       
       
-  ssh-set:
+  ssh:set:
     desc: git ssh setup. Part of dep.
     cmds:
       - echo 'Adding the ssh keys to the ssh agent ...'
@@ -333,7 +344,7 @@ tasks:
 
   ### sign 
 
-  sign-del:
+  sign:del:
     desc: git sign delete, to delete the signing up in your git config.
     cmds:
       - echo 'Deleting signing settings in your git config ...'
@@ -342,7 +353,7 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey ''
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program ''
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format ''
-  sign-set:
+  sign:set:
     desc: git sign set, to set the signing up in your git config.
     cmds:
       - echo 'Setting signing up into your git config ...'
@@ -351,7 +362,7 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
-  sign-get:
+  sign:get:
     desc: git sign get, to see what settings you have in your git config.
     cmds:
       - echo 'Printing signing setup from your git config ...'

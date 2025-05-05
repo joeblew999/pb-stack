@@ -1441,7 +1441,7 @@ base-src-pull:
 SRC_PUSH_MESSAGE:=
 
 ## base-src-push
-base-src-push: base-src-sign-set
+base-src-push: base-src-sign:set
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) add .
 ifeq ($(SRC_PUSH_MESSAGE), )
 	@echo ""
@@ -1533,19 +1533,19 @@ base-src-sign-run-sign: base-src-sign-dep
 	$(BASE_SRC_SIGNING_BIN_NAME) --sign USER-ID=$(BASE_SRC_SIGNING_USER_NAME)
 	
 
-base-src-sign-set:
+base-src-sign:set:
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local user.name $(BASE_SRC_SIGNING_USER_NAME)
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local user.email  $(BASE_SRC_SIGNING_USER_EMAIL)
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local user.signingkey $(BASE_SRC_SIGNING_KEY)
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local gpg.program $(BASE_SRC_SIGNING_PROGRAM)
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local gpg.format $(BASE_SRC_SIGNING_FORMAT)
-base-src-sign-get:
+base-src-sign:get:
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --get user.name
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --get user.email
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local user.signingkey
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local gpg.program
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local gpg.format
-base-src-sign-del:
+base-src-sign:del:
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local user.name ""
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local user.email ""
 	cd $(BASE_SRC) && $(BASE_DEP_BIN_GIT_NAME) config --local user.signingkey ""
