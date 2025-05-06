@@ -10,7 +10,8 @@ vars:
   ### bin
   PC_BIN_NAME: mod-process-compose
   # https://github.com/F1bonacc1/process-compose/releases/tag/v1.46.0
-  PC_BIN_VERSION: v1.46.0
+  # https://github.com/F1bonacc1/process-compose/releases/tag/v1.63.0
+  PC_BIN_VERSION: v1.63.0
   PC_BIN_WHICH: 
     #sh: 'which {{.PC_BIN_NAME}}'
   PC_BIN_WHICH_VERSION:
