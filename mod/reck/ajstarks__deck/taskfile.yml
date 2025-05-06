@@ -20,4 +20,17 @@ tasks:
       #- task git:clone:src
       - task go:mod:work
       - task go:bin
+  multi:
+    vars:
+      # https://taskfile.dev/blog/any-variables/
+      LIST: ['./cmd/codepicdeck', './cmd/deckd']
+    
+    #cmds:
+    #  - GO_VAR_BIN_ENTRY_PATH='./cmd/codepicdeck' task go:bin
+    cmds:
+      - for:
+          var: LIST
+        #cmd: echo {{.ITEM}}
+        cmd: GO_VAR_SRC_MAIN_PATH='{{.ITEM}}' task go:bin
+
   

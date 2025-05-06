@@ -15,6 +15,7 @@ includes:
 
 env:
   DECKFONTS: '{{.PWD}}/ajstarks__font/deckfonts'
+
   DECK_DEEP_PATH: '{{.PWD}}/ajstarks__decksh/decksh'
   DECK_DEEP_NAME: 'test.dsh'
   
