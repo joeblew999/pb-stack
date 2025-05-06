@@ -244,6 +244,12 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local core.eol lf
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
 
+  clone:src:check:
+    desc: git clone the src code checker
+    cmds:
+      - echo 'Cloning the src checker ...'
+      # Make idempotent. Checks if folder there and if NOT does a clone.
+      - cd {{.BASE_SRC_PATH}} && test -f {{.GIT_VAR_SRC_REPO_NAME}} || task git:clone:src
   clone:src:
     desc: git clone the src code.
     cmds:

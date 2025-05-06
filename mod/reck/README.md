@@ -1,6 +1,6 @@
 # reck
 
-Reck is a display system based on XML, just like a Browser is based on HTML.
+Recky decky  is a display system based on XML, just like a Browser is based on HTML.
 
 Recks outout PNG, SVG, PDF, Video and Emails from this XML format.
 
