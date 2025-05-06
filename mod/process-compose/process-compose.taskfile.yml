@@ -25,6 +25,13 @@ vars:
   PC_BIN_URL_EXTRACT_NAME: process-compose
   PC_BIN_URL: https://github.com/F1bonacc1/process-compose/releases/download/{{.PC_BIN_VERSION}}/{{.PC_BIN_URL_COMPRESS_NAME}}
 
+  # --config stringArray      path to config files to load (env: PC_CONFIG_FILES)
+  PC_VAR_CONFIG_NAME: 'pc-run.yaml'
+  PC_VAR_CONFIG_PATH: '{{.USER_WORKING_DIR}}'
+  PC_VAR_CONFIG_WHICH: '{{.PC_VAR_CONFIG_PATH}}/{{.PC_VAR_CONFIG_NAME}}'
+
+  PC_CMD: '{{.PC_BIN_NAME}} --config {{.PC_VAR_CONFIG_WHICH}}'
+
 tasks:
   default:
     desc: print
@@ -42,6 +49,12 @@ tasks:
       - echo 'PC_BIN_URL:'                  {{.PC_BIN_URL}}
       - echo ''
       - echo '- vars:'
+      - echo 'PC_VAR_CONFIG_NAME:'          {{.PC_VAR_CONFIG_NAME}}
+      - echo 'PC_VAR_CONFIG_PATH:'          {{.PC_VAR_CONFIG_PATH}}
+      - echo 'PC_VAR_CONFIG_WHICH:'         {{.PC_VAR_CONFIG_WHICH}}
+      - echo ''
+      - echo '- cmd:'
+      - echo 'PC_CMD:'                      {{.PC_CMD}}
       - echo ''
     silent: true
 
@@ -76,7 +89,7 @@ tasks:
     silent: false
   up:
     cmds:
-      - '{{.PC_BIN_NAME}} up'
+      - '{{.PC_CMD}} up'
     silent: false
   down:
     cmds:

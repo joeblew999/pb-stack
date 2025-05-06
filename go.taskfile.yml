@@ -318,7 +318,7 @@ tasks:
       # see: 
       # https://github.com/hajimehoshi/wasmserve
       - go install github.com/hajimehoshi/wasmserve@latest
-      # http://localhost:8080/
+      - echo ' http://localhost:8080/ '
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && wasmserve {{.CLI_ARGS}}
   dev:wasm:chrome:
     desc: go dev wasm in chrome with .CLI_ARGS support.
@@ -440,8 +440,8 @@ tasks:
     cmds:
       # see: 
       # https://github.com/hajimehoshi/wasmserve
+      - echo '# http://localhost:8080 '
       - go install github.com/hajimehoshi/wasmserve@latest
-      # http://localhost:8080/
       - cd {{.BASE_BIN_PATH}} && wasmserve
 
   release:
