@@ -3,16 +3,25 @@
 version: '3'
 
 # MUST have this ONLY in root for env variables to work.
-dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+dotenv: ['run.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   dev: 
     taskfile: ./../../dev-taskfile.yml
     flatten: true
+  pc: 
+    taskfile: ./../process-compose/pc.taskfile.yml
+    #flatten: true
 
 env:
-  DECK_FONTS: '{{.BASE_SRC_PATH}}/deck/fonts'
-  DECK_DEEP: '{{.BASE_SRC_PATH}}/ajstarks__deckviz/deckviz/2020election'
+  DECKFONTS: '{{.PWD}}/ajstarks__font/deckfonts'
+  DECK_DEEP_PATH: '{{.PWD}}/ajstarks__decksh/decksh'
+  DECK_DEEP_NAME: 'test.dsh'
+  
+  DECK_DEEP_WHICH: '{{.DECK_DEEP_PATH}}/{{.DECK_DEEP_NAME}}'
+
+  # Darwin - works both locally and in Github CI.
+  PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_NAME}}'
 
 
 tasks:
@@ -31,9 +40,9 @@ tasks:
       - cd ajstarks__ebcanvas && task all
       - cd ajstarks__font && task all
       
-  pack:
+  pack:up:
     cmds:
-      # cp up..
+      # cp "up" using .bin pattern ! works :)
       - mkdir -p ./.bin
       - cp ./*/.bin/* ./.bin/
 
@@ -44,14 +53,18 @@ tasks:
       #- cd ajstarks__decksh && task all
       #- cd ajstarks__ebcanvas && task all
 
-  run:
+  run:sh:
     cmds:
       # Pipe off some folder
-      - decksh_darwin_arm64
-      - task go:run -- -o foo.xml
+      #- '{{.BASE_BIN_NAME}}/decksh_darwin_arm64 {{.DECK_DEEP}} > base.xml'
+      #- '{{.BASE_BIN_NAME}}/decksh_darwin_arm64 {{.DECK_DEEP}} > base.xml'
+      #- task go:run -- -o foo.xml
       # decksh                   # input from stdin, output to stdout
       # decksh -o foo.xml        # input from stdin, output to foo.xml
       # decksh foo.sh            # input from foo.sh output to stdout
       # decksh -o foo.xml foo.sh # input from foo.sh output to foo.xml
       # decksh -version          # show decksh version
       # decksh -dump ...         # show decksh variables
+  run:gui:
+    cmds:
+      - '{{.BASE_BIN_NAME}}/decksh_darwin_arm64 {{.DECK_DEEP_WHICH}} | {{.BASE_BIN_NAME}}/ebdeck_darwin_arm64'
