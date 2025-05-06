@@ -245,7 +245,7 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} submodule update --init --recursive
 
   clone:src:check:
-    desc: git clone the src code checker
+    desc: git clone the src code checking if src if there or not. Idempotent.
     cmds:
       - echo 'Cloning the src checker ...'
       # Make idempotent. Checks if folder there and if NOT does a clone.

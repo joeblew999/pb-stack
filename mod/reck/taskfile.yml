@@ -5,21 +5,53 @@ version: '3'
 # MUST have this ONLY in root for env variables to work.
 dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
-
 includes:
   dev: 
     taskfile: ./../../dev-taskfile.yml
     flatten: true
 
+env:
+  DECK_FONTS: '{{.BASE_SRC_PATH}}/deck/fonts'
+  DECK_DEEP: '{{.BASE_SRC_PATH}}/ajstarks__deckviz/deckviz/2020election'
+
+
 tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo DECK_FONTS {{.DECK_FONTS}}
+      - echo DECK_DEEP {{.DECK_DEEP}}
+      - echo ''
+    silent: true
   all:
     cmds:
       - cd ajstarks__deck && task all
       - cd ajstarks__decksh && task all
+      - cd ajstarks__deckviz && task all
       - cd ajstarks__ebcanvas && task all
+      - cd ajstarks__font && task all
+      
+  pack:
+    cmds:
+      # cp up..
+      - mkdir -p ./.bin
+      - cp ./*/.bin/* ./.bin/
+
   clean:
       cmds:
       # Need a way to remove src and .bin folders.
       #- cd ajstarks__deck && task go:clean
       #- cd ajstarks__decksh && task all
       #- cd ajstarks__ebcanvas && task all
+
+  run:
+    cmds:
+      # Pipe off some folder
+      - decksh_darwin_arm64
+      - task go:run -- -o foo.xml
+      # decksh                   # input from stdin, output to stdout
+      # decksh -o foo.xml        # input from stdin, output to foo.xml
+      # decksh foo.sh            # input from foo.sh output to stdout
+      # decksh -o foo.xml foo.sh # input from foo.sh output to foo.xml
+      # decksh -version          # show decksh version
+      # decksh -dump ...         # show decksh variables

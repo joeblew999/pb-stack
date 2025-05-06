@@ -16,6 +16,4 @@ tasks:
     cmds:
       - task git:clone:src:del
       - task git:clone:src
-      - task go:mod:work
-      - task go:bin:darwin
-      - task go:bin:windows
+      #- task go:bin
