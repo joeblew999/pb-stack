@@ -64,6 +64,7 @@ tasks:
       - ls -al {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
     silent: false
   
+### run
 
   run:
     cmds:
@@ -71,7 +72,7 @@ tasks:
     silent: false
   version:
     cmds:
-      - '{{.PC_BIN_NAME}} version'
+      - '{{.PC_BIN_NAME}} version --short'
     silent: false
   up:
     cmds:

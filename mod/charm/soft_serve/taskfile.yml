@@ -8,7 +8,7 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 includes:
   # Pick if you want local or remote task file loading.
   # https://taskfile.dev/usage/#flatten-includes makes it all the same either way.
-  local: 
+  dev: 
     taskfile: ./../../../dev-taskfile.yml
     flatten: true
   #remote: 

@@ -8,7 +8,7 @@ version: '3'
 dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
-  local: 
+  dev: 
     taskfile: ././../../dev-taskfile.yml
     flatten: true
   #remote: 
