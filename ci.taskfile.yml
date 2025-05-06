@@ -15,6 +15,7 @@ version: '3'
 vars:
   # github
   CI_GITHUB:                '{{.CI}}'
+  CI_GITHUB_TOKEN:          '{{.GITHUB_TOKEN}}'
   CI_GITHUB_ACTIONS:        '{{.GITHUB_ACTIONS}}'
   CI_GITHUB_EVENT_NAME:     '{{.GITHUB_EVENT_NAME}}'
   # codeberg ( woodpecker)
@@ -28,6 +29,8 @@ tasks:
       - echo ''
       - echo '- github'
       - echo 'CI_GITHUB:'             {{.CI_GITHUB}}
+      - echo 'CI_GITHUB_TOKEN:'       {{.CI_GITHUB_TOKEN}}
+      
       - echo 'CI_GITHUB_ACTIONS:'     {{.CI_GITHUB_ACTIONS}}
       - echo 'CI_GITHUB_EVENT_NAME:'  {{.CI_GITHUB_EVENT_NAME}}
       - echo ''
@@ -35,11 +38,12 @@ tasks:
       - echo 'CI_WOODPECKER:'          {{.CI_WOODPECKER}}
       - echo ''
     silent: true
-  bin:
+  dep:
     desc: install golang helper called cinful.
     cmds:
       - echo ''
       - go install github.com/hofstadter-io/cinful/cmd/cinful@latest
+      - go install github.com/ansig/jetstream-cdevents-sink@latest
       #- mv to .BIN once PATH is working...
       - echo ''
     silent: false
@@ -51,6 +55,10 @@ tasks:
     desc: run list.
     cmds:
       - cinful list
+  run:sink:
+    cmds:
+      - task nats:serve
+      - jetstream-cdevents-sink
 
 
 

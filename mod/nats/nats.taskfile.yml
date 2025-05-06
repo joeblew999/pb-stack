@@ -104,7 +104,7 @@ tasks:
     cmds:
       - '{{.NATS_SERVER_BIN_NAME}} -h'
     silent: false
-  run:serve:
+  serve:
     desc: run
     cmds:
       - '{{.NATS_SERVER_BIN_NAME}} -c {{.NATS_SERVER_VAR_CONFIG_NAME}}'

@@ -8,7 +8,6 @@ vars:
   THIS_SRC_NAME: caddy
   THIS_GREETING: Hello, from CADDY !
 
-
 tasks:
   default:
     desc: caddy print

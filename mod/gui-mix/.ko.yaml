@@ -1,0 +1,21 @@
+builds:
+- id: foo
+  dir: .  # default is .
+  main: ./jawbreaker/cmd/web
+  env:
+  - GOPRIVATE=git.internal.example.com,source.developers.google.com
+  flags:
+  - -tags
+  - netgo
+  ldflags:
+  - -s -w
+  - -extldflags "-static"
+  - -X main.version={{.Env.VERSION}}
+- id: jawbreaker
+  dir: ./jawbreaker
+  main: .  # default is .
+  env:
+  - GOCACHE=/workspace/.gocache
+  ldflags:
+  - -s
+  - -w
