@@ -348,20 +348,28 @@ tasks:
     cmds:
       - rm -rf {{.BASE_BIN_PATH}}
 
+
   clean:
     desc: base clean, cleans the base folders.
     cmds:
       - echo ''
-      - echo 'cleaning base folders ...'
-      - rm -rf *{{.BASE_BIN_PATH}}
+      - echo 'cleaning all base folders ...'
+      - rm -rf ./*/{{.BASE_BIN_NAME}}
       #- rm -rf *{{.BASE_DEP_PATH}}
-      - rm -rf *{{.BASE_PACK_PATH}}
+      - rm -rf ./*/{{.BASE_PACK_NAME}}
+      - rm -rf ./*/{{.BASE_TMP_NAME}}
     silent: false
+  clean:dry:
+    cmds:
+      - echo ''
+      - echo 'DRY cleaning base folders...'
+      - ls -al ./*/{{.BASE_BIN_NAME}}
   clean:list:
     desc: base clean list, lists the contents of the base folders.
     cmds:
       - echo ''
       - echo 'cleaning base folders...'
+      
       - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_BIN_PATH}}'
       #- '{{.BASE_SHELL_TREE_BIN_NAME}} {{.BASE_BIN_PATH}}'
       - '{{.BASE_TASK_CMD}} base:shell-tree -- {{.BASE_DEP_PATH}}'

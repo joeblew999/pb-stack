@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  dev: 
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+tasks:
+  all:
+    cmds:
+      - task git:clone:src:del
+      - task git:clone:src
+      - task go:mod:work
+      - task go:bin
+
+### Shows break downs for granular control...
+
+  src:
+    cmds:
+      - task git:clone:src
+  src:del:
+    cmds:
+      - task git:clone:src:del
+
+  dep:
+    cmds:
+    - #go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest
+
+  mod:
+    cmds:
+      - task go:mod:work
+  dev:
+    cmds:
+      - task go:dev
+  bin:
+    cmds:
+      - task go:bin
+  run:
+    cmds:
+      - task go:run
