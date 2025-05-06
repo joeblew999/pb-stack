@@ -8,7 +8,7 @@ env:
   
 vars:
   ### bin
-  NATS_SERVER_BIN_NAME: nats-server
+  NATS_SERVER_BIN_NAME: mod-nats-server
   # https://github.com/nats-io/nats-server/releases/tag/v2.11.2
   NATS_SERVER_BIN_VERSION: v2.11.2
   #NATS_SERVER_BIN_WHICH: 
@@ -64,14 +64,14 @@ tasks:
   dep:
     desc: download and extract single.
     cmds:
-      # download and extract
-      - task base:shell-wgot-tocwd -- {{.NATS_SERVER_DEP_URL}}
-      - task base:shell-arc-extract-tocwd -- {{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
-      - mv {{.BASE_SRC_PATH}}/{{.NATS_SERVER_DEP_URL_FOLDER_NAME}}/{{.NATS_SERVER_DEP_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
+      # download 
+      - task base:shell-wgot-totmp -- {{.NATS_SERVER_DEP_URL}}
+      # extract
+      - task base:shell-arc-extract-totmp -- {{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
+      # place in .dep
+      - mv {{.BASE_TMP_PATH}}/{{.NATS_SERVER_DEP_URL_FOLDER_NAME}}/{{.NATS_SERVER_DEP_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
       # cleanup
-      - rm -f {{.BASE_SRC_PATH}}/{{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
-      - rm -rf {{.BASE_SRC_PATH}}/{{.NATS_SERVER_DEP_URL_FOLDER_NAME}}
-      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
+      - rm -rf {{.BASE_TMP_PATH}}
     silent: false
   dep:all:
     desc: download and extract all.
@@ -86,13 +86,18 @@ tasks:
   dep:del:
     cmds:
       - rm -f {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
-      - ls -al {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}*
+      - ls -al {{.BASE_DEP_PATH}}/mod*
     silent: false
   dep:list:
     desc: download and extract all releases meta data from github.
     cmds:
       - task base:shell-wgot-github-releases-tocwd -- {{.NATS_SERVER_DEP_LIST_URL}} 
     silent: false
+  dep:which:
+    cmds:
+      - task base:shell-which -- {{.NATS_SERVER_BIN_NAME}}
+    silent: false
+
   
   run:
     desc: run

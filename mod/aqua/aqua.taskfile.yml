@@ -55,17 +55,23 @@ tasks:
       # OR
       # works !
       # todo; add check if binary exist in .DEP_PATH, if else. 
-      - task base:shell-wgot-tocwd -- {{.AQUA_BIN_URL}}
-      - task base:shell-arc-extract-tocwd -- {{.AQUA_BIN_URL_COMPRESS_NAME}}
-      - mv {{.BASE_SRC_PATH}}/{{.AQUA_BIN_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
-      - rm -f {{.BASE_SRC_PATH}}/{{.AQUA_BIN_URL_COMPRESS_NAME}}
-      - rm -f {{.BASE_SRC_PATH}}/{{.AQUA_BIN_URL_EXTRACT_NAME}}
-      - ls -al {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
+      # pull
+      - task base:shell-wgot-totmp -- {{.AQUA_BIN_URL}}
+      # extract
+      - task base:shell-arc-extract-totmp -- {{.AQUA_BIN_URL_COMPRESS_NAME}}
+      # push to .dep
+      - mv {{.BASE_TMP_PATH}}/{{.AQUA_BIN_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
+      # cleanup
+      - rm -rf {{.BASE_TMP_PATH}}/
     silent: false
-  dep-del:
+  dep:del:
     cmds:
       - rm -f {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
-      - ls -al {{.BASE_DEP_PATH}}/{{.AQUA_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/mod*
+    silent: false
+  dep:which:
+    cmds:
+      - task base:shell-which -- {{.AQUA_BIN_NAME}}
     silent: false
 
   release:list:

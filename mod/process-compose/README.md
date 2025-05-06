@@ -1,17 +1,7 @@
 ## Process Compose
 
-Run many binaries at the same time on any OS without docker.
+SO you can run many binaries at the same time, on any OS, without docker.
 
-Run same inside docker.
+Use ko, to build as a docker, and you can also run on any Docker system.
 
-Upgrade the binaries on the fly.
-
-## Usage
-
-```sh
-# grab it off github.
-task pc:dep
-
-# run it
-task pc:run
-```
+https://ko.build/deployment/ 

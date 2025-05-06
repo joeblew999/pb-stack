@@ -141,6 +141,11 @@ vars:
   #BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_PACK_NAME}}'
   BASE_PACK_PATH: '{{joinPath .BASE_SRC_PATH .BASE_PACK_NAME }}'
 
+  # The PACK folder is above the SRC.
+  BASE_TMP_NAME: '.tmp'
+  #BASE_PACK_PATH: '{{.BASE_SRC_PATH}}/{{.BASE_TMP_NAME}}'
+  BASE_TMP_PATH: '{{joinPath .BASE_SRC_PATH .BASE_TMP_NAME }}'
+
   #BASE_ENV_PATH: '{{.PATH}}'
   
 
@@ -194,6 +199,9 @@ tasks:
       - echo ''
       - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
       - echo 'BASE_PACK_PATH:'        {{shellQuote .BASE_PACK_PATH}}
+      - echo ''
+      - echo 'BASE_TMP_NAME:'        {{.BASE_TMP_NAME}}
+      - echo 'BASE_TMP_PATH:'        {{shellQuote .BASE_TMP_PATH}}
       - echo ''
       #- echo 'BASE_ENV_PATH:'         {{.BASE_ENV_PATH}}
       - echo ''
@@ -429,7 +437,13 @@ tasks:
       - '{{.BASE_SHELL_ARC_BIN_NAME}} extract -f {{.CLI_ARGS}}'
   shell-arc-extract-tocwd:
     cmds:
+      - mkdir -p {{.BASE_SRC_PATH}}
       - '{{.BASE_SHELL_ARC_BIN_NAME}} extract -f {{.BASE_SRC_PATH}}/{{.CLI_ARGS}} {{.BASE_SRC_PATH}}'
+  shell-arc-extract-totmp:
+    cmds:
+      - mkdir -p {{.BASE_TMP_PATH}}
+      - '{{.BASE_SHELL_ARC_BIN_NAME}} extract -f {{.BASE_TMP_PATH}}/{{.CLI_ARGS}} {{.BASE_TMP_PATH}}'
+
 
 
   shell-bun-dep:
@@ -564,6 +578,13 @@ tasks:
       # got -o /path/to/save https://example.com/file.mp4
       - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
       - '{{.BASE_SHELL_WGOT_BIN_NAME}} --dir {{.BASE_SRC_PATH}} {{.CLI_ARGS}} '
+  shell-wgot-totmp:
+    desc: wgot pulls files over http and places the file in CWD BASE_TMP_PATH.
+    cmds:
+      # https://github.com/bitrise-io/got
+      # got -o /path/to/save https://example.com/file.mp4
+      - '{{.BASE_TASK_CMD}} base:shell-wgot-dep'
+      - '{{.BASE_SHELL_WGOT_BIN_NAME}} --dir {{.BASE_TMP_PATH}} {{.CLI_ARGS}} '
   shell-wgot-github-releases-tocwd:
     desc: pulls the github releases list for a repo. E.G task base:shell-wgot-github-releases-tocwd -- https://api.github.com/repos/OWNER/REPO/releases/tags/TAG
     cmds:
