@@ -354,10 +354,10 @@ tasks:
       - echo ''
       - echo 'cleaning base folders ...'
       - rm -rf *{{.BASE_BIN_PATH}}
-      - rm -rf *{{.BASE_DEP_PATH}}
+      #- rm -rf *{{.BASE_DEP_PATH}}
       - rm -rf *{{.BASE_PACK_PATH}}
     silent: false
-  clean-list:
+  clean:list:
     desc: base clean list, lists the contents of the base folders.
     cmds:
       - echo ''
