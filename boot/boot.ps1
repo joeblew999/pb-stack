@@ -2,7 +2,7 @@
 Set-ExecutionPolicy Bypass -Scope Process -Force
 
 # Check Privs
-
+Write-Host "Checking if the current user has Administrator privileges..."
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Start-Process powershell -Verb runAs -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -File `"" + $PSCommandPath + "`"")
     exit

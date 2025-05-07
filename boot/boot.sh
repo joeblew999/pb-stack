@@ -9,14 +9,29 @@ command_exists() {
 }
 
 # Check if Homebrew is installed
-if ! command_exists brew; then
-    echo "Error: Homebrew (brew) is not installed."
-    echo "Please install Homebrew first to manage these packages."
-    echo "Installation instructions can be found at: https://brew.sh/"
-    exit 1
-fi
+if command_exists brew; then
+    echo "Homebrew found. Proceeding with installation attempts..."
+else
+    echo "Homebrew (brew) not found. Attempting to install..."
+    # Attempt to install Homebrew
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-echo "Homebrew found. Proceeding with installation attempts..."
+    # Check if installation was successful
+    if command_exists brew; then
+        echo "Homebrew installed successfully."
+        # Add Homebrew to the PATH if it's not already there.
+        if [[ ":$PATH:" != *":/opt/homebrew/bin:"* ]]; then
+            echo 'Adding Homebrew to PATH in ~/.zshrc and ~/.bashrc...'
+            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+            echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bashrc
+            source ~/.zshrc
+            source ~/.bashrc
+        fi
+    else
+        echo "Error: Failed to install Homebrew."
+        exit 1
+    fi
+fi
 
 # List of packages to attempt to uninstall.
 # These are analogous to the winget packages:
@@ -41,14 +56,38 @@ done
 echo "------------------------------------"
 
 for pkg in "${packages_to_install[@]}"; do
-    echo ""
-    echo "Attempting to install '$pkg'..."
-    if brew install "$pkg"; then
-        echo "Successfully installed '$pkg'."
-    else
-        # brew uninstall exits with non-zero if not installed or other error
-        echo "Could not uninstall '$pkg'. It might not be installed via Homebrew, or another error occurred."
+    if [[ "$pkg" == "go" ]] && command_exists go; then
+        echo ""
+        echo "Go already detected. Skipping installation."
+        continue
     fi
+
+    if [[ "$pkg" == "bun" ]] && command_exists bun; then
+        echo ""
+        echo "Bun already detected. Skipping installation."
+        continue
+    fi
+
+    if [[ "$pkg" == "git" ]] && command_exists git; then
+        echo ""
+        echo "Git already detected. Skipping installation."
+        continue
+    fi
+
+    if [[ "$pkg" == "openssh" ]] && command_exists ssh; then
+        echo ""
+        echo "OpenSSH already detected. Skipping installation."
+        continue
+    fi
+
+    if [[ "$pkg" == "coreutils" ]] && command_exists which; then
+        echo ""
+        echo "coreutils (which) already detected. Skipping installation."
+        continue
+    fi
+
+    echo ""
+    echo "Attempting to install '$pkg'..." && brew install "$pkg" && echo "Successfully installed '$pkg'." || echo "Could not install '$pkg'. It might not be available or another error occurred."
 done
 
 echo ""

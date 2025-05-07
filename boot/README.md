@@ -2,7 +2,7 @@
 
 From Windows or Unix boot the basics, so the rest can also work
 
-windows 
+## windows 
 
 
 ```sh
@@ -12,7 +12,7 @@ boot.ps1
 deboot.ps1
 ```
 
-unix
+unix boot.sh
 
 ```sh
 
@@ -25,6 +25,17 @@ chmod +x ./deboot.sh
 
 ```
 
-todo: add
+## Unix
 
-debloat 
+unix deboot.sh
+
+```sh
+
+chmod +x ./boot.sh
+chmod +x ./deboot.sh
+
+./deboot.sh
+
+```
+
+todo: add windows debloat 
