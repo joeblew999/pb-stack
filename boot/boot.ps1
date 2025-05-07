@@ -1,3 +1,6 @@
+# Set Execution Policy to Bypass for the current session
+Set-ExecutionPolicy Bypass -Scope Process -Force
+
 # Check Privs
 
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
