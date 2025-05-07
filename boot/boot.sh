@@ -99,10 +99,11 @@ echo "Note: Some packages (like git, ssh, or which) might have system-provided v
     # Install VS Code extensions if VS Code is installed and extensions.txt exists
     if command_exists code && [ -f "extensions.txt" ]; then
         echo ""
-        echo "Installing VS Code extensions from extensions.txt..."
+        echo "Installing VS Code extensions from extensions.txt ..."
         while read -r extension; do
             if [[ ! "$extension" =~ ^#.*$ && -n "$extension" ]]; then # Skip comments and empty lines
-                echo "Installing extension: $extension"
+                code --list-extensions | grep -q "$extension" && echo "Extension $extension already installed, skipping." && continue
+                echo "Installing extension: $extension..."
                 code --install-extension "$extension"
             fi
         done < extensions.txt
@@ -115,3 +116,7 @@ echo "Note: Some packages (like git, ssh, or which) might have system-provided v
             echo "extensions.txt not found. Skipping extension installation."
         fi
     fi
+
+echo ""
+echo "Listing installed VS Code extensions:"
+code --list-extensions

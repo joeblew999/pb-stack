@@ -57,3 +57,36 @@ try {
 } catch {
     Write-Warning "Failed to install Which using winget. Please install it manually."
 }
+
+# Install VS Code Extensions
+$extensionsFile = Join-Path (Split-Path -Path $PSCommandPath) "extensions.txt"
+
+if (Test-Path $extensionsFile) {
+    try {
+        Write-Host "Found extensions.txt. Attempting to install VS Code extensions..."
+        
+        # Read each line from the extensions.txt file
+        Get-Content $extensionsFile | ForEach-Object {
+            $extensionId = $_.Trim()
+            
+            # Check if the line is not empty or a comment
+            if ($extensionId -and $extensionId -notmatch "^#") {
+                Write-Host "Installing extension: $extensionId"
+                code --install-extension $extensionId --force
+            }
+        }
+        Write-Host "VS Code extension installation process finished."
+    } catch {
+        Write-Warning "Failed to install VS Code extensions. Please check the extensions.txt file and ensure VS Code is installed."
+    }
+} else {
+    Write-Host "extensions.txt not found. Skipping VS Code extension installation."
+}
+
+# List installed VS Code Extensions
+try {
+    Write-Host "Listing installed VS Code extensions..."
+    code --list-extensions
+} catch {
+    Write-Warning "Failed to list VS Code extensions. Ensure VS Code is installed and in your PATH."
+}
