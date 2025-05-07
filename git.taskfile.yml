@@ -51,7 +51,7 @@ vars:
     sh: '{{.GIT_BIN_NAME}} config --get remote.origin.url'
   GIT_VAR_ROOT_REPO_NAME: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
     #sh: 'cd {{.USER_WORKING_DIR}} && basename {{.GIT_VAR_ROOT_REPO_URL}}'
-    sh: 'basename {{.GIT_VAR_ROOT_REPO_URL}}'
+    sh: basename {{.GIT_VAR_ROOT_REPO_URL}}
  
   GIT_VAR_ROOT_PATH:
     # BUG: On windows its as forward slashes. Should be back slashes.
