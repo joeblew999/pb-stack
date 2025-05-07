@@ -153,6 +153,7 @@ tasks:
       - cd {{.USER_WORKING_DIR}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}/{{.GO_VAR_BIN_ENTRY_PATH}}
   mod:work:del: 
     cmds:
+      # ISSUE: This is not getting the same USER_WORKING_DIR. Not sure why.
       - cd {{.USER_WORKING_DIR}} && rm -f go.work
       - cd {{.USER_WORKING_DIR}} && rm -f go.work.sum
   mod:tidy:

@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+
+version: '3'
+
+vars:
+
+  GIT_VAR_SRC_REPO_NAME: 'aa'
+  GO_VAR_BIN_ENTRY_PATH: 'bb'
+
+tasks:
+  default:
+    desc: go print
+    cmds:
+      - echo ''
+      - echo '- bin'
+      - echo 'GO_BIN_NAME:'                 {{.GO_BIN_NAME}}
+
+  mod:work:
+      desc: go mod work
+      cmds:
+        # fake a go project.. 
+        - rm -rf ./{{.GIT_VAR_SRC_REPO_NAME}}/{{.GO_VAR_BIN_ENTRY_PATH}}
+        - mkdir -p ./{{.GIT_VAR_SRC_REPO_NAME}}/{{.GO_VAR_BIN_ENTRY_PATH}}
+        - cd ./{{.GIT_VAR_SRC_REPO_NAME}}/{{.GO_VAR_BIN_ENTRY_PATH}} && go mod init
+        # del any exisitng go.work
+        - task mod:work:del
+        # create go.work
+        - cd {{.USER_WORKING_DIR}} && touch go.work
+        - cd {{.USER_WORKING_DIR}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}
+        - cd {{.USER_WORKING_DIR}} && go work use ./{{.GIT_VAR_SRC_REPO_NAME}}/{{.GO_VAR_BIN_ENTRY_PATH}}
+
+  mod:work:del: 
+    cmds:
+      # ISSUE: This is not getting the same USER_WORKING_DIR, when used in larger project with incudes, but works here.
+      - cd {{.USER_WORKING_DIR}} && rm -f go.work
+      - cd {{.USER_WORKING_DIR}} && rm -f go.work.sum

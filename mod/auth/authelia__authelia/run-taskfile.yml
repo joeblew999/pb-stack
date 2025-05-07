@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+#dotenv: ['run.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+#includes:
+#  dev: 
+#    taskfile: ./../../../dev-taskfile.yml
+#    flatten: true
+
+tasks:
+  run:
+    cmds:
+      - task go:run
