@@ -41,6 +41,7 @@ vars:
 
   #GIT_VAR_ROOT_ORG_NAME: 'joeblew999'
   GIT_VAR_ROOT_ORG_NAME: #'{{ .GIT_VAR_ROOT_ORG_NAME | default "joeblew999" }}'
+    # ISSUE: Windows hates the folder jump ???
     #sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --get user.name'
     sh: '{{.GIT_BIN_NAME}} config --get user.name'
   # Should ask git ? Jump to USER_WORKING_DIR to find out,
