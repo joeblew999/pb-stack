@@ -12,25 +12,30 @@ includes:
   pc: 
     taskfile: ./../process-compose/pc.taskfile.yml
     #flatten: true
-
 env:
-  DECKFONTS: '{{.PWD}}/ajstarks__font/deckfonts'
-
-  DECK_DEEP_PATH: '{{.PWD}}/ajstarks__decksh/decksh'
-  DECK_DEEP_NAME: 'test.dsh'
   
-  DECK_DEEP_WHICH: '{{.DECK_DEEP_PATH}}/{{.DECK_DEEP_NAME}}'
-
   # Darwin - works both locally and in Github CI.
   PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_NAME}}'
 
+  DECKFONTS: '{{.PWD}}/ajstarks__font/deckfonts'
+
+var:
+
+  DECK_DEEP_PATH: '{{.DECK_DEEP_PATH | default "{{.PWD}}/ajstarks__decksh/decksh" }}'
+  DECK_DEEP_NAME: '{{.DECK_DEEP_NAME | default "test.dsh" }}'
+  
+  DECK_DEEP_WHICH: '{{.DECK_DEEP_PATH}}/{{.DECK_DEEP_NAME}}'
 
 tasks:
   default:
     cmds:
       - echo ''
-      - echo DECK_FONTS {{.DECK_FONTS}}
-      - echo DECK_DEEP {{.DECK_DEEP}}
+      - echo DECKFONTS          {{shellQuote .DECKFONTS}}
+      - echo ''
+      - echo DECK_DEEP_PATH     {{shellQuote .DECK_DEEP_PATH}}
+      - echo DECK_DEEP_NAME     {{.DECK_DEEP_NAME}}
+      - echo ''
+      - echo DECK_DEEP_WHICH    {{shellQuote .DECK_DEEP_WHICH}}
       - echo ''
     silent: true
   all:

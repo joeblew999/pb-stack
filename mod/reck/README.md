@@ -14,4 +14,17 @@ Web uses Reck . For example:
 
 - A Web page may need to show images or diagrams, and the can be produce from Reck and used for Web.
 
+## passing
 
+.env is basse
+
+runtime ENV passed in will override. So easy to make interactive.
+
+## dict
+
+inside util. where is it used ?
+
+
+https://en.wikipedia.org/wiki/DICT
+
+https://github.com/ray1729/dict-web-simple
