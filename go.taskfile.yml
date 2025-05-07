@@ -28,14 +28,6 @@ vars:
     sh: '{{.GO_BIN_NAME}} env GOPATH'
   GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
 
-  ### goreleaser
-  
-  # https://github.com/goreleaser/goreleaser
-  GO_RELEASER_BIN_NAME: 'goreleaser{{.BASE_BINARY_EXTENSION}}'
-  # https://github.com/goreleaser/goreleaser/releases/tag/v2.9.0
-  GO_RELEASER_BIN_VERSION: v2.9.0
-  GO_RELEASER_BIN_WHICH: ''
-  GO_RELEASER_BIN_WHICH_VERSION: ''
 
   ### garble
 
@@ -184,40 +176,6 @@ tasks:
       - echo ''
     silent: false
 
-### releaser ( can make this an extension of bin later..)
-
-  releaser:dep:
-    desc: releaser install
-    cmds:
-      - echo ''
-      - echo 'releaser install'
-      - '{{.GO_BIN_NAME}} install github.com/goreleaser/goreleaser/v2@{{.GO_RELEASER_BIN_VERSION}}'
-      - echo ''
-    silent: false
-
-  releaser:
-    desc: releaser help
-    cmds:
-      - echo ''
-      - echo 'releaser help'
-      - '{{.BASE_TASK_CMD}} go:releaser:dep'
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_RELEASER_BIN_NAME}} -h
-      - echo ''
-    silent: false
-
-  releaser:init:
-    desc: releaser init copies the templates from root into your project.
-    cmds:
-      - echo ''
-      - echo 'releaser init. Coping templates in from Root.'
-      - echo ' using wgot to remote pull from self's repo. This will allow Users to fork and merge, so we are true gitops.'
-      - task base:shell-wgot-tocwd -- {{.GIT_VAR_ROOT_FILES_DOWNLOAD_URL}}/.goreleaser.yaml
-      - echo ''
-    silent: false
-
-  # https://goreleaser.com/customization/winget/
-  # https://goreleaser.com/customization/ko/
-  # https://goreleaser.com/customization/blob/
 
 
 ### gable ( can make this an extension of bin later..)

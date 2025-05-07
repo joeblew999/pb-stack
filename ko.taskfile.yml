@@ -1,0 +1,56 @@
+
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# ko.taskfile.yml 
+## doc : https://ko.build/configuration/
+
+version: '3'
+
+env:
+  #KO_DOCKER_REPO: gcr.io/my-project
+  KO_DOCKER_REPO: ghcr.io/joeblew999/pb-stack
+
+vars:
+  
+  # https://github.com/goreleaser/goreleaser
+  RE_BIN_NAME: 'goreleaser{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/goreleaser/goreleaser/releases/tag/v2.9.0
+  RE_BIN_VERSION: v2.9.0
+  RE_BIN_WHICH: ''
+  RE_BIN_WHICH_VERSION: ''
+  
+
+
+tasks:
+  default:
+    cmds:
+      - echo 'ko'
+
+### dep
+
+  dep:
+    cmds:
+      - go install github.com/google/ko@latest
+      - echo ''
+      - echo 'releaser install'
+      - '{{.GO_BIN_NAME}} install github.com/goreleaser/goreleaser/v2@{{.KO_RELEASER_BIN_VERSION}}'
+      - echo ''
+
+### run 
+
+  bin:
+    desc: Build the image with ko locally
+    cmds:
+      - ko build --platform linux/amd64,linux/arm64 --local {{.GO_VAR_SRC_MAIN_PATH}}
+      #- ko build 
+  run:
+    desc: runs the image with ko locally
+    cmds:
+      - ko run {{.GO_VAR_SRC_MAIN_PATH}} --platform linux/amd64,linux/arm64
+      #- ko build 
+
+
+  run:init:
+    cmds:
+      # no sure i need this crap..
+      - touch .ko.yaml

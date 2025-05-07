@@ -5,6 +5,8 @@ version: '3'
 # MUST have this ONLY in root for env variables to work.
 #dotenv: ['run.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
+# TODO: Need a "run" task file system that is NOT using go. It just needs to use base, where the binaries naming convention is declared
+# Or we need a "go-run.taskfile.yml", that does not use base. Might be better. Not sure yet. 
 
 #includes:
 #  dev: 
@@ -12,6 +14,9 @@ version: '3'
 #    flatten: true
 
 tasks:
+  help:
+    cmds:
+      - task go:run -- -h
   run:
     cmds:
       - task go:run

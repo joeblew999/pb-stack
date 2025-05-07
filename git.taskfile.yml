@@ -41,11 +41,11 @@ vars:
 
   #GIT_VAR_ROOT_ORG_NAME: 'joeblew999'
   GIT_VAR_ROOT_ORG_NAME: #'{{ .GIT_VAR_ROOT_ORG_NAME | default "joeblew999" }}'
-    sh: 'cd {{.USER_WORKING_DIR}} &&  {{.GIT_BIN_NAME}} config --get user.name'
+    sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --get user.name'
   # Should ask git ? Jump to USER_WORKING_DIR to find out,
   GIT_VAR_ROOT_REPO_URL: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
     #sh: 'cd {{.USER_WORKING_DIR}} && basename {{.GIT_VAR_ROOT_PATH}} rev-parse --show-toplevel'
-    sh: 'cd {{.USER_WORKING_DIR}} &&  {{.GIT_BIN_NAME}} config --get remote.origin.url'
+    sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --get remote.origin.url'
   GIT_VAR_ROOT_REPO_NAME: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
     sh: 'cd {{.USER_WORKING_DIR}} &&  basename {{.GIT_VAR_ROOT_REPO_URL}}'
  

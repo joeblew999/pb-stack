@@ -1,0 +1,80 @@
+
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# re.taskfile.yml 
+# goreleaser
+# docs: https://goreleaser.com/customization/
+
+# https://goreleaser.com/customization/winget/
+# https://goreleaser.com/customization/ko/
+# https://goreleaser.com/customization/blob/
+
+
+version: '3'
+
+env:
+ 
+
+vars:
+
+  # https://github.com/goreleaser/goreleaser
+  RE_BIN_NAME: 'goreleaser{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/goreleaser/goreleaser/releases/tag/v2.9.0
+  RE_BIN_VERSION: v2.9.0
+  RE_BIN_WHICH: ''
+  RE_BIN_WHICH_VERSION: ''
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo '- bin'
+      - echo 'RE_BIN_NAME:'                 {{.RE_BIN_NAME}}
+      - echo 'RE_BIN_VERSION:'              {{.RE_BIN_VERSION}}
+      - echo 'RE_BIN_WHICH:'                
+      - task re:dep:which
+      - echo 'RE_BIN_WHICH_VERSION:'        {{.RE_BIN_WHICH_VERSION}}
+      - echo ''
+    silent: true
+
+### dep
+
+  dep:
+    cmds:
+      - echo ''
+      - echo 'releaser install'
+      - '{{.GO_BIN_NAME}} install github.com/goreleaser/goreleaser/v2@{{.RE_BIN_VERSION}}'
+      - echo ''
+    silent: false
+  dep:del:
+    cmds:
+      - rm -f {{.BASE_DEP_PATH}}/{{.RE_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.RE_BIN_NAME}}
+  dep:which:
+    cmds:
+      - task base:shell-which -- {{.RE_BIN_NAME}}
+  dep:which:version:
+    cmds:
+      - '{{.RE_BIN_NAME}} --version'
+
+### run
+
+  help:
+    desc: releaser help
+    cmds:
+      - echo ''
+      - echo 'releaser help'
+      - '{{.BASE_TASK_CMD}} go:releaser:dep'
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.RE_BIN_NAME}} -h
+      - echo ''
+    silent: false
+
+  init:
+    desc: releaser init copies the templates from root into your project.
+    cmds:
+      - echo ''
+      - echo 'releaser init. Coping templates in from Root.'
+      - echo ' using wgot to remote pull from self's repo. This will allow Users to fork and merge, so we are true gitops.'
+      - task base:shell-wgot-tocwd -- {{.GIT_VAR_ROOT_FILES_DOWNLOAD_URL}}/.goreleaser.yaml
+      - echo ''
+    silent: false

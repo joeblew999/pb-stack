@@ -5,7 +5,8 @@
 version: '3'
 
 # MUST have this ONLY in the root TaskFile for env variables to work.
-#dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+# Devs need to add this to their root taks file !
+#dotenv: ['dev.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   # base is used by other includes.
@@ -23,4 +24,8 @@ includes:
   go:         
     taskfile: ./go.taskfile.yml
   #  flatten: true
+  ko:         
+    taskfile: ./ko.taskfile.yml
+  re:         
+    taskfile: ./re.taskfile.yml
 

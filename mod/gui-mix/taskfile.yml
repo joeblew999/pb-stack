@@ -50,26 +50,3 @@ tasks:
     cmds:
       # http://localhost:8000
       - task go:run
-
-## ko : https://ko.build/configuration/
-  ko:dep:
-    cmds:
-      - go install github.com/google/ko@latest
-      - go install github.com/goreleaser/goreleaser/v2@latest
-  
-  ko:bin:
-    desc: Build the image with ko locally
-    cmds:
-      - ko build --platform linux/amd64,linux/arm64 --local {{.GO_VAR_SRC_MAIN_PATH}}
-      #- ko build 
-  ko:run:
-    desc: runs the image with ko locally
-    cmds:
-      - ko run {{.GO_VAR_SRC_MAIN_PATH}} --platform linux/amd64,linux/arm64
-      #- ko build 
-
-
-  ko:init:
-    cmds:
-      # no sure i need this crap..
-      - touch .ko.yaml

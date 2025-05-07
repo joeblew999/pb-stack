@@ -636,6 +636,7 @@ tasks:
       - cmd: mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
         platforms: [linux, darwin]
       - echo ''
+    silent: true
   shell-which-dep-del:
     desc: deletes which
     cmds:
@@ -646,16 +647,19 @@ tasks:
       - cmd: rm -f {{.BASE_DEP_PATH}}/{{.BASE_SHELL_WHICH_BIN_NAME}}
         platforms: [linux, darwin]
       - echo ''
+    silent: true
   shell-which-h: 
     desc: which is a cross platform **which** command.
     cmds:
       - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - '{{.BASE_SHELL_WHICH_BIN_NAME}} -h'
+    silent: true
   shell-which:
     desc: find a binary based on ARGS. E.G task base:shell-which -- go
     cmds:
       - '{{.BASE_TASK_CMD}} base:shell-which-dep'
       - '{{.BASE_SHELL_WHICH_BIN_NAME}} {{.CLI_ARGS}}'
+    silent: true
   shell-which-test:
     desc: which test finds the TASK binary.
     cmds:
