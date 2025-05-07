@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+#dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  dev: 
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+tasks:
+  dev:
+    cmds:
+      - task git:clone:src:del
+      - task git:clone:src
+      - task go:mod:work
+      - task go:bin
+      # fails, but should work. Its loosing the 1 variable.
+      #- task go:bin:all

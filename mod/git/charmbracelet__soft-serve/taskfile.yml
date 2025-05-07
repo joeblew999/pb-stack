@@ -8,15 +8,9 @@ dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   dev: 
-    taskfile: ./../../../dev-taskfile.yml
+    taskfile: ./dev-taskfile.yml
+    flatten: true
+  run: 
+    taskfile: ./run-taskfile.yml
     flatten: true
 
-tasks:
-  all:
-    cmds:
-      - task git:clone:src:del
-      - task git:clone:src
-      - task go:mod:work
-      - task go:bin
-      # fails, but should work. Its loosing the 1 variable.
-      #- task go:bin:all

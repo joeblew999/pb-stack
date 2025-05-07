@@ -1,9 +1,11 @@
 # git
 
+Git and git udiffs are the bases of any system that allows to rewrite itself.
+
+
 We need a golang git server and cli.
 
 We also need ssh cli and server
-
 
 ## https://github.com/go-git/cli  
 
@@ -19,7 +21,9 @@ server
 
 works
 
-# "github.com/charmbracelet/ssh" & "github.com/charmbracelet/wish"
+## ssh in
+
+"github.com/charmbracelet/ssh" & "github.com/charmbracelet/wish"
 
 https://github.com/charmbracelet/huh/releases/tag/v0.7.0
 
