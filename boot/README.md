@@ -16,9 +16,12 @@ unix
 
 ```sh
 
-boot.sh
+chmod +x ./boot.sh
+chmod +x ./deboot.sh
 
-deboot.sh
+./boot.sh
+
+#./deboot.sh
 
 ```
 
