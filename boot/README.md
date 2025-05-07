@@ -2,6 +2,14 @@
 
 From Windows or Unix boot the basics, so the rest can also work
 
+## gen
+
+```sh
+chmod +x ./gen.sh
+
+./gen.sh
+```
+
 ## windows 
 
 
