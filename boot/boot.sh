@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# boot.sh
 # Shell script to attempt to install specified packages using Homebrew.
 # This is intended for macOS and Linux systems where Homebrew is used.
 
@@ -94,3 +95,23 @@ echo ""
 echo "------------------------------------"
 echo "Installation process finished."
 echo "Note: Some packages (like git, ssh, or which) might have system-provided versions that take precedence over Homebrew-installed versions."
+
+    # Install VS Code extensions if VS Code is installed and extensions.txt exists
+    if command_exists code && [ -f "extensions.txt" ]; then
+        echo ""
+        echo "Installing VS Code extensions from extensions.txt..."
+        while read -r extension; do
+            if [[ ! "$extension" =~ ^#.*$ && -n "$extension" ]]; then # Skip comments and empty lines
+                echo "Installing extension: $extension"
+                code --install-extension "$extension"
+            fi
+        done < extensions.txt
+        echo "VS Code extension installation finished."
+    else
+        echo ""
+        if ! command_exists code; then
+            echo "VS Code (code) not found. Skipping extension installation."
+        elif [ ! -f "extensions.txt" ]; then
+            echo "extensions.txt not found. Skipping extension installation."
+        fi
+    fi
