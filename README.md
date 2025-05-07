@@ -6,6 +6,9 @@ I work on a lot of systems that are "self sovereign". These are systems where yo
 
 This is a system though where the Users can revoke all their data at anytime. A User can choose to be their own Operator and federate with other Operators, and so automatically retain their own data also. Pick your poison :)
 
+Auth will always support Key based , so that Operators and Users retain fully control. However Authelia Auth can be leveraged if you want a Email, OIDC or Passkey based auth. The Key based system will evolve so that a Browser can be user to authenticate with their own keys on their devices. A Sync system will evolve, so that all your own devices synchronise the keys, bypassing the OS sync system that Google, Apple and Microsoft control and use to sync all your auth keys and passwords. This will be useful for Blockchains also.
+
+
 ## Status 
 
 Its a WIP, but the task files are useful if you need a self running system. 
