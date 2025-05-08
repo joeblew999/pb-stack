@@ -12,10 +12,11 @@ includes:
     flatten: true
 
 tasks:
-  all:
+  src:
     cmds:
       - task git:clone:src:del
       - task git:clone:src
+  bin:
       - task go:mod:work
       - task go:bin
 

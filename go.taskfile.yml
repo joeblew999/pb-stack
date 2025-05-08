@@ -86,12 +86,7 @@ tasks:
       - echo 'GO_ENV_ROOT_PATH:'            {{shellQuote .GO_ENV_ROOT_PATH}}
       - echo 'GO_ENV_PATH:'                 {{shellQuote .GO_ENV_PATH}}
       - echo 'GO_ENV_BIN_PATH:'             {{shellQuote .GO_ENV_BIN_PATH}}
-      - echo ''
-      - echo '- releaser bin'
-      - echo 'GO_RELEASER_BIN_NAME:'          {{.GO_RELEASER_BIN_NAME}}
-      - echo 'GO_RELEASER_BIN_VERSION:'       {{.GO_RELEASER_BIN_VERSION}}
-      - echo 'GO_RELEASER_BIN_WHICH:'         {{shellQuote .GO_RELEASER_BIN_WHICH}}
-      - echo 'GO_RELEASER_BIN_WHICH_VERSION:' {{.GO_RELEASER_BIN_WHICH_VERSION}}
+      
       - echo ''
       - echo '- garble bin'
       - echo 'GO_GARBLE_BIN_NAME:'          {{.GO_GARBLE_BIN_NAME}}
@@ -403,10 +398,4 @@ tasks:
       - go install github.com/hajimehoshi/wasmserve@latest
       - cd {{.BASE_BIN_PATH}} && wasmserve
 
-  release:
-    desc: goreleaser, etc 
-    cmds:
-      # https://github.com/goreleaser/goreleaser/releases/tag/v2.9.0
-      - go install https://github.com/goreleaser/goreleaser/releases/download/v{{.GO_RELEASE_VERSION}}/goreleaser
-      
-   
+  
