@@ -109,7 +109,7 @@ vars:
   ### src ( for pulling repos inside this mono repo )
   # Looks to .env to be told. TODO: Make it work it out.
   GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default-from-git.taskfile.yml" }}'
-  GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default-from-git.taskfile.ym" }}'
+  GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default-from-git.taskfile.yml" }}'
   GIT_VAR_SRC_REPO_VERSION: '{{ .GIT_VAR_SRC_REPO_VERSION | default "main" }}'
 
 

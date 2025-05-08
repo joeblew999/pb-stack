@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# taskfile.yml
+# https://github.com/gokrazy
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  dev: 
+    taskfile: ././../../dev-taskfile.yml
+    flatten: true
+  
+
+tasks:
+  default:
+    desc: Welcome. 
+    cmds:
+      - echo ''
+      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none'
+    silent: false
+  dep:
+    cmds:
+      # https://gokrazy.org/quickstart/
+      - go install github.com/gokrazy/tools/cmd/gok@main
+      - go install github.com/go-delve/delve/cmd/dlv@latest
+      # panic parse: https://github.com/maruel/panicparse
+      #- go install github.com/maruel/panicparse/v2/cmd/pp@latest
+      - go install github.com/maruel/panicparse/v2@latest
+  step0:
+    cmds:
+      # del the config and hence hte instance.
+      - rm {{.HOME}}/gokrazy/hello/config.json
+  step1:
+    cmds:
+      # watch -d1 ls -l '/dev/disk/by-id/*'
+      - diskutil list
+  step2:
+    cmds:
+      # Create a gokrazy instance and overwrite an SD card with gokrazy
+      - gok new
+      # downloads rp kernel, etc
+      - gok overwrite --full /dev/sdx
+      # Now put the SD card into a RPI-5...
+  step3:
+    cmds:
+      # add breaking glass for debugging. Not for Prod
+      - gok add github.com/gokrazy/breakglass
+      - gok add github.com/gokrazy/serial-busybox
+      # Now redo Step 2
+  step4:
+    cmds:
+      # ad your apps. https://gokrazy.org/packages/showcase/
+      - gok add github.com/stapelberg/scan2drive/cmd/scan2drive

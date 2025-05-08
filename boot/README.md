@@ -4,10 +4,12 @@ From Windows or Unix boot the basics, so the rest can also work
 
 ## gen
 
-```sh
-chmod +x ./gen.sh
+Creates the extensions.txt
 
-./gen.sh
+```sh
+chmod +x ./extensions-gen.sh
+
+./extensions-gen.sh
 ```
 
 ## windows 
@@ -46,4 +48,26 @@ chmod +x ./deboot.sh
 
 ```
 
+### other
+
 todo: add windows debloat 
+
+bun is best and node is shit.
+
+```sh
+brew list
+
+which tailwindcss
+which node
+which npm
+
+brew uninstall tailwindcss
+brew uninstall node
+brew uninstall npm
+
+which tailwindcss
+which node
+which npm
+
+brew list
+```

@@ -55,3 +55,38 @@ echo ""
 echo "------------------------------------"
 echo "Uninstallation process finished."
 echo "Note: System-provided versions of some tools (like git, ssh, or which) might still be present if they were not installed/managed by Homebrew."
+
+# Uninstall VS Code extensions not listed in extensions.txt
+if command_exists code && [ -f "extensions.txt" ]; then
+    echo ""
+    echo "Uninstalling VS Code extensions not listed in extensions.txt ..."
+
+    # Create an array of extensions from extensions.txt
+    readarray -t desired_extensions < extensions.txt
+
+    # Get a list of currently installed extensions
+    installed_extensions=$(code --list-extensions)
+
+    # Iterate through installed extensions and uninstall those not in the desired list
+    while IFS= read -r installed_extension; do
+        found=false
+        for desired_extension in "${desired_extensions[@]}"; do
+            if [[ "$installed_extension" == "$desired_extension" ]]; then
+                found=true
+                break
+            fi
+        done
+        if ! $found; then
+            echo "Uninstalling extension: $installed_extension..."
+            code --uninstall-extension "$installed_extension"
+        fi
+    done <<< "$installed_extensions"
+    echo "VS Code extension uninstallation finished."
+else
+    echo ""
+    if ! command_exists code; then
+        echo "VS Code (code) not found. Skipping extension uninstallation."
+    elif [ ! -f "extensions.txt" ]; then
+        echo "extensions.txt not found. Skipping extension uninstallation."
+    fi
+fi

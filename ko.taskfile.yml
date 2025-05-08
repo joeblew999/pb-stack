@@ -12,29 +12,43 @@ env:
 
 vars:
   
-  # https://github.com/goreleaser/goreleaser
-  RE_BIN_NAME: 'goreleaser{{.BASE_BINARY_EXTENSION}}'
-  # https://github.com/goreleaser/goreleaser/releases/tag/v2.9.0
-  RE_BIN_VERSION: v2.9.0
-  RE_BIN_WHICH: ''
-  RE_BIN_WHICH_VERSION: ''
+  # https://github.com/ko-build/ko
+  KO_BIN_NAME: 'ko{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/ko-build/ko/releases/tag/v0.18.0
+  KO_BIN_VERSION: v0.18.0
+  KO_BIN_WHICH: ''
+  KO_BIN_WHICH_VERSION: ''
   
 
 
 tasks:
   default:
     cmds:
-      - echo 'ko'
+      - echo ''
+      - echo '- bin'
+      - echo 'KO_BIN_NAME:'                 {{.KO_BIN_NAME}}
+      - echo 'KO_BIN_VERSION:'              {{.KO_BIN_VERSION}}
+      - echo 'KO_BIN_WHICH:'                
+      - task re:dep:which
+      - echo 'KO_BIN_WHICH_VERSION:'        {{.KO_BIN_WHICH_VERSION}}
+      - echo ''
+    silent: true
 
 ### dep
 
   dep:
     cmds:
-      - go install github.com/google/ko@latest
-      - echo ''
-      - echo 'releaser install'
-      - '{{.GO_BIN_NAME}} install github.com/goreleaser/goreleaser/v2@{{.KO_RELEASER_BIN_VERSION}}'
-      - echo ''
+      - go install github.com/google/ko@{{.KO_BIN_VERSION}}
+  dep:del:
+    cmds:
+      - rm -f {{.BASE_DEP_PATH}}/{{.KO_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.KO_BIN_NAME}}
+  dep:which:
+    cmds:
+      - task base:shell-which -- {{.KO_BIN_NAME}}
+  dep:which:version:
+    cmds:
+      - '{{.KO_BIN_NAME}} version'
 
 ### run 
 
