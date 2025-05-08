@@ -19,9 +19,8 @@ tasks:
   bin:
       - task go:mod:work
       - task go:bin
-
   run:
     cmds:
       # conf is at:
       # $HOME/.local/share/freckles
-      - cd .bin && 
+      - task go:run
