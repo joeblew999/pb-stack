@@ -15,9 +15,9 @@ includes:
 tasks:
   all:
     cmds:
-      - task git:clone:src:check
-      #- task git:clone:src:del
-      #- task git:clone:src
+      #- task git:clone:src:check
+      - task git:clone:src:del
+      - task git:clone:src
       - task go:mod:work
       - task go:bin
   multi:

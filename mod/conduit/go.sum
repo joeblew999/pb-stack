@@ -246,6 +246,8 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cohere-ai/cohere-go/v2 v2.13.0 h1:LBVBOBNCrQnp/CCNpRhkOBOFK6uXcE9m/FmO4SLjh4M=
 github.com/cohere-ai/cohere-go/v2 v2.13.0/go.mod h1:MuiJkCxlR18BDV2qQPbz2Yb/OCVphT1y6nD2zYaKeR0=
 github.com/colinmarc/hdfs/v2 v2.1.1/go.mod h1:M3x+k8UKKmxtFu++uAZ0OtDU8jR3jnaZIAc6yK4Ue0c=
+github.com/conduitio-labs/conduit-connector-chaos v0.2.0 h1:Gg1KOOzLd0pMZEt40cx13ppFSSJbYvrvEYQP6EhPfTs=
+github.com/conduitio-labs/conduit-connector-chaos v0.2.0/go.mod h1:pZboTykg3bFt3HalvonZM9FTRKeVMahBbqZIuS7CORo=
 github.com/conduitio-labs/conduit-connector-snowflake v0.4.0 h1:S+C1vis2tI1Jy0U3zTiMx486pbM4R5hYlT5sKPPpKY8=
 github.com/conduitio-labs/conduit-connector-snowflake v0.4.0/go.mod h1:twvMKSc/k4L9Unr+ZsdvZgZPkxtgRU7KdW41Yhd/Ahs=
 github.com/conduitio/conduit v0.13.4 h1:hsYRUhXFSKYrw8+/lHtGjjMtY+AqaXE624AcAXtPIjI=

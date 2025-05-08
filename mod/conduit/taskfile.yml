@@ -107,15 +107,42 @@ tasks:
   bin:
     cmds:
       - '{{.GO_BIN_NAME}} work use . '
+      - '{{.GO_BIN_NAME}} mod tidy '
       - '{{.GO_BIN_NAME}} build -o {{.BASE_BIN_PATH}}/{{.CONDUIT_BIN_NAME}} . '
       # copy over the one in GOBIN
       - cp {{.BASE_BIN_PATH}}/{{.CONDUIT_BIN_NAME}} {{.GO_ENV_BIN_PATH}}/{{.CONDUIT_BIN_NAME}}
-      
+
+### clean
+
+  clean:
+     cmds:
+      # local db
+      - cmd: 'rm -rf conduit.db'
+
 ### run
+# Global Flags:
+#       --api.grpc.address string   address where Conduit is running
+#      --config.path string        path to the configuration file
 
   help:
     cmds:
-      - cmd: '{{.CONDUIT_BIN_NAME}} -h'
+      - '{{.CONDUIT_BIN_NAME}} -h'
+
+  init:help:
+    cmds:
+      - '{{.CONDUIT_BIN_NAME}} init -h'
+  init:
+    cmds:
+      - '{{.CONDUIT_BIN_NAME}} init --path .'
+  init:pipelines:
+    cmds:
+      # conduit pipelines init
+      # conduit pipelines init awesome-pipeline-name --source postgres --destination kafka 
+      # conduit pipelines init file-to-pg --source file --destination postgres --pipelines.path ./my-pipelines
+      - cmd: '{{.CONDUIT_BIN_NAME}} pipelines init -h'
+      - cmd: '{{.CONDUIT_BIN_NAME}} pipelines init '
+ 
+
   run:
     cmds:
       - cmd: '{{.CONDUIT_BIN_NAME}} run'
@@ -128,5 +155,6 @@ tasks:
   connector-plugins:list:
     cmds:
       # needs to be running.
+      # curl localhost:8080/v1/connectors/plugins | jq '.[].name'
       - cmd: '{{.CONDUIT_BIN_NAME}} connector-plugins list'
   

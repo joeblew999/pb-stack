@@ -15,29 +15,32 @@ includes:
 env:
   
   # Darwin - works both locally and in Github CI.
-  PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_NAME}}'
+  #PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_NAME}}'
 
   DECKFONTS: '{{.PWD}}/ajstarks__font/deckfonts'
 
 var:
 
   DECK_DEEP_PATH: '{{.DECK_DEEP_PATH | default "{{.PWD}}/ajstarks__decksh/decksh" }}'
-  DECK_DEEP_NAME: '{{.DECK_DEEP_NAME | default "test.dsh" }}'
+  DECK_DEEP_NAME_SH: '{{.DECK_DEEP_NAME_SH | default "test.dsh" }}'
   
-  DECK_DEEP_WHICH: '{{.DECK_DEEP_PATH}}/{{.DECK_DEEP_NAME}}'
+  DECK_DEEP_WHICH_SH: '{{.DECK_DEEP_PATH}}/{{.DECK_DEEP_NAME_SH}}'
 
 tasks:
   default:
     cmds:
       - echo ''
-      - echo DECKFONTS          {{shellQuote .DECKFONTS}}
+      - echo DECKFONTS              {{shellQuote .DECKFONTS}}
       - echo ''
-      - echo DECK_DEEP_PATH     {{shellQuote .DECK_DEEP_PATH}}
-      - echo DECK_DEEP_NAME     {{.DECK_DEEP_NAME}}
+      - echo DECK_DEEP_PATH         {{shellQuote .DECK_DEEP_PATH}}
+      - echo DECK_DEEP_NAME_SH      {{.DECK_DEEP_NAME_SH}}
+      - echo DECK_DEEP_NAME_XML     {{.DECK_DEEP_NAME_XML}}
       - echo ''
-      - echo DECK_DEEP_WHICH    {{shellQuote .DECK_DEEP_WHICH}}
+      - echo DECK_DEEP_WHICH_SH     {{shellQuote .DECK_DEEP_WHICH_SH}}
+      - echo DECK_DEEP_WHICH_XML    {{shellQuote .DECK_DEEP_WHICH_XML}}
       - echo ''
     silent: true
+
   all:
     cmds:
       - cd ajstarks__deck && task all
@@ -50,7 +53,26 @@ tasks:
     cmds:
       # cp "up" using .bin pattern ! works :)
       - mkdir -p ./.bin
-      - cp ./*/.bin/* ./.bin/
+      - cp ./*/.bin/* ./{{.BASE_BIN_NAME}}
+  pack:list:
+    cmds:
+      - ls -al ./{{.BASE_BIN_NAME}}/*deck*
+  pack:del:
+    cmds:
+      - rm -f ./{{.BASE_BIN_NAME}}/*deck*
+
+  install:
+    cmds:
+      # copy all of .bin into the go bin, so we have it on path. Imp to work this way
+      - cp ./{{.BASE_BIN_NAME}}/*deck* {{.GO_ENV_BIN_PATH}}
+      
+  install:list:
+    cmds:
+      - ls -al {{.GO_ENV_BIN_PATH}}/*deck*
+  install:del:
+    cmds:
+      # del the right ones
+      - rm -f {{.GO_ENV_BIN_PATH}}/*deck*
 
   clean:
       cmds:
@@ -58,6 +80,8 @@ tasks:
       #- cd ajstarks__deck && task go:clean
       #- cd ajstarks__decksh && task all
       #- cd ajstarks__ebcanvas && task all
+
+### run
 
   run:sh:
     cmds:
@@ -71,6 +95,17 @@ tasks:
       # decksh -o foo.xml foo.sh # input from foo.sh output to foo.xml
       # decksh -version          # show decksh version
       # decksh -dump ...         # show decksh variables
-  run:gui:
+
+  run:svg:sml:
     cmds:
-      - '{{.BASE_BIN_NAME}}/decksh_darwin_arm64 {{.DECK_DEEP_WHICH}} | {{.BASE_BIN_NAME}}/ebdeck_darwin_arm64'
+      - svgdeck_darwin_arm64 
+
+  run:gui:sh:
+    cmds:
+      #- cd {{.DECK_DEEP_PATH}} && decksh_darwin_arm64 {{.DECK_DEEP_WHICH_SH}} | ebdeck_darwin_arm64
+      - decksh_darwin_arm64 {{.DECK_DEEP_WHICH_SH}} | ebdeck_darwin_arm64
+
+  run:gui:xml:
+    cmds:
+      # ```ebdeck f.xml # read from a deck file```
+      - ebdeck_darwin_arm64 {{.DECK_DEEP_WHICH_SH}}

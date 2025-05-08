@@ -3,6 +3,7 @@ module main
 go 1.24.3
 
 require (
+	github.com/conduitio-labs/conduit-connector-chaos v0.2.0
 	github.com/conduitio-labs/conduit-connector-snowflake v0.4.0
 	github.com/conduitio/conduit v0.13.4
 )

@@ -1,0 +1,59 @@
+config:
+  # global conduit configuration file
+  path: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/conduit/conduit.yaml
+db:
+  # database type; accepts badger,postgres,inmemory,sqlite
+  type: badger
+  badger:
+    # path to badger DB
+    path: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/conduit/conduit.db
+  postgres:
+    # postgres table in which to store data (will be created if it does not exist)
+    table: conduit_kv_store
+  sqlite:
+    # path to sqlite3 DB
+    path: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/conduit/conduit.db
+    # sqlite3 table in which to store data (will be created if it does not exist)
+    table: conduit_kv_store
+api:
+  # enable HTTP and gRPC API
+  enabled: true
+  http:
+    # address for serving the HTTP API
+    address: :8080
+  grpc:
+    # address for serving the gRPC API
+    address: :8084
+log:
+  # sets logging level; accepts debug, info, warn, error, trace
+  level: info
+  # sets the format of the logging; accepts json, cli
+  format: cli
+connectors:
+  # path to standalone connectors' directory
+  path: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/conduit/connectors
+processors:
+  # path to standalone processors' directory
+  path: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/conduit/processors
+pipelines:
+  # path to pipelines' directory
+  path: /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/conduit/pipelines
+  # exit Conduit if a pipeline is degraded
+  exit-on-degraded: false
+  error-recovery:
+    # minimum delay before restart
+    min-delay: 1s
+    # maximum delay before restart
+    max-delay: 10m0s
+    # backoff factor applied to the last delay
+    backoff-factor: 2
+    # maximum number of retries
+    max-retries: -1
+    # amount of time running without any errors after which a pipeline is considered healthy
+    max-retries-window: 5m0s
+schema-registry:
+  # schema registry type; accepts builtin,confluent
+  type: builtin
+preview:
+  # enables experimental pipeline architecture v2 (note that the new architecture currently supports only 1 source and 1 destination per pipeline)
+  pipeline-arch-v2: false
