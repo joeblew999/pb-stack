@@ -21,3 +21,45 @@ tasks:
       - task go:mod:work
       - task go:gen
       - task go:bin
+  install:
+    cmds:
+      - brew install carapace
+      - code ~/.zshrc
+      # export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
+      # zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+      # source <(carapace _carapace)
+  install:del:
+    cmds:
+      - brew uninstall carapace
+      - code ~/.zshrc
+     
+
+
+  config:
+    cmds:
+    # Some completions are cached at
+    - ls -al {{.HOME}}/Library/Caches/
+    # Config
+    - ls -al '{{.HOME}}/Library/Application Support/carapace'
+    # Specs are loaded from
+    - ls -al '{{.HOME}}/Library/Application Support/carapace/specs'
+  run:
+    cmds:
+      - task go:run -- -h
+  run:clear:
+    cmds:
+      - task go:run -- --clear-cache
+  run:version:
+    cmds:
+      - task go:run -- --version
+  run:selfupdate:
+    cmds:
+      - task go:run -- --selfupdate
+  run:list:
+    cmds:
+      # list completers
+      - task go:run -- --list
+  run:run:
+    cmds:
+      # list completers
+      - task go:run -- --run task
