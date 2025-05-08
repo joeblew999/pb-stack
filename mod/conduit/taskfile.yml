@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  dev: 
+    taskfile: ./../../dev-taskfile.yml
+    flatten: true
+
+envs:
+  
+  GIT_VAR_SRC_REPO_URL: '.'
+  GIT_VAR_SRC_REPO_NAME: '.'
+
+  #GO_VAR_SRC_ROOT_PATH: '.'
+  #GO_VAR_SRC_MAIN_PATH: '.'
+ 
+
+vars:
+ 
+
+
+  # https://github.com/ConduitIO/conduit
+  CONDUIT_BIN_NAME: 'conduit{{.BASE_BINARY_EXTENSION}}'
+  # https://github.com/ConduitIO/conduit/releases/tag/v0.14.0-nightly.20250508
+  CONDUIT_BIN_VERSION: v0.14.0-nightly.20250508
+  CONDUIT_BIN_WHICH: ''
+  CONDUIT_BIN_WHICH_VERSION: ''
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo '- bin'
+      - echo 'CONDUIT_BIN_NAME:'                 {{.CONDUIT_BIN_NAME}}
+      - echo 'CONDUIT_BIN_VERSION:'              {{.CONDUIT_BIN_VERSION}}
+      - echo 'CONDUIT_BIN_WHICH:'                
+      - task dep:which
+      - echo 'CONDUIT_BIN_WHICH_VERSION:'        {{.CONDUIT_BIN_WHICH_VERSION}}
+      - echo ''
+    silent: true
+
+  os:
+    desc: print the OS and ARCH, to check the shell is working.
+    cmds:
+      - cmd: echo 'on darwin/amd64'
+        platforms: [darwin/amd64]
+      - cmd: echo 'on darwin/arm64'
+        platforms: [darwin/arm64]
+
+      - cmd: echo 'on linux/amd64'
+        platforms: [linux/amd64]
+      - cmd: echo 'on linux/arm64'
+        platforms: [linux/arm64]
+
+      - cmd: echo 'on windows/amd64'
+        platforms: [windows/amd64]
+      - cmd: echo 'on windows/arm64'
+        platforms: [windows/arm64]
+
+      # exotics
+      - cmd: echo 'on openbsd, dragonfly, freebsd, netbsd'
+        platforms: [openbsd, dragonfly, freebsd, netbsd]
+
+
+### dep
+
+  dep:
+    cmds:
+      - echo ''
+      - echo 'releaser install'
+      - '{{.GO_BIN_NAME}} install github.com/conduitio/conduit/cmd/conduit@{{.CONDUIT_BIN_VERSION}}'
+      - echo ''
+    silent: false
+  dep:del:
+    cmds:
+      - rm -f {{.BASE_DEP_PATH}}/{{.CONDUIT_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}/{{.CONDUIT_BIN_NAME}}
+  dep:which:
+    cmds:
+      - task base:shell-which -- {{.CONDUIT_BIN_NAME}}
+  dep:which:version:
+    cmds:
+      - '{{.CONDUIT_BIN_NAME}} --version'
+
+### install 
+
+  install:
+    cmds:
+      - cmd: brew install conduit
+        platforms: [darwin]
+      - cmd: winget install conduit
+        platforms: [windows]
+  install:del:
+    cmds:
+      - cmd: brew uninstall conduit
+        platforms: [darwin]
+      - cmd: winget uninstall conduit
+        platforms: [windows]
+
+### bin (ours)
+
+  bin:
+    cmds:
+      - '{{.GO_BIN_NAME}} work use . '
+      - '{{.GO_BIN_NAME}} build -o {{.BASE_BIN_PATH}}/{{.CONDUIT_BIN_NAME}} . '
+      # copy over the one in GOBIN
+      - cp {{.BASE_BIN_PATH}}/{{.CONDUIT_BIN_NAME}} {{.GO_ENV_BIN_PATH}}/{{.CONDUIT_BIN_NAME}}
+      
+### run
+
+  help:
+    cmds:
+      - cmd: '{{.CONDUIT_BIN_NAME}} -h'
+  run:
+    cmds:
+      - cmd: '{{.CONDUIT_BIN_NAME}} run'
+  version:
+    cmds:
+      - cmd: '{{.CONDUIT_BIN_NAME}} version'
+  config:
+    cmds:
+      - cmd: '{{.CONDUIT_BIN_NAME}} config'
+  connector-plugins:list:
+    cmds:
+      # needs to be running.
+      - cmd: '{{.CONDUIT_BIN_NAME}} connector-plugins list'
+  
