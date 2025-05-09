@@ -29,6 +29,7 @@ tasks:
       - echo 'HTML_DEEP_PATH              {{shellQuote .HTML_DEEP_PATH}}'
       - echo 'HTML_DEEP_NAME              {{.HTML_DEEP_NAME}}'
       - echo 'HTML_DEEP_WHICH             {{.HTML_DEEP_PATH}}/{{.HTML_DEEP_NAME}}'
+      - echo 'HTML_DEEP_WHICH (joined)    {{joinPath .HTML_DEEP_PATH .HTML_DEEP_NAME}}'
       - echo ''
     silent: true
 
