@@ -96,9 +96,10 @@ tasks:
       # decksh -version          # show decksh version
       # decksh -dump ...         # show decksh variables
 
-  run:svg:sml:
+  run:svg:xml:
     cmds:
-      - svgdeck_darwin_arm64 
+      - svgdeck_darwin_arm64 {{.DECK_DEEP_WHICH_XML}}
+
 
   run:gui:sh:
     cmds:
@@ -109,3 +110,12 @@ tasks:
     cmds:
       # ```ebdeck f.xml # read from a deck file```
       - ebdeck_darwin_arm64 {{.DECK_DEEP_WHICH_SH}}
+
+  run:editor:help:
+    cmds:
+      - go run . -h
+  run:editor:
+    cmds:
+      - go run . --dshfile {{.DECK_DEEP_WHICH_SH}} --lineid "text \"Hello World\"" -oldtext "World" -newtext "Go"
+      
+    

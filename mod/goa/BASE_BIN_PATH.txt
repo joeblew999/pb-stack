@@ -1,0 +1,1 @@
+/Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/goa/.bin

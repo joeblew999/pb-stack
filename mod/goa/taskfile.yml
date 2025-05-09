@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  dev: 
+    taskfile: ./../../dev-taskfile.yml
+    flatten: true
+
+env:
+  
+  # Darwin - works both locally and in Github CI.
+  PATH: '{{.PATH}}:{{.BASE_BIN_PATH}}'
+
+vars:
+  ### bin
+  PC_BIN_NAME: goa
+  # https://github.com/goadesign/goa/releases/tag/v3.21.0
+  PC_BIN_VERSION: v3.21.0
+  PC_BIN_WHICH: 
+    #sh: 'which {{.PC_BIN_NAME}}'
+  PC_BIN_WHICH_VERSION:
+    # Its too many lines.
+    # My Issue: https://github.com/F1bonacc1/process-compose/issues/330
+    #sh: '{{.PC_BIN_NAME}} version'
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo '- env'
+      - echo 'BASE_BIN_PATH:'              {{.BASE_BIN_PATH}}
+      - echo {{.BASE_BIN_PATH}} >> BASE_BIN_PATH.txt
+      - echo 'PATH:'                      {{.PATH}}
+      - echo {{.PATH}} >> PATH.txt
+      - echo ''
+      
+      - echo '- bin'
+      - echo 'PC_BIN_NAME:'                 {{.PC_BIN_NAME}}
+      - echo 'PC_BIN_VERSION:'              {{.PC_BIN_VERSION}}
+      - echo 'PC_BIN_WHICH:'                {{.PC_BIN_WHICH}}
+      - 'which {{.PC_BIN_NAME}}'
+      - echo 'PC_BIN_WHICH_VERSION:'        {{.PC_BIN_WHICH_VERSION}}
+      - echo ''
+
+### Shows break downs for granular control...
+
+  src:
+    cmds:
+      - task git:clone:src
+  src:del:
+    cmds:
+      - task git:clone:src:del
+
+### dep
+
+  dep:
+    cmds:
+    - GOBIN={{.BASE_BIN_PATH}} go install goa.design/goa/v3/cmd/goa@{{.PC_BIN_VERSION}}
+  dep:del:
+    cmds:
+      - rm -f {{.BASE_DEP_PATH}}/{{.PC_BIN_NAME}}
+      - ls -al {{.BASE_DEP_PATH}}
+    silent: false
+  dep:which:
+    cmds:
+      - task base:shell-which -- {{.PC_BIN_NAME}}
+    silent: false
+
+  mod:
+    cmds:
+      - task go:mod:work
+  dev:
+    cmds:
+      - task go:dev
+  bin:
+    cmds:
+      - task go:bin
+  run:
+    cmds:
+      - task go:run

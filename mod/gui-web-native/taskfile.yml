@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['run.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  dev: 
+    taskfile: ./../../dev-taskfile.yml
+    flatten: true
+  pc: 
+    taskfile: ./../process-compose/pc.taskfile.yml
+    #flatten: true
+
+env:
+  # this allow overriding from CLI.
+  
+  HTML_DEEP_NAME: '{{.HTML_DEEP_NAME | default "test.html" }}'
+
+var:
+  HTML_DEEP_PATH: '{{.HTML_DEEP_PATH | default "{{.PWD}}" }}'
+  HTML_DEEP_WHICH: 'joinPath {{.HTML_DEEP_PATH}} {{.HTML_DEEP_NAME}}'
+  
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo 'HTML_DEEP_PATH              {{shellQuote .HTML_DEEP_PATH}}'
+      - echo 'HTML_DEEP_NAME              {{.HTML_DEEP_NAME}}'
+      - echo 'HTML_DEEP_WHICH             {{shellQuote .HTML_DEEP_WHICH}}'
+      - echo ''
+    silent: true
+
+  
