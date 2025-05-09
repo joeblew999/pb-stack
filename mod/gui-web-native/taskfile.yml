@@ -6,13 +6,13 @@ version: '3'
 dotenv: ['run.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 
-includes:
-  dev: 
-    taskfile: ./../../dev-taskfile.yml
-    flatten: true
-  pc: 
-    taskfile: ./../process-compose/pc.taskfile.yml
-    #flatten: true
+#includes:
+#  dev: 
+#    taskfile: ./../../dev-taskfile.yml
+#    flatten: true
+#  pc: 
+#    taskfile: ./../process-compose/pc.taskfile.yml
+#    #flatten: true
 
 env:
   # this allow overriding from CLI.
