@@ -12,8 +12,8 @@ import (
 // runCLIProcess is a helper function to execute the main program with CLI flags.
 // It runs the command in a new goroutine to avoid blocking the GUI.
 // It now accepts an action string (e.g., "Booting", "Debooting"), the CLI flag,
-// the targetHost string, and the statusText widget to provide feedback.
-func runCLIProcess(actionName string, cliActionFlag string, targetHost string, statusText *basicwidget.Text) {
+// the targetHost string, the packageName string, and the statusText widget to provide feedback.
+func runCLIProcess(actionName string, cliActionFlag string, targetHost string, packageName string, statusText *basicwidget.Text) {
 	exePath, err := os.Executable()
 	if err != nil {
 		errMsg := fmt.Sprintf("GUI Error: Failed to get executable path: %v", err)
@@ -23,15 +23,22 @@ func runCLIProcess(actionName string, cliActionFlag string, targetHost string, s
 	}
 
 	actionLog := fmt.Sprintf("%s system", actionName)
-	if targetHost != "" {
-		actionLog = fmt.Sprintf("%s system on %s", actionName, targetHost)
+	if packageName != "" {
+		actionLog = fmt.Sprintf("%s package '%s'", actionName, packageName)
 	}
+	if targetHost != "" {
+		actionLog = fmt.Sprintf("%s on %s", actionLog, targetHost)
+	}
+
 	statusText.SetValue(fmt.Sprintf("%s... See console.", actionLog))
 	log.Printf("GUI: %s...", actionLog)
 
 	args := []string{"-cli", cliActionFlag}
 	if targetHost != "" {
 		args = append(args, "-target", targetHost)
+	}
+	if packageName != "" {
+		args = append(args, "-package", packageName)
 	}
 
 	cmd := exec.Command(exePath, args...)

@@ -14,6 +14,8 @@ type Root struct {
 	guigui.DefaultWidget
 
 	background   basicwidget.Background
+	packageLabel basicwidget.Text
+	packageInput basicwidget.TextInput
 	targetLabel  basicwidget.Text
 	targetInput  basicwidget.TextInput
 	bootButton   basicwidget.TextButton
@@ -24,6 +26,9 @@ type Root struct {
 func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppender) error {
 	// r.background.SetColor(color.NRGBA{R: 0x1e, G: 0x20, B: 0x26, A: 0xff}) // Dark background - Method not found in current guigui version
 	appender.AppendChildWidgetWithBounds(&r.background, context.Bounds(r))
+
+	r.packageLabel.SetValue("Package Name (Winget/Homebrew):")
+	// r.packageInput.SetPlaceholder("e.g., Git.Git or htop") // Placeholder not available
 
 	r.targetLabel.SetValue("Target Host/IP:")
 	// r.targetInput.SetPlaceholder("e.g., 192.168.1.100 or server.example.com") // Method not available
@@ -43,24 +48,26 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 	r.bootButton.SetText("Boot System")
 	r.bootButton.SetOnUp(func() {
 		// Run in a goroutine to avoid blocking the UI thread
-		go runCLIProcess("Booting", "-boot", r.targetInput.Value(), &r.statusText)
+		go runCLIProcess("Booting", "-boot", r.targetInput.Value(), r.packageInput.Value(), &r.statusText)
 	})
 
 	r.debootButton.SetText("Deboot System")
 	r.debootButton.SetOnUp(func() {
 		// Run in a goroutine to avoid blocking the UI thread
-		go runCLIProcess("Debooting", "-deboot", r.targetInput.Value(), &r.statusText)
+		go runCLIProcess("Debooting", "-deboot", r.targetInput.Value(), r.packageInput.Value(), &r.statusText)
 	})
 
 	u := basicwidget.UnitSize(context)
 	gl := layout.GridLayout{
 		Bounds: context.Bounds(r).Inset(u),
 		Heights: []layout.Size{
+			layout.FixedSize(u),     // For packageLabel
+			layout.FixedSize(u * 2), // For packageInput
 			layout.FixedSize(u),     // For targetLabel
 			layout.FixedSize(u * 2), // For targetInput
 			layout.FixedSize(u * 2), // For bootButton
 			layout.FixedSize(u * 2), // For debootButton
-			layout.FlexibleSize(1),  // For statusText
+			layout.FlexibleSize(1),  // For statusText, takes remaining space
 		},
 		RowGap: u,
 	}
@@ -68,16 +75,19 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 	// Add boot button to the first row
 	appender.AppendChildWidgetWithBounds(&r.bootButton, gl.CellBounds(0, 0))
 
+	// Add package label and input
+	appender.AppendChildWidgetWithBounds(&r.packageLabel, gl.CellBounds(0, 0))
+	appender.AppendChildWidgetWithBounds(&r.packageInput, gl.CellBounds(0, 1))
 	// Add target label
-	appender.AppendChildWidgetWithBounds(&r.targetLabel, gl.CellBounds(0, 0))
+	appender.AppendChildWidgetWithBounds(&r.targetLabel, gl.CellBounds(0, 2))
 	// Add target input field
-	appender.AppendChildWidgetWithBounds(&r.targetInput, gl.CellBounds(0, 1))
+	appender.AppendChildWidgetWithBounds(&r.targetInput, gl.CellBounds(0, 3))
 	// Add boot button
-	appender.AppendChildWidgetWithBounds(&r.bootButton, gl.CellBounds(0, 2))
+	appender.AppendChildWidgetWithBounds(&r.bootButton, gl.CellBounds(0, 4))
 	// Add deboot button
-	appender.AppendChildWidgetWithBounds(&r.debootButton, gl.CellBounds(0, 3))
+	appender.AppendChildWidgetWithBounds(&r.debootButton, gl.CellBounds(0, 5))
 	// Add status text
-	appender.AppendChildWidgetWithBounds(&r.statusText, gl.CellBounds(0, 4))
+	appender.AppendChildWidgetWithBounds(&r.statusText, gl.CellBounds(0, 6))
 
 	return nil
 }
