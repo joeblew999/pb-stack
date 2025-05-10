@@ -37,6 +37,16 @@ try {
     Write-Warning "Failed to uninstall Go using winget. It might not have been installed or an error occurred."
 }
 
+# Uninstalls Visual Studio Code using winget
+try {
+    Write-Host "Attempting to uninstall Visual Studio Code using winget..."
+    winget uninstall --id=Microsoft.VisualStudioCode -e --accept-source-agreements --silent
+    Write-Host "Visual Studio Code uninstallation process finished."
+} catch {
+    Write-Warning "Failed to uninstall Visual Studio Code using winget. It might not have been installed or an error occurred."
+}
+
+
 
 # Uninstalls OpenSSH using winget
 try {
