@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"flag"
 	"fmt"
 	"io/fs"
 	"log"
@@ -14,7 +15,14 @@ import (
 var embeddedAssets embed.FS // Embed migrations folder
 
 func main() {
-	fmt.Println("Booting up...")
+	debootFlag := flag.Bool("deboot", false, "Run deboot scripts instead of boot scripts")
+	flag.Parse()
+
+	action := "Booting"
+	if *debootFlag {
+		action = "Debooting"
+	}
+	fmt.Printf("%s up...\n", action)
 
 	// Example: List files in the embedded migrations directory (using the new embeddedAssets)
 	fs.WalkDir(embeddedAssets, "migrations", func(path string, d fs.DirEntry, err error) error {
@@ -25,14 +33,18 @@ func main() {
 		return nil
 	})
 
-	fmt.Println("Checking OS...")
+	fmt.Println("Checking OS ...")
 
 	fmt.Printf("Detected OS: %s\n", runtime.GOOS) // Use runtime.GOOS
 
+	scriptBaseName := "boot"
+	if *debootFlag {
+		scriptBaseName = "deboot"
+	}
 	switch runtime.GOOS { // Use runtime.GOOS
 	case "darwin", "linux":
 		{
-			scriptName := "migrations/boot.sh" // Path within the embedded FS
+			scriptName := fmt.Sprintf("migrations/%s.sh", scriptBaseName) // Path within the embedded FS
 			scriptBytes, err := embeddedAssets.ReadFile(scriptName)
 			if err != nil {
 				log.Fatalf("Failed to read embedded script %s: %v", scriptName, err)
@@ -74,7 +86,7 @@ func main() {
 		}
 	case "windows":
 		{
-			scriptName := "migrations/boot.ps1" // Path within the embedded FS
+			scriptName := fmt.Sprintf("migrations/%s.ps1", scriptBaseName) // Path within the embedded FS
 			scriptBytes, err := embeddedAssets.ReadFile(scriptName)
 			if err != nil {
 				log.Fatalf("Failed to read embedded script %s: %v", scriptName, err)
@@ -111,5 +123,5 @@ func main() {
 		}
 	}
 
-	fmt.Println("Boot up complete.")
+	fmt.Printf("%s up complete.\n", action)
 }

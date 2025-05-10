@@ -18,4 +18,5 @@ ms-vscode.live-server
 starfederation.datastar-vscode
 streetsidesoftware.code-spell-checker
 task.vscode-task
+tomoki1207.pdf
 xc-vscode.xc-vscode
