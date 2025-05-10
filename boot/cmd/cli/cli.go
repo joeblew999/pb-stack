@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"sort"
 )
 
 // debugMode can be set via a flag or environment variable in a real application
@@ -48,28 +49,23 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 
 	var cmd *exec.Cmd
 	var err error
-	var tempScriptPath string // To hold the path of a temporary script, if one is created
 
 	if packageName != "" && targetHost == "" {
 		cmd, err = handleLocalPackageOperation(scriptBaseName, packageName)
-		// No temporary script path for local package operations
-	} else {
-		cmd, tempScriptPath, err = handleScriptOperation(assets, scriptBaseName, targetHost, packageName)
-		if tempScriptPath != "" {
-			defer os.Remove(tempScriptPath) // Defer removal after Execute finishes
+		if err != nil {
+			log.Fatalf("Failed to prepare local package operation: %v", err)
 		}
-	}
-
-	if err != nil {
-		log.Fatalf("Failed to prepare command: %v", err)
-	}
-
-	if cmd != nil {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Dir = os.TempDir() // Set working directory for the script if necessary
-		if runErr := cmd.Run(); runErr != nil {
-			log.Fatalf("Failed to execute command '%s': %v", cmd.Path, runErr)
+		if cmd != nil { // If a command was actually prepared (e.g., OS supported)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			if runErr := cmd.Run(); runErr != nil {
+				log.Fatalf("Failed to execute local package operation '%s': %v", cmd.Path, runErr)
+			}
+		}
+	} else {
+		err = executeScriptOperations(assets, scriptBaseName, targetHost, packageName)
+		if err != nil {
+			log.Fatalf("Script execution failed: %v", err)
 		}
 	}
 	fmt.Printf("%s complete.\n", actionMessage)
@@ -137,11 +133,14 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 	return cmd, nil
 }
 
-func handleScriptOperation(assets embed.FS, scriptBaseName, targetHost, packageName string) (*exec.Cmd, string, error) {
-	if packageName != "" && targetHost != "" {
-		fmt.Println("Performing remote package operation via script...")
-	} else {
-		fmt.Println("Performing generic script operation...")
+func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packageName string) error {
+	var tempExtensionsPath string
+	// Prepare extensions.txt first, as its path will be an argument to scripts
+	extensionsFilePathInAssets := "migrations/extensions.txt"
+	extensionsBytes, err := assets.ReadFile(extensionsFilePathInAssets)
+	// Defer cleanup of extensions.txt if created
+	if tempExtensionsPath != "" { // This check needs to be after tempExtensionsPath is potentially set
+		defer os.Remove(tempExtensionsPath)
 	}
 
 	if debugMode {
@@ -159,69 +158,140 @@ func handleScriptOperation(assets embed.FS, scriptBaseName, targetHost, packageN
 		})
 	}
 
-	fmt.Println("Determining script type for execution...")
+	if err == nil { // extensions.txt File exists and was read
+		extTempFile, errCreate := os.CreateTemp(os.TempDir(), "pb-stack-extensions-*.txt")
+		if errCreate != nil {
+			return fmt.Errorf("failed to create temp file for extensions.txt: %w", errCreate)
+		}
+		tempExtensionsPath = extTempFile.Name() // Assign here
+		// Now that tempExtensionsPath is assigned, the defer above will work if this function exits.
+
+		if _, errWrite := extTempFile.Write(extensionsBytes); errWrite != nil {
+			extTempFile.Close()
+			// os.Remove(tempExtensionsPath) // defer will handle this if path was set
+			return fmt.Errorf("failed to write to temp file for extensions.txt: %w", errWrite)
+		}
+		if errClose := extTempFile.Close(); errClose != nil {
+			// os.Remove(tempExtensionsPath) // defer will handle this
+			return fmt.Errorf("failed to close temp file for extensions.txt: %w", errClose)
+		}
+		fmt.Printf("Found and prepared extensions.txt at temporary path: %s\n", tempExtensionsPath)
+	} else if !os.IsNotExist(err) { // An error other than "not found"
+		log.Printf("Warning: Error reading embedded extensions.txt: %v. Proceeding without it.", err)
+	} // If os.IsNotExist(err), we just proceed without it silently.
 
 	var scriptArgs []string
 	if targetHost != "" {
 		scriptArgs = append(scriptArgs, targetHost)
 	}
+	// Note: packageName is handled differently now for single vs multi-script
+	if tempExtensionsPath != "" {
+		scriptArgs = append(scriptArgs, tempExtensionsPath) // Common for all scripts if extensions.txt exists
+	}
+
+	isUnixLike := runtime.GOOS == "darwin" || runtime.GOOS == "linux"
+	scriptSuffix := ".sh"
+	if !isUnixLike {
+		if runtime.GOOS == "windows" {
+			scriptSuffix = ".ps1"
+		} else {
+			return fmt.Errorf("unsupported OS for script execution: %s", runtime.GOOS)
+		}
+	}
+
 	if packageName != "" {
-		scriptArgs = append(scriptArgs, packageName)
-	}
-
-	var cmd *exec.Cmd
-	var tempFilePath string
-	var err error
-
-	// The script type (.sh or .ps1) is chosen based on the OS running this Go program.
-	// The script itself must handle remoting if targetHost is specified.
-	switch runtime.GOOS {
-	case "darwin", "linux":
-		cmd, tempFilePath, err = prepareScriptCmd(assets, scriptBaseName, "sh", true, scriptArgs)
-		if err != nil {
-			return nil, "", fmt.Errorf("error preparing shell script: %w", err)
+		// Single script execution for a specific package
+		fmt.Printf("Performing operation for package '%s' via script...\n", packageName)
+		singleScriptArgs := append([]string{}, scriptArgs...)    // Copy base args
+		singleScriptArgs = append(singleScriptArgs, packageName) // Add packageName specifically for this script
+		// The script name for package operations is still the generic boot/deboot
+		scriptPathInAssets := filepath.Join("migrations", scriptBaseName+scriptSuffix)
+		return runSingleScript(assets, scriptPathInAssets, isUnixLike, singleScriptArgs)
+	} else {
+		// Migration-style: multiple ordered scripts
+		scriptPrefix := "setup_"
+		if scriptBaseName == "deboot" {
+			scriptPrefix = "teardown_"
 		}
-	case "windows":
-		cmd, tempFilePath, err = prepareScriptCmd(assets, scriptBaseName, "ps1", false, scriptArgs)
+		fmt.Printf("Performing migration-style operation with prefix '%s'...\n", scriptPrefix)
+
+		entries, err := assets.ReadDir("migrations")
 		if err != nil {
-			return nil, "", fmt.Errorf("error preparing PowerShell script: %w", err)
+			return fmt.Errorf("failed to list embedded migration scripts: %w", err)
 		}
-	default:
-		return nil, "", fmt.Errorf("unsupported OS for script execution: %s", runtime.GOOS)
+
+		var scriptsToRun []string
+		for _, entry := range entries {
+			if !entry.IsDir() && filepath.HasPrefix(entry.Name(), scriptPrefix) && filepath.Ext(entry.Name()) == scriptSuffix {
+				scriptsToRun = append(scriptsToRun, entry.Name())
+			}
+		}
+		sort.Strings(scriptsToRun) // Ensure alphabetical order
+
+		if len(scriptsToRun) == 0 {
+			fmt.Printf("No scripts found matching pattern '%s*%s'. Nothing to do.\n", scriptPrefix, scriptSuffix)
+			return nil
+		}
+
+		fmt.Printf("Found migration scripts to run: %v\n", scriptsToRun)
+		for _, scriptFilename := range scriptsToRun {
+			scriptPathInAssets := filepath.Join("migrations", scriptFilename)
+			fmt.Printf("Executing script: %s\n", scriptPathInAssets)
+			// scriptArgs for migration scripts do not include packageName
+			err := runSingleScript(assets, scriptPathInAssets, isUnixLike, scriptArgs)
+			if err != nil {
+				return fmt.Errorf("error executing script %s: %w", scriptFilename, err)
+			}
+		}
 	}
-	return cmd, tempFilePath, nil
+	return nil
 }
 
-func prepareScriptCmd(assets embed.FS, scriptBaseName, scriptSuffix string, isUnixLike bool, scriptArgs []string) (*exec.Cmd, string, error) {
-	scriptName := fmt.Sprintf("migrations/%s.%s", scriptBaseName, scriptSuffix)
-	scriptBytes, err := assets.ReadFile(scriptName)
+// runSingleScript prepares and executes one script.
+func runSingleScript(assets embed.FS, scriptPathInAssets string, isUnixLike bool, scriptArgs []string) error {
+	cmd, tempScriptPath, err := prepareScriptCmd(assets, scriptPathInAssets, isUnixLike, scriptArgs)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to read embedded script %s: %w", scriptName, err)
+		return err
+	}
+	defer os.Remove(tempScriptPath)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Dir = os.TempDir()
+	return cmd.Run()
+}
+
+func prepareScriptCmd(assets embed.FS, scriptPathInAssets string, isUnixLike bool, scriptArgs []string) (*exec.Cmd, string, error) {
+	scriptBytes, err := assets.ReadFile(scriptPathInAssets)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to read embedded script %s: %w", scriptPathInAssets, err)
 	}
 
-	tempFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("pb-stack-boot-*.%s", scriptSuffix))
+	// Determine suffix from scriptPathInAssets for temp file
+	scriptSuffix := filepath.Ext(scriptPathInAssets)
+	tempFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("pb-stack-script-*%s", scriptSuffix))
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to create temp file for %s: %w", scriptName, err)
+		return nil, "", fmt.Errorf("failed to create temp file for %s: %w", scriptPathInAssets, err)
 	}
 	tempFilePath := tempFile.Name()
 
 	if _, err := tempFile.Write(scriptBytes); err != nil {
 		tempFile.Close()
 		os.Remove(tempFilePath)
-		return nil, "", fmt.Errorf("failed to write to temp file for %s: %w", scriptName, err)
+		return nil, "", fmt.Errorf("failed to write to temp file for %s: %w", scriptPathInAssets, err)
 	}
 
 	if isUnixLike {
 		if err := tempFile.Chmod(0755); err != nil {
 			tempFile.Close()
 			os.Remove(tempFilePath)
-			return nil, "", fmt.Errorf("failed to set executable permission for temp file %s: %w", scriptName, err)
+			return nil, "", fmt.Errorf("failed to set executable permission for temp file %s: %w", scriptPathInAssets, err)
 		}
 	}
 
 	if err := tempFile.Close(); err != nil {
 		os.Remove(tempFilePath)
-		return nil, "", fmt.Errorf("failed to close temp file for %s: %w", scriptName, err)
+		return nil, "", fmt.Errorf("failed to close temp file for %s: %w", scriptPathInAssets, err)
 	}
 
 	var cmd *exec.Cmd
