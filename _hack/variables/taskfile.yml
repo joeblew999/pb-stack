@@ -12,7 +12,7 @@ env:
 
 vars:
   HTML_DEEP_PATH: '{{.HTML_DEEP_PATH | default "{{.PWD}}" }}'
-  HTML_DEEP_WHICH: 'joinpath {{.HTML_DEEP_PATH}} {{.HTML_DEEP_NAME}}'
+  HTML_DEEP_WHICH: '{{joinPath .HTML_DEEP_PATH .HTML_DEEP_NAME}}'
 
 tasks:
   default:
