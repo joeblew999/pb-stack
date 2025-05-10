@@ -15,14 +15,11 @@ import (
 const debugMode = false // Set to true to enable debug logging like fs.WalkDir
 
 func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string, packageName string) {
-	var action string
 	var scriptBaseName string
 
 	if bootFlag {
-		action = "Booting (CLI)"
 		scriptBaseName = "boot"
 	} else if debootFlag {
-		action = "Debooting (CLI)"
 		scriptBaseName = "deboot"
 	} else {
 		fmt.Println("CLI mode selected. Please specify an action:")
@@ -35,7 +32,12 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 		os.Exit(0) // Exit cleanly after showing options
 	}
 
-	actionMessage := fmt.Sprintf("%s up", action)
+	// Adjust actionMessage construction slightly for new terms
+	baseActionVerb := "Setting up"
+	if scriptBaseName == "deboot" {
+		baseActionVerb = "Tearing down"
+	}
+	actionMessage := baseActionVerb // e.g., "Setting up" or "Tearing down"
 	if packageName != "" {
 		actionMessage = fmt.Sprintf("%s for package '%s'", actionMessage, packageName)
 	}

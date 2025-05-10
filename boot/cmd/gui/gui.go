@@ -46,16 +46,16 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 		r.statusText.SetValue("Select an action.")
 	}
 
-	r.bootButton.SetText("Boot System")
+	r.bootButton.SetText("Setup")
 	r.bootButton.SetOnUp(func() {
 		// Run in a goroutine to avoid blocking the UI thread
-		go runCLIProcess("Booting", "-boot", r.targetInput.Value(), r.packageInput.Value(), &r.statusText)
+		go runCLIProcess("Setting up", "-boot", r.targetInput.Value(), r.packageInput.Value(), &r.statusText)
 	})
 
-	r.debootButton.SetText("Deboot System")
+	r.debootButton.SetText("Teardown")
 	r.debootButton.SetOnUp(func() {
 		// Run in a goroutine to avoid blocking the UI thread
-		go runCLIProcess("Debooting", "-deboot", r.targetInput.Value(), r.packageInput.Value(), &r.statusText)
+		go runCLIProcess("Tearing down", "-deboot", r.targetInput.Value(), r.packageInput.Value(), &r.statusText)
 	})
 
 	r.clearButton.SetText("Clear")
