@@ -37,6 +37,16 @@ try {
     Write-Warning "Failed to install Go using winget. Please install it manually."
 }
 
+# Installs Visual Studio Code using winget
+try {
+    Write-Host "Attempting to install Visual Studio Code using winget..."
+    winget install --id=Microsoft.VisualStudioCode -e --accept-source-agreements --accept-package-agreements --silent
+    Write-Host "Visual Studio Code installation process finished."
+} catch {
+    Write-Warning "Failed to install Visual Studio Code using winget. Please install it manually."
+}
+
+
 
 # Installs OpenSSH using winget
 try {
