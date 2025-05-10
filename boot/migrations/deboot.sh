@@ -31,6 +31,7 @@ packages_to_uninstall=(
     "go"
     "openssh"
     "which"
+    "visual-studio-code" # Added VS Code Cask
 )
 
 echo ""

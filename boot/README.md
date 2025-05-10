@@ -1,73 +1,26 @@
 # boot
 
-From Windows or Unix boot the basics, so the rest can also work
+This utility helps bootstrap your development environment by installing essential tools and configurations. It can be run in a GUI mode or via the command line.
 
-## gen
+All `task` commands should be run from within this `/Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/boot/` directory.
 
-Creates the extensions.txt
+## Running with Task
 
-```sh
-chmod +x ./extensions-gen.sh
+### GUI Mode (Default)
 
-./extensions-gen.sh
-```
-
-## windows 
-
+To launch the Ebiten-based GUI (using guigui):
 
 ```sh
-
-boot.ps1
-
-deboot.ps1
+task
+# or explicitly
+task gui
 ```
 
-unix boot.sh
+### Command-Line Interface (CLI) Mode
+
+**To run the boot/setup scripts:**
 
 ```sh
-
-chmod +x ./boot.sh
-chmod +x ./deboot.sh
-
-./boot.sh
-
-#./deboot.sh
-
+task cli
 ```
 
-## Unix
-
-unix deboot.sh
-
-```sh
-
-chmod +x ./boot.sh
-chmod +x ./deboot.sh
-
-./deboot.sh
-
-```
-
-### other
-
-todo: add windows debloat 
-
-bun is best and node is shit.
-
-```sh
-brew list
-
-which tailwindcss
-which node
-which npm
-
-brew uninstall tailwindcss
-brew uninstall node
-brew uninstall npm
-
-which tailwindcss
-which node
-which npm
-
-brew list
-```

@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+tasks:
+ 
+  # --- Bootstrapper tasks ---
+
+  default:
+    desc: "Runs the bootstrapper GUI application (default action from this Taskfile)."
+    cmds:
+      - task: gui # Calls the gui task below
+    silent: true
+
+  gui:
+    desc: "Runs the bootstrapper GUI application."
+    cmds:
+      - go run ./main.go {{.CLI_ARGS}}
+    silent: true
+
+  cli:
+    desc: "Runs the bootstrapper in CLI mode to install/configure tools."
+    cmds:
+      - go run ./main.go -cli {{.CLI_ARGS}}
+
+  deboot-cli:
+    desc: "Runs the bootstrapper in CLI mode to uninstall/deconfigure tools."
+    cmds:
+      - go run ./main.go -cli -deboot {{.CLI_ARGS}}
+
+  gen:extensions:
+    desc: "Generates/updates the migrations/extensions.txt file for VS Code."
+    dir: ./migrations # Run commands from within the migrations directory
+    cmds:
+      - chmod +x ./extensions-gen.sh
+      - ./extensions-gen.sh
+    silent: true
