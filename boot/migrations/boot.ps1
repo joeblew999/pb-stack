@@ -11,7 +11,8 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
 # Installs Bun using winget
 try {
-    Write-Host "Attempting to install Bun using winget..."
+    Write-Host "" # Empty line
+    Write-Host "Attempting to install Bun using winget..." -ForegroundColor Red
     winget install --id=Oven-sh.Bun -e --accept-source-agreements --accept-package-agreements --silent
     Write-Host "Bun installation process finished."
 } catch {
@@ -20,7 +21,8 @@ try {
 
 # Installs Git using winget
 try {
-    Write-Host "Attempting to install Git using winget..."
+    Write-Host "" # Empty line
+    Write-Host "Attempting to install Git using winget..." -ForegroundColor Red
     winget install --id=Git.Git -e --accept-source-agreements --accept-package-agreements --silent
     Write-Host "Git installation process finished."
 } catch {
@@ -30,7 +32,8 @@ try {
 
 # Installs Go using winget
 try {
-    Write-Host "Attempting to install Go using winget..."
+    Write-Host "" # Empty line
+    Write-Host "Attempting to install Go using winget..." -ForegroundColor Red
     winget install --id=GoLang.Go -e --accept-source-agreements --accept-package-agreements --silent
     Write-Host "Go installation process finished."
 } catch {
@@ -39,7 +42,8 @@ try {
 
 # Installs Visual Studio Code using winget
 try {
-    Write-Host "Attempting to install Visual Studio Code using winget..."
+    Write-Host "" # Empty line
+    Write-Host "Attempting to install Visual Studio Code using winget..." -ForegroundColor Red
     winget install --id=Microsoft.VisualStudioCode -e --accept-source-agreements --accept-package-agreements --silent
     Write-Host "Visual Studio Code installation process finished."
 } catch {
@@ -48,7 +52,8 @@ try {
 
 # Installs Task (taskfile.dev) using winget
 try {
-    Write-Host "Attempting to install Task (taskfile.dev) using winget..."
+    Write-Host "" # Empty line
+    Write-Host "Attempting to install Task (taskfile.dev) using winget..." -ForegroundColor Red
     winget install --id=GoTask.Task -e --accept-source-agreements --accept-package-agreements --silent
     Write-Host "Task (taskfile.dev) installation process finished."
 } catch {
@@ -60,7 +65,8 @@ try {
 
 # Installs OpenSSH using winget
 try {
-    Write-Host "Attempting to install OpenSSH using winget..."
+    Write-Host "" # Empty line
+    Write-Host "Attempting to install OpenSSH using winget..." -ForegroundColor Red
     winget install --id=Microsoft.OpenSSH.Preview -e --accept-source-agreements --accept-package-agreements --silent
     Write-Host "OpenSSH installation process finished."
 } catch {
@@ -71,7 +77,8 @@ try {
 
 # Installs Which using winget
 try {
-    Write-Host "Attempting to install Which using winget..."
+    Write-Host "" # Empty line
+    Write-Host "Attempting to install Which using winget..." -ForegroundColor Red
     winget install --id=GnuWin32.Which -e --accept-source-agreements --accept-package-agreements --silent
     Write-Host "Which installation process finished."
 } catch {
@@ -83,7 +90,8 @@ $extensionsFile = Join-Path (Split-Path -Path $PSCommandPath) "extensions.txt"
 
 if (Test-Path $extensionsFile) {
     try {
-        Write-Host "Found extensions.txt. Attempting to install VS Code extensions..."
+        Write-Host "" # Empty line
+        Write-Host "Found extensions.txt. Attempting to install VS Code extensions..." -ForegroundColor Red
         
         # Read each line from the extensions.txt file
         Get-Content $extensionsFile | ForEach-Object {
