@@ -21,7 +21,9 @@ task
 task override-01
 ```
 
-override from outside task. HTML_DEEP_PATH fails because is VAR, not ENV
+override from outside task. 
+HTML_DEEP_PATH fails because is VAR, not ENV.
+
 ```sh
 HTML_DEEP_PATH=$PWD/over-from-shell HTML_DEEP_NAME=over-from-shell task
 ```

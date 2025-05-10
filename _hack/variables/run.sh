@@ -1,1 +1,1 @@
-HTML_DEEP_PATH=path HTML_DEEP_NAME=x task 
+HTML_DEEP_PATH=$PWD/over-from-shell HTML_DEEP_NAME=over-from-shell task
