@@ -11,6 +11,9 @@ import (
 	"runtime"
 )
 
+// debugMode can be set via a flag or environment variable in a real application
+const debugMode = false // Set to true to enable debug logging like fs.WalkDir
+
 func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string, packageName string) {
 	var action string
 	var scriptBaseName string
@@ -41,150 +44,191 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 	}
 	fmt.Printf("%s...\n", actionMessage)
 
-	var scriptName string
 	var cmd *exec.Cmd
+	var err error
+	var tempScriptPath string // To hold the path of a temporary script, if one is created
 
 	if packageName != "" && targetHost == "" {
-		// Local package operation - direct command execution
-		fmt.Println("Performing local package operation...")
-		switch runtime.GOOS {
-		case "darwin": // macOS
-			pkgCmd := "install"
-			if scriptBaseName == "deboot" {
-				pkgCmd = "uninstall"
-			}
-			fmt.Printf("Using Homebrew: brew %s %s\n", pkgCmd, packageName)
-			cmd = exec.Command("brew", pkgCmd, packageName)
-		case "linux":
-			// Assuming apt for Linux, could be yum, dnf, etc.
-			// This part might need more sophisticated OS/distro detection or configuration
-			pkgCmd := "install"
-			sudo := "sudo" // Most package managers need sudo
-			if _, err := exec.LookPath("sudo"); err != nil {
-				sudo = "" // sudo not found, try without
-			}
-			if scriptBaseName == "deboot" {
-				pkgCmd = "remove"
-			}
-			// Example for apt
-			fmt.Printf("Using apt: %s apt %s -y %s\n", sudo, pkgCmd, packageName)
-			if sudo != "" {
-				cmd = exec.Command(sudo, "apt", pkgCmd, "-y", packageName)
-			} else {
-				cmd = exec.Command("apt", pkgCmd, "-y", packageName)
-			}
-		case "windows":
-			pkgCmd := "install"
-			if scriptBaseName == "deboot" {
-				pkgCmd = "uninstall"
-			}
-			// Winget often needs specific IDs. The packageName should be the ID.
-			// Adding common flags for non-interactive use.
-			fmt.Printf("Using Winget: winget %s --source winget --exact --id %s --accept-package-agreements --accept-source-agreements\n", pkgCmd, packageName)
-			cmd = exec.Command("winget", pkgCmd, "--source", "winget", "--exact", "--id", packageName, "--accept-package-agreements", "--accept-source-agreements")
-		default:
-			log.Fatalf("Unsupported OS for local package operation: %s", runtime.GOOS)
-		}
+		cmd, err = handleLocalPackageOperation(scriptBaseName, packageName)
+		// No temporary script path for local package operations
 	} else {
-		// Generic script operation OR remote package operation (handled by the script)
-		if packageName != "" && targetHost != "" {
-			fmt.Println("Performing remote package operation via script...")
-		} else {
-			fmt.Println("Performing generic script operation...")
+		cmd, tempScriptPath, err = handleScriptOperation(assets, scriptBaseName, targetHost, packageName)
+		if tempScriptPath != "" {
+			defer os.Remove(tempScriptPath) // Defer removal after Execute finishes
 		}
+	}
 
-		// List files in the embedded migrations directory (can be removed if not needed for debugging)
-		fs.WalkDir(assets, "migrations", func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				log.Printf("Warning: Error walking embedded assets: %v", err) // Log as warning
-				return fs.SkipDir                                             // Skip this directory if error occurs
-			}
-			// fmt.Println(path) // Can be verbose
-			return nil
-		})
-
-		fmt.Println("Checking OS for script execution context (local or remote)...")
-		// Note: runtime.GOOS here is the OS of the machine running *this Go program*.
-		// If targetHost is set, the script runs on the target, but this Go app still needs to pick the right script type (.sh or .ps1).
-		// For simplicity, we assume if a target is Linux/macOS, we use .sh, if Windows, .ps1.
-		// A more robust solution might involve probing the target or having user specify target OS type.
-
-		var scriptArgs []string
-		if targetHost != "" {
-			scriptArgs = append(scriptArgs, targetHost) // Script receives target host as $1 (or %1)
-		}
-		if packageName != "" { // If it's a package op (and thus targetHost is also set for this branch)
-			scriptArgs = append(scriptArgs, packageName) // Script receives package name as $2 (or %2)
-		}
-
-		// Determine script type based on typical target OS if targetHost is set, else local OS.
-		// This is a heuristic. If targetHost is "linux-server" but this Go app runs on Windows, we still want to use .sh.
-		// For now, we'll rely on the Go app's OS to select the script type, assuming the admin knows which script to make.
-		// This means if you run this on Windows to target a Linux machine, you'd ideally want to execute a .sh script via SSH.
-		// The current model just extracts and runs locally, or passes to a local powershell/bash.
-		// For true remote execution, this part needs to change significantly (e.g. invoke ssh or WinRM).
-		// Given the current structure, we assume the script is run *locally* and if it's for a target, the script handles remoting.
-
-		switch runtime.GOOS { // This is the OS of the machine running the Go program
-		case "darwin", "linux":
-			scriptName = fmt.Sprintf("migrations/%s.sh", scriptBaseName)
-			scriptBytes, err := assets.ReadFile(scriptName)
-			if err != nil {
-				log.Fatalf("Failed to read embedded script %s: %v", scriptName, err)
-			}
-			tempFile, err := os.CreateTemp(os.TempDir(), "pb-stack-boot-*.sh")
-			if err != nil {
-				log.Fatalf("Failed to create temp file for %s: %v", scriptName, err)
-			}
-			defer os.Remove(tempFile.Name())
-			if _, err := tempFile.Write(scriptBytes); err != nil {
-				tempFile.Close() // Close before attempting remove on error
-				log.Fatalf("Failed to write to temp file for %s: %v", scriptName, err)
-			}
-			if err := tempFile.Chmod(0755); err != nil {
-				tempFile.Close()
-				log.Fatalf("Failed to set executable permission for temp file %s: %v", scriptName, err)
-			}
-			tempFilePath := tempFile.Name()
-			if err := tempFile.Close(); err != nil { // Close the file before executing
-				log.Fatalf("Failed to close temp file for %s: %v", scriptName, err)
-			}
-			cmd = exec.Command(tempFilePath, scriptArgs...)
-
-		case "windows":
-			scriptName = fmt.Sprintf("migrations/%s.ps1", scriptBaseName)
-			scriptBytes, err := assets.ReadFile(scriptName)
-			if err != nil {
-				log.Fatalf("Failed to read embedded script %s: %v", scriptName, err)
-			}
-			tempFile, err := os.CreateTemp(os.TempDir(), "pb-stack-boot-*.ps1")
-			if err != nil {
-				log.Fatalf("Failed to create temp file for %s: %v", scriptName, err)
-			}
-			defer os.Remove(tempFile.Name())
-			if _, err := tempFile.Write(scriptBytes); err != nil {
-				tempFile.Close() // Close before attempting remove on error
-				log.Fatalf("Failed to write to temp file for %s: %v", scriptName, err)
-			}
-			tempFilePath := tempFile.Name()
-			if err := tempFile.Close(); err != nil { // Close the file before executing
-				log.Fatalf("Failed to close temp file for %s: %v", scriptName, err)
-			}
-			psArgs := []string{"-ExecutionPolicy", "Bypass", "-File", tempFilePath}
-			psArgs = append(psArgs, scriptArgs...)
-			cmd = exec.Command("powershell", psArgs...)
-		default:
-			log.Fatalf("Unsupported OS for script execution: %s", runtime.GOOS)
-		}
+	if err != nil {
+		log.Fatalf("Failed to prepare command: %v", err)
 	}
 
 	if cmd != nil {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Dir = os.TempDir() // Set working directory for the script if necessary
-		if err := cmd.Run(); err != nil {
-			log.Fatalf("Failed to execute %s: %v", scriptName, err)
+		if runErr := cmd.Run(); runErr != nil {
+			log.Fatalf("Failed to execute command '%s': %v", cmd.Path, runErr)
 		}
 	}
 	fmt.Printf("%s complete.\n", actionMessage)
+}
+
+func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd, error) {
+	fmt.Println("Performing local package operation...")
+	var cmd *exec.Cmd
+	var pkgManagerCmd string
+
+	switch runtime.GOOS {
+	case "darwin": // macOS
+		pkgManagerCmd = "brew"
+		if _, err := exec.LookPath(pkgManagerCmd); err != nil {
+			return nil, fmt.Errorf("%s command not found in PATH: %w. Please install Homebrew", pkgManagerCmd, err)
+		}
+		opCmd := "install"
+		if scriptBaseName == "deboot" {
+			opCmd = "uninstall"
+		}
+		fmt.Printf("Using Homebrew: %s %s %s\n", pkgManagerCmd, opCmd, packageName)
+		cmd = exec.Command(pkgManagerCmd, opCmd, packageName)
+	case "linux":
+		// Basic example for apt. A real-world scenario might need more robust detection.
+		pkgManagerCmd = "apt" // Could also be apt-get
+		if _, err := exec.LookPath(pkgManagerCmd); err != nil {
+			// Try apt-get if apt is not found directly
+			pkgManagerCmd = "apt-get"
+			if _, errGet := exec.LookPath(pkgManagerCmd); errGet != nil {
+				return nil, fmt.Errorf("neither apt nor apt-get command found in PATH: %w. Please ensure a Debian/Ubuntu based package manager is available", err)
+			}
+		}
+
+		opCmd := "install"
+		if scriptBaseName == "deboot" {
+			opCmd = "remove"
+		}
+
+		sudo := "sudo"
+		if _, err := exec.LookPath(sudo); err != nil {
+			fmt.Println("sudo command not found, attempting to run package manager without it.")
+			sudo = "" // sudo not found, try without
+		}
+
+		fmt.Printf("Using %s: %s %s %s -y %s\n", pkgManagerCmd, sudo, pkgManagerCmd, opCmd, packageName)
+		if sudo != "" {
+			cmd = exec.Command(sudo, pkgManagerCmd, opCmd, "-y", packageName)
+		} else {
+			cmd = exec.Command(pkgManagerCmd, opCmd, "-y", packageName)
+		}
+	case "windows":
+		pkgManagerCmd = "winget"
+		if _, err := exec.LookPath(pkgManagerCmd); err != nil {
+			return nil, fmt.Errorf("%s command not found in PATH: %w. Please install Winget", pkgManagerCmd, err)
+		}
+		opCmd := "install"
+		if scriptBaseName == "deboot" {
+			opCmd = "uninstall"
+		}
+		fmt.Printf("Using Winget: %s %s --source winget --exact --id %s --accept-package-agreements --accept-source-agreements\n", pkgManagerCmd, opCmd, packageName)
+		cmd = exec.Command(pkgManagerCmd, opCmd, "--source", "winget", "--exact", "--id", packageName, "--accept-package-agreements", "--accept-source-agreements")
+	default:
+		return nil, fmt.Errorf("unsupported OS for local package operation: %s", runtime.GOOS)
+	}
+	return cmd, nil
+}
+
+func handleScriptOperation(assets embed.FS, scriptBaseName, targetHost, packageName string) (*exec.Cmd, string, error) {
+	if packageName != "" && targetHost != "" {
+		fmt.Println("Performing remote package operation via script...")
+	} else {
+		fmt.Println("Performing generic script operation...")
+	}
+
+	if debugMode {
+		fmt.Println("Listing embedded migration assets (debug mode):")
+		fs.WalkDir(assets, "migrations", func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				log.Printf("Warning: Error walking embedded assets at %s: %v", path, err)
+				if d != nil && d.IsDir() {
+					return fs.SkipDir // Skip this directory if error occurs on the directory itself
+				}
+				return nil // Continue walking other files/dirs even if one file errors
+			}
+			fmt.Println(path)
+			return nil
+		})
+	}
+
+	fmt.Println("Determining script type for execution...")
+
+	var scriptArgs []string
+	if targetHost != "" {
+		scriptArgs = append(scriptArgs, targetHost)
+	}
+	if packageName != "" {
+		scriptArgs = append(scriptArgs, packageName)
+	}
+
+	var cmd *exec.Cmd
+	var tempFilePath string
+	var err error
+
+	// The script type (.sh or .ps1) is chosen based on the OS running this Go program.
+	// The script itself must handle remoting if targetHost is specified.
+	switch runtime.GOOS {
+	case "darwin", "linux":
+		cmd, tempFilePath, err = prepareScriptCmd(assets, scriptBaseName, "sh", true, scriptArgs)
+		if err != nil {
+			return nil, "", fmt.Errorf("error preparing shell script: %w", err)
+		}
+	case "windows":
+		cmd, tempFilePath, err = prepareScriptCmd(assets, scriptBaseName, "ps1", false, scriptArgs)
+		if err != nil {
+			return nil, "", fmt.Errorf("error preparing PowerShell script: %w", err)
+		}
+	default:
+		return nil, "", fmt.Errorf("unsupported OS for script execution: %s", runtime.GOOS)
+	}
+	return cmd, tempFilePath, nil
+}
+
+func prepareScriptCmd(assets embed.FS, scriptBaseName, scriptSuffix string, isUnixLike bool, scriptArgs []string) (*exec.Cmd, string, error) {
+	scriptName := fmt.Sprintf("migrations/%s.%s", scriptBaseName, scriptSuffix)
+	scriptBytes, err := assets.ReadFile(scriptName)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to read embedded script %s: %w", scriptName, err)
+	}
+
+	tempFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("pb-stack-boot-*.%s", scriptSuffix))
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to create temp file for %s: %w", scriptName, err)
+	}
+	tempFilePath := tempFile.Name()
+
+	if _, err := tempFile.Write(scriptBytes); err != nil {
+		tempFile.Close()
+		os.Remove(tempFilePath)
+		return nil, "", fmt.Errorf("failed to write to temp file for %s: %w", scriptName, err)
+	}
+
+	if isUnixLike {
+		if err := tempFile.Chmod(0755); err != nil {
+			tempFile.Close()
+			os.Remove(tempFilePath)
+			return nil, "", fmt.Errorf("failed to set executable permission for temp file %s: %w", scriptName, err)
+		}
+	}
+
+	if err := tempFile.Close(); err != nil {
+		os.Remove(tempFilePath)
+		return nil, "", fmt.Errorf("failed to close temp file for %s: %w", scriptName, err)
+	}
+
+	var cmd *exec.Cmd
+	if isUnixLike {
+		cmd = exec.Command(tempFilePath, scriptArgs...)
+	} else { // PowerShell
+		psArgs := []string{"-ExecutionPolicy", "Bypass", "-File", tempFilePath}
+		psArgs = append(psArgs, scriptArgs...)
+		cmd = exec.Command("powershell", psArgs...)
+	}
+	return cmd, tempFilePath, nil
 }
