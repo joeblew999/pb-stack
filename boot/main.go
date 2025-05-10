@@ -19,6 +19,7 @@ func main() {
 	debootFlag := flag.Bool("deboot", false, "Run deboot scripts instead of boot scripts")
 	bootFlag := flag.Bool("boot", false, "Run boot scripts (used with -cli)")
 	cliModeFlag := flag.Bool("cli", false, "Run command-line boot/deboot process instead of GUI")
+	targetHostFlag := flag.String("target", "", "Target host/IP for boot/deboot operations (used with -cli)")
 	flag.Parse()
 
 	if *cliModeFlag {
@@ -32,7 +33,7 @@ func main() {
 		}
 		// The cli.Execute function will handle its specific logic,
 		// including the case where neither -boot nor -deboot is specified.
-		cli.Execute(embeddedAssets, *bootFlag, *debootFlag)
+		cli.Execute(embeddedAssets, *bootFlag, *debootFlag, *targetHostFlag)
 	} else {
 		// --- GUI Mode (Default) ---
 		// If -boot or -deboot flags were passed without -cli, they are effectively ignored here,

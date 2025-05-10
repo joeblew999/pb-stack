@@ -11,7 +11,7 @@ import (
 	"runtime"
 )
 
-func Execute(assets embed.FS, bootFlag bool, debootFlag bool) {
+func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string) {
 	var action string
 	var scriptBaseName string
 
@@ -31,7 +31,11 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool) {
 		fmt.Printf("  %s -cli -deboot  (to run deboot scripts)\n", programName)
 		os.Exit(0) // Exit cleanly after showing options
 	}
-	fmt.Printf("%s up...\n", action)
+	actionMessage := fmt.Sprintf("%s up", action)
+	if targetHost != "" {
+		actionMessage = fmt.Sprintf("%s on target '%s'", actionMessage, targetHost)
+	}
+	fmt.Printf("%s...\n", actionMessage)
 
 	// Example: List files in the embedded migrations directory
 	fs.WalkDir(assets, "migrations", func(path string, d fs.DirEntry, err error) error {
@@ -76,7 +80,11 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool) {
 			if err := tempFile.Close(); err != nil { // Close the file before executing
 				log.Fatalf("Failed to close temp file for %s: %v", scriptName, err)
 			}
-			cmd = exec.Command(tempFilePath)
+			if targetHost != "" {
+				cmd = exec.Command(tempFilePath, targetHost)
+			} else {
+				cmd = exec.Command(tempFilePath)
+			}
 		}
 	case "windows":
 		{
@@ -100,7 +108,11 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool) {
 			if err := tempFile.Close(); err != nil {
 				log.Fatalf("Failed to close temp file for %s: %v", scriptName, err)
 			}
-			cmd = exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", tempFilePath)
+			if targetHost != "" {
+				cmd = exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", tempFilePath, targetHost)
+			} else {
+				cmd = exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", tempFilePath)
+			}
 		}
 	default:
 		log.Fatalf("Unsupported OS for CLI mode: %s", runtime.GOOS)
@@ -114,5 +126,5 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool) {
 			log.Fatalf("Failed to execute %s: %v", scriptName, err)
 		}
 	}
-	fmt.Printf("%s up complete.\n", action)
+	fmt.Printf("%s complete.\n", actionMessage)
 }
