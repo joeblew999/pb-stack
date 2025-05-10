@@ -132,12 +132,23 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 			if err != nil {
 				log.Fatalf("Failed to read embedded script %s: %v", scriptName, err)
 			}
-			tempFile, _ := os.CreateTemp(os.TempDir(), "pb-stack-boot-*.sh") // Error handling omitted for brevity here
+			tempFile, err := os.CreateTemp(os.TempDir(), "pb-stack-boot-*.sh")
+			if err != nil {
+				log.Fatalf("Failed to create temp file for %s: %v", scriptName, err)
+			}
 			defer os.Remove(tempFile.Name())
-			tempFile.Write(scriptBytes)
-			tempFile.Chmod(0755)
+			if _, err := tempFile.Write(scriptBytes); err != nil {
+				tempFile.Close() // Close before attempting remove on error
+				log.Fatalf("Failed to write to temp file for %s: %v", scriptName, err)
+			}
+			if err := tempFile.Chmod(0755); err != nil {
+				tempFile.Close()
+				log.Fatalf("Failed to set executable permission for temp file %s: %v", scriptName, err)
+			}
 			tempFilePath := tempFile.Name()
-			tempFile.Close()
+			if err := tempFile.Close(); err != nil { // Close the file before executing
+				log.Fatalf("Failed to close temp file for %s: %v", scriptName, err)
+			}
 			cmd = exec.Command(tempFilePath, scriptArgs...)
 
 		case "windows":
@@ -146,11 +157,19 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 			if err != nil {
 				log.Fatalf("Failed to read embedded script %s: %v", scriptName, err)
 			}
-			tempFile, _ := os.CreateTemp(os.TempDir(), "pb-stack-boot-*.ps1") // Error handling omitted
+			tempFile, err := os.CreateTemp(os.TempDir(), "pb-stack-boot-*.ps1")
+			if err != nil {
+				log.Fatalf("Failed to create temp file for %s: %v", scriptName, err)
+			}
 			defer os.Remove(tempFile.Name())
-			tempFile.Write(scriptBytes)
+			if _, err := tempFile.Write(scriptBytes); err != nil {
+				tempFile.Close() // Close before attempting remove on error
+				log.Fatalf("Failed to write to temp file for %s: %v", scriptName, err)
+			}
 			tempFilePath := tempFile.Name()
-			tempFile.Close()
+			if err := tempFile.Close(); err != nil { // Close the file before executing
+				log.Fatalf("Failed to close temp file for %s: %v", scriptName, err)
+			}
 			psArgs := []string{"-ExecutionPolicy", "Bypass", "-File", tempFilePath}
 			psArgs = append(psArgs, scriptArgs...)
 			cmd = exec.Command("powershell", psArgs...)
