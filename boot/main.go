@@ -6,9 +6,8 @@ import (
 	"io/fs"
 	"log"
 	"os"
-	"os/exec"
-	"path/filepath" // Import the filepath package
-	"runtime"       // Import the runtime package
+	"os/exec" // Import the filepath package
+	"runtime" // Import the runtime package
 )
 
 //go:embed all:migrations
@@ -29,12 +28,6 @@ func main() {
 	fmt.Println("Checking OS...")
 
 	fmt.Printf("Detected OS: %s\n", runtime.GOOS) // Use runtime.GOOS
-
-	exePath, err := os.Executable()
-	if err != nil {
-		log.Fatalf("Failed to get executable path: %v", err)
-	}
-	exeDir := filepath.Dir(exePath)
 
 	switch runtime.GOOS { // Use runtime.GOOS
 	case "darwin", "linux":
@@ -69,7 +62,12 @@ func main() {
 			cmd := exec.Command(tempFilePath)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			cmd.Dir = exeDir // Run the script from the executable's directory
+			// Set working directory for the script.
+			// Using os.TempDir() to avoid locking the executable's directory,
+			// which can cause issues with `go run` cleanup.
+			// If the script needs to be in its own directory (e.g., to access co-located files
+			// that are also extracted), then cmd.Dir should be filepath.Dir(tempFilePath).
+			cmd.Dir = os.TempDir()
 			if err := cmd.Run(); err != nil {
 				log.Fatalf("Failed to execute %s: %v", scriptName, err)
 			}
@@ -101,7 +99,12 @@ func main() {
 			cmd := exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", tempFilePath)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			cmd.Dir = exeDir // Run the script from the executable's directory
+			// Set working directory for the script.
+			// Using os.TempDir() to avoid locking the executable's directory,
+			// which can cause issues with `go run` cleanup on Windows.
+			// If the script needs to be in its own directory (e.g., to access co-located files
+			// that are also extracted), then cmd.Dir should be filepath.Dir(tempFilePath).
+			cmd.Dir = os.TempDir()
 			if err := cmd.Run(); err != nil {
 				log.Fatalf("Failed to execute %s: %v", scriptName, err)
 			}
