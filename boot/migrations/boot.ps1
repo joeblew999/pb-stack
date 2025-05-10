@@ -8,6 +8,32 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     exit
 }
 
+# Check for winget and attempt to register if missing
+Write-Host ""
+Write-Host "Checking for winget package manager..." -ForegroundColor Cyan
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    Write-Host "winget not found. Attempting to ensure it's registered..." -ForegroundColor Yellow
+    try {
+        Write-Host "Attempting to register Microsoft.DesktopAppInstaller package family..."
+        Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+        Write-Host "Registration attempt complete. Please re-run the script if winget is now available, or check the Microsoft Store for 'App Installer'."
+    } catch {
+        Write-Warning "An error occurred during winget registration attempt: $($_.Exception.Message)"
+    }
+
+    # Check again if winget is available after registration attempt
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is still not available after attempting registration."
+        Write-Error "Please ensure 'App Installer' is installed from the Microsoft Store and winget is functioning."
+        Write-Error "You can try running 'Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe' manually in an administrative PowerShell."
+        Write-Error "Aborting script as winget is required for subsequent operations."
+        exit 1 # Exit the script as winget is crucial
+    } else {
+        Write-Host "winget became available after registration attempt." -ForegroundColor Green
+    }
+} else {
+    Write-Host "winget is already available." -ForegroundColor Green
+}
 
 # Installs Bun using winget
 try {

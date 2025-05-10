@@ -49,16 +49,6 @@ https://github.com/imjamesonzeller/tasklight-v3 has a good one for Desktops.
 
 - has service installer and Task file modularity for all OS. NOT ready yet though.
 
-```sh
-git clone https://github.com/imjamesonzeller/tasklight-v3
-
-go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest
-
-go install github.com/go-task/task/v3/cmd/task@latest
-
-
-``` 
-
 
 ## Documentation
 
