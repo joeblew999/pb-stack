@@ -9,11 +9,12 @@ dotenv: ['run.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 env:
   # this allow overriding from CLI.
   HTML_DEEP_NAME: '{{.HTML_DEEP_NAME | default "override-taskenv.html" }}'
-
-vars:
   HTML_DEEP_PATH: '{{.HTML_DEEP_PATH | default "{{.USER_WORKING_DIR}}" }}'
   #HTML_DEEP_WHICH: '{{.HTML_DEEP_PATH}}/{{.HTML_DEEP_NAME}}'
   HTML_DEEP_WHICH_JOIN: '{{joinPath .HTML_DEEP_PATH .HTML_DEEP_NAME}}'
+
+vars:
+  
 
 tasks:
   default:

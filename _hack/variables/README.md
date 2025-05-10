@@ -2,9 +2,11 @@
 
 https://github.com/go-task/task/issues/2253#issuecomment-2868075833
 
-env can be overridden, but not var.
+best working system i can get that works on darwin and mac. not tested on linux.
 
-windows cant do USER_WORKING_DIR properly...
+.env overrides work
+
+task env can be overridden, but not task vars
 
 it deterministic - yes.
 
@@ -15,7 +17,13 @@ override from .sh:
 
 override from inside task: 
 ```sh
+task
 task override-01
+```
+
+override from outside task. HTML_DEEP_PATH fails because is VAR, not ENV
+```sh
+HTML_DEEP_PATH=$PWD/over-from-shell HTML_DEEP_NAME=over-from-shell task
 ```
 
 
