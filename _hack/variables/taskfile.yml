@@ -22,7 +22,7 @@ tasks:
       - echo 'HTML_DEEP_PATH              {{.HTML_DEEP_PATH}}'
       - echo 'HTML_DEEP_NAME              {{.HTML_DEEP_NAME}}'
       - echo ''
-      - echo 'HTML_DEEP_WHICH             {{shellQuote .HTML_DEEP_WHICH}}'
+      - echo 'HTML_DEEP_WHICH             {{.HTML_DEEP_WHICH}}'
       - echo 'HTML_DEEP_WHICH_JOIN        {{shellQuote .HTML_DEEP_WHICH_JOIN}}'
       - echo ''
     silent: true
