@@ -200,8 +200,8 @@ tasks:
       - echo 'BASE_PACK_NAME:'        {{.BASE_PACK_NAME}}
       - echo 'BASE_PACK_PATH:'        {{shellQuote .BASE_PACK_PATH}}
       - echo ''
-      - echo 'BASE_TMP_NAME:'        {{.BASE_TMP_NAME}}
-      - echo 'BASE_TMP_PATH:'        {{shellQuote .BASE_TMP_PATH}}
+      - echo 'BASE_TMP_NAME:'         {{.BASE_TMP_NAME}}
+      - echo 'BASE_TMP_PATH:'         {{shellQuote .BASE_TMP_PATH}}
       - echo ''
       - echo 'BASE_ENV_PATH:'         {{.BASE_ENV_PATH}}
       - echo ''

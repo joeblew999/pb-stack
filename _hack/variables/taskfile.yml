@@ -11,7 +11,7 @@ env:
   HTML_DEEP_NAME: '{{.HTML_DEEP_NAME | default "test.html" }}'
 
 vars:
-  HTML_DEEP_PATH: '{{.HTML_DEEP_PATH | default "{{.PWD}}" }}'
+  HTML_DEEP_PATH: '{{.HTML_DEEP_PATH | default "{{.USER_WORKING_DIR}}" }}'
   HTML_DEEP_WHICH: '{{.HTML_DEEP_PATH}}/{{.HTML_DEEP_NAME}}'
   HTML_DEEP_WHICH_JOIN: '{{joinPath .HTML_DEEP_PATH .HTML_DEEP_NAME}}'
 
