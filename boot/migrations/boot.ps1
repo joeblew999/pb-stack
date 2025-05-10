@@ -46,6 +46,16 @@ try {
     Write-Warning "Failed to install Visual Studio Code using winget. Please install it manually."
 }
 
+# Installs Task (taskfile.dev) using winget
+try {
+    Write-Host "Attempting to install Task (taskfile.dev) using winget..."
+    winget install --id=GoTask.Task -e --accept-source-agreements --accept-package-agreements --silent
+    Write-Host "Task (taskfile.dev) installation process finished."
+} catch {
+    Write-Warning "Failed to install Task (taskfile.dev) using winget. Please install it manually."
+}
+
+
 
 
 # Installs OpenSSH using winget

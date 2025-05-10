@@ -2,7 +2,6 @@
 
 This utility helps bootstrap your development environment by installing essential tools and configurations. It can be run in a GUI mode or via the command line.
 
-All `task` commands should be run from within this `/Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/boot/` directory.
 
 ## Running with Task
 
