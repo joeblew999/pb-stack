@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+  dep:
+    cmds:
+      - go install github.com/axzilla/templui/cmd/templui@cli
+      #- go install github.com/a-h/templ/cmd/templ@latest
+      #- go install github.com/air-verse/air@latest
+      #- brew install tailwindcss
+  dep:del:
+    cmds:
+      - 
+
+  init:
+    cmds:
+      #- go mod init main
+      - touch go.work && go work use .
+      - templui init@cli
+  init:del:
+    cmds:
+      - echo 'kill it all...'
+      
+  boot:
+    cmds:
+      - templui add@cli button
+      - templui add@cli button card
+      - templui add@cli '*'
+      
+  list:
+    cmds:
+      - templui list
+
+
+  watch:templ:
+    cmds:
+      - cd {{.GO_VAR_SRC_ROOT_PATH}} && templ generate --watch --proxy="http://localhost:8090" --open-browser=false -v
+  watch:air:
+    cmds:
+      - cd {{.GO_VAR_SRC_ROOT_PATH}} && air --build.cmd "go build -o tmp/bin/main ./cmd/server" --build.bin "tmp/bin/main" --build.delay "100" --build.exclude_dir "node_modules" --build.include_ext "go" --build.stop_on_error "false" --misc.clean_on_exit true
+  watch:tailwind:
+    cmds:
+      - cd {{.GO_VAR_SRC_ROOT_PATH}} && tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch
+  tailwind-clean:
+    cmds:
+      - cd {{.GO_VAR_SRC_ROOT_PATH}} && tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --clean
+
+  dev:
+    cmds:
+      # not sure his ordring is right, as i need to skip through...
+      - task dep watch:templ watch:air watch:tailwind
+  dev:clean:
+    cmds:
+      - task tailwind-clean
+
+  bin:
+    cmds:
+      - task dep
+      - cd {{.GO_VAR_SRC_ROOT_PATH}} && templ generate
+      - cd {{.GO_VAR_SRC_ROOT_PATH}} && go run ./cmd/render-showcases
+      # works
+      - task go:bin
+  run:
+    cmds:
+      - task go:bin
+  
+      

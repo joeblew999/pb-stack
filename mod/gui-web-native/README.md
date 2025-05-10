@@ -6,6 +6,11 @@ HTML_DEEP_NAME=index.html task
 HTML_DEEP_PATH=. HTML_DEEP_NAME=index.html task
 
 HTML_DEEP_PATH=$PWD HTML_DEEP_NAME=index.html task
+
+git config --path soft-serve --get user.name --local
+
+git config --worktree --get user.name 
+
 ```
 
 Built in.

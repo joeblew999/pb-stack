@@ -289,6 +289,8 @@ tasks:
       #- task go:mod:work
       - echo ''
       - echo 'bin'
+      - echo GO_VAR_SRC_MAIN_PATH:'{{.GO_VAR_SRC_MAIN_PATH}}'
+      - echo
 
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
       - echo ''

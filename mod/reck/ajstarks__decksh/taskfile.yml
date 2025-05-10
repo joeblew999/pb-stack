@@ -17,7 +17,13 @@ tasks:
     cmds:
       - task git:clone:src:del
       - task git:clone:src
+      
+  bin:
+    cmds:
+      - task go:mod:work
       - task go:bin
+      # 2 more 
+      - GO_VAR_BIN_NAME=deckfmt GO_VAR_BIN_ENTRY_PATH=./cmd/deckfmt GO_VAR_BIN_MOD_PATH=. task go:bin
 
   run:
     cmds:

@@ -41,12 +41,12 @@ vars:
 
   #GIT_TEST: '{{if eq OS "windows"}}.exe{{end}}'
 
-  #GIT_VAR_ROOT_ORG_NAME: 'joeblew999'
-  GIT_VAR_ROOT_ORG_NAME: #'{{ .GIT_VAR_ROOT_ORG_NAME | default "joeblew999" }}'
+  GIT_VAR_ROOT_ORG_NAME: 'joeblew999'
+  #GIT_VAR_ROOT_ORG_NAME: #'{{ .GIT_VAR_ROOT_ORG_NAME | default "joeblew999" }}'
     # ISSUE: Windows hates the folder jump using "&&"
     #sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --get user.name'
-    #sh: '{{.GIT_BIN_NAME}} config --get user.name'
-    sh: '{{if eq OS "windows"}}cd {{.USER_WORKING_DIR}}; {{.GIT_BIN_NAME}} config --get user.name{{else}}cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --get user.name{{end}}'
+    #sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --get user.name'
+    #sh: '{{if eq OS "windows"}}cd {{.USER_WORKING_DIR}}; {{.GIT_BIN_NAME}} config --get user.name{{else}}cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --get user.name{{end}}'
 
   # Should ask git ? Jump to USER_WORKING_DIR to find out,
   GIT_VAR_ROOT_REPO_URL: #'{{ .GIT_VAR_ROOT_REPO_NAME | default "pb-stack" }}'
@@ -58,6 +58,7 @@ vars:
     # ONLY works on windows for File Paths, not URL Paths
     #sh: 'basename {{.GIT_VAR_ROOT_REPO_URL}}'
  
+  #GIT_VAR_ROOT_PATH: '{{.USER_WORKING_DIR}}'
   GIT_VAR_ROOT_PATH:
     # BUG: On windows its as forward slashes. Should be back slashes.
     # We jump to USER_WORKING_DIR and then check Which level we are at. 
@@ -65,6 +66,7 @@ vars:
     
   GIT_VAR_ROOT_VERSION:
     sh: 'cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} rev-parse HEAD'
+
   GIT_VAR_ROOT_RELEASE_VERSION: 'latest'
 
   # EX: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/.sops.yaml
@@ -114,7 +116,11 @@ vars:
   # Looks to .env to be told. TODO: Make it work it out.
   GIT_VAR_SRC_REPO_URL: '{{ .GIT_VAR_SRC_REPO_URL | default "repo-name-default-from-git.taskfile.yml" }}'
   GIT_VAR_SRC_REPO_NAME: '{{ .GIT_VAR_SRC_REPO_NAME | default "repo-url-default-from-git.taskfile.yml" }}'
+  #GIT_VAR_SRC_REPO_PATH: '{{ .BASE:SRC_PATH }}/{{ .GIT_VAR_SRC_REPO_NAME }}'
+  GIT_VAR_SRC_REPO_PATH: '{{.BASE_SRC_PATH }}/{{.GIT_VAR_SRC_REPO_NAME}}'
   GIT_VAR_SRC_REPO_VERSION: '{{ .GIT_VAR_SRC_REPO_VERSION | default "main" }}'
+
+  GIT_VAR_SRC_REPO_VERSION_WHICH: 'cd {{.GIT_VAR_SRC_REPO_PATH}} &&{{.GIT_BIN_NAME}} rev-parse HEAD'
 
 
 tasks:
@@ -134,15 +140,15 @@ tasks:
       - echo 'GIT_SSH_BIN_VERSION_WHICH:'         {{.GIT_SSH_BIN_VERSION_WHICH}}
       - echo ''
       - echo ''
-      - echo '- git root'
+      - echo '- git root found'
       - echo 'GIT_VAR_ROOT_ORG_NAME:'             {{.GIT_VAR_ROOT_ORG_NAME}}
       - echo 'GIT_VAR_ROOT_REPO_URL:'             {{.GIT_VAR_ROOT_REPO_URL}}
       - echo 'GIT_VAR_ROOT_REPO_NAME:'            {{.GIT_VAR_ROOT_REPO_NAME}}
       - echo 'GIT_VAR_ROOT_PATH:'                 {{shellQuote .GIT_VAR_ROOT_PATH}}
       - echo 'GIT_VAR_ROOT_VERSION:'              {{.GIT_VAR_ROOT_VERSION}}
+      - echo ''
+      - echo '- git root remote ( github for now )'
       - echo 'GIT_VAR_ROOT_RELEASE_VERSION:'      {{.GIT_VAR_ROOT_RELEASE_VERSION}}
-
-      
       - echo 'GIT_VAR_ROOT_FILES_DOWNLOAD_URL:'   {{.GIT_VAR_ROOT_FILES_DOWNLOAD_URL}}
       - echo 'GIT_VAR_ROOT_RELEASE_LIST_URL:'     {{.GIT_VAR_ROOT_RELEASE_LIST_URL}}
       - echo 'GIT_VAR_ROOT_RELEASES_DOWNLOAD_URL:'{{.GIT_VAR_ROOT_RELEASES_DOWNLOAD_URL}}
@@ -174,7 +180,12 @@ tasks:
       - echo '- git src env overrides'
       - echo 'GIT_VAR_SRC_REPO_URL:'              {{.GIT_VAR_SRC_REPO_URL}}
       - echo 'GIT_VAR_SRC_REPO_NAME:'             {{.GIT_VAR_SRC_REPO_NAME}}
+      - echo 'GIT_VAR_SRC_REPO_PATH:'             {{.GIT_VAR_SRC_REPO_PATH}}
       - echo 'GIT_VAR_SRC_REPO_VERSION:'          {{.GIT_VAR_SRC_REPO_VERSION}}
+      - echo ''
+      - echo '- git src env calcs'
+      - echo 'GIT_VAR_SRC_REPO_VERSION_WHICH:'    {{.GIT_VAR_SRC_REPO_VERSION_WHICH}}
+      
     
       - echo ''
     silent: true
@@ -228,20 +239,18 @@ tasks:
     desc: git status of src
     cmds:
       - echo ''
-      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} status
-      - echo ''
-      - echo 'GIT_VAR_SRC_REPO_VERSION' {{.GIT_VAR_SRC_REPO_VERSION}} 
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} status
       - echo ''
     silent: true
     
-  config:root:
+  config:
     desc: git config
     cmds:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
   config:src:
     desc: git config
     cmds:
-      - cd {{.BASE_SRC_PATH}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --list --show-scope --show-origin
       
   clone:root:
     desc: git clone root
@@ -279,6 +288,12 @@ tasks:
       - task git:dep
       - echo 'Pulling ...'
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} pull --rebase
+  pull:src:
+     cmds:
+      - task git:dep
+      - echo 'Pulling ...'
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} pull --rebase
+
   push:
     desc: 'git push ( eg: COMMIT_MESSAGE=?? task git:push )'
     vars:
@@ -289,6 +304,16 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} add . 
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} push
+  push:src:
+    desc: 'git push ( eg: COMMIT_MESSAGE=?? task git:push:src )'
+    vars:
+      COMMIT_MESSAGE: 'ci'
+    cmds:
+      #- task git:dep
+      - echo 'Pushing src ...'
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} add . 
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} commit -S -am '{{.COMMIT_MESSAGE}}'
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} push
 
   ### github specific release stuff
 
