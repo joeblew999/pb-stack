@@ -1,59 +1,9 @@
-Inspecting packages system successful.
+Inspecting packages system failed.
+Error: exit status 1
 Output:
-2025/05/11 16:02:33 Application starting...
-2025/05/11 16:02:33 main.go:47: Logging to console only.
-2025/05/11 16:02:33 main.go:58: Entering CLI mode.
-2025/05/11 16:02:33 main.go:69: Calling cli.Execute...
-2025/05/11 16:02:33 cli.go:23: Inspecting configuration for migration set 'main' from: migrations/main/config.json
-{
-  "packages": [
-    {
-      "name": "Bun",
-      "description": "Fast JavaScript runtime, bundler, and package manager.",
-      "brew": { "packageName": "bun" },
-      "winget": { "packageId": "Oven-sh.Bun" },
-      "checkCommand": "bun --version"
-    },
-    {
-      "name": "Git",
-      "description": "Version control system.",
-      "brew": { "packageName": "git" },
-      "winget": { "packageId": "Git.Git" },
-      "checkCommand": "git --version"
-    },
-    {
-      "name": "Go",
-      "description": "Go programming language.",
-      "brew": { "packageName": "go" },
-      "winget": { "packageId": "GoLang.Go" },
-      "checkCommand": "go version"
-    },
-    {
-      "name": "OpenSSH",
-      "description": "OpenSSH client and server.",
-      "brew": { "packageName": "openssh" },
-      "winget": { "packageId": "Microsoft.OpenSSH.Beta" },
-      "checkCommand": "ssh -V"
-    },
-    {
-      "name": "Coreutils (for 'which' etc.)",
-      "description": "GNU core utilities. Provides 'gwhich' on macOS if installed via Homebrew.",
-      "brew": { "packageName": "coreutils" },
-      "winget": { "packageId": "GnuWin32.CoreUtils" },
-      "checkCommand": "gwhich --version"
-    },
-    {
-      "name": "Visual Studio Code",
-      "description": "Visual Studio Code editor.",
-      "brew": {
-        "packageName": "visual-studio-code",
-        "isCask": true
-      },
-      "winget": {
-        "packageId": "Microsoft.VisualStudioCode"
-      },
-      "checkCommand": "code --version"
-    }
-  ],
-  "vscodeExtensionsFile": "extensions.txt"
-}
+2025/05/11 16:04:28 Application starting...
+2025/05/11 16:04:28 main.go:47: Logging to console only.
+2025/05/11 16:04:28 main.go:58: Entering CLI mode.
+2025/05/11 16:04:28 main.go:69: Calling cli.Execute...
+2025/05/11 16:04:28 cli.go:23: Inspecting configuration for migration set 'main' from: migrations\main\config.json
+2025/05/11 16:04:28 cli.go:26: Failed to read embedded config.json from set 'main': open migrations\main\config.json: file does not exist

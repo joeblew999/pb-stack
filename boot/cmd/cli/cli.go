@@ -8,7 +8,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
+
 	"runtime"
 	"sort"
 	"strings"
@@ -19,8 +21,14 @@ import (
 
 func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName string, migrationSet string, inspectConfig bool, appDebugMode bool) {
 	if inspectConfig {
-		configPath := filepath.Join("migrations", migrationSet, "config.json")
-		log.Printf("Inspecting configuration for migration set '%s' from: %s", migrationSet, configPath)
+
+		//configPath := filepath.Join("migrations", migrationSet, "config.json")
+		//log.Printf("Inspecting configuration for migration set '%s' from: %s", migrationSet, configPath)
+
+		// CRITICAL: Use path.Join for embed.FS as it always uses forward slashes.
+		configPath := path.Join("migrations", migrationSet, "config.json")
+		log.Printf("Inspecting configuration for migration set '%s' from: %s", migrationSet, configPath) // This log should now show forward slashes
+
 		configBytes, err := assets.ReadFile(configPath)
 		if err != nil {
 			log.Fatalf("Failed to read embedded config.json from set '%s': %v", migrationSet, err)
