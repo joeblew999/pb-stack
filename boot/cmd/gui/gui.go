@@ -4,6 +4,7 @@ import (
 	"image" // Added for placeholder view backgrounds
 	"log"
 	"os"
+	"time" // Added for feedback timer
 
 	"github.com/atotto/clipboard"              // Added for clipboard operations
 	"github.com/hajimehoshi/ebiten/v2"         // Import Ebiten
@@ -161,10 +162,14 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 // PackagesViewWidget displays information about packages, loaded from the CLI.
 type PackagesViewWidget struct {
 	guigui.DefaultWidget
-	statusText       basicwidget.Text // To display CLI output (package list or errors)
-	bg               basicwidget.Background
-	copyOutputButton basicwidget.TextButton // New button to copy output text
-	loadAttempted    bool                   // To ensure CLI is called only once when view becomes active
+	statusText                   basicwidget.Text // To display CLI output (package list or errors)
+	bg                           basicwidget.Background
+	copyOutputButton             basicwidget.TextButton // New button to copy output text
+	copyOutputButtonOriginalText string
+	loadAttempted                bool      // To ensure CLI is called only once when view becomes active
+	isCopyFeedbackActive         bool      // Is feedback like "Copied!" currently shown?
+	copyFeedbackText             string    // The text for the feedback (e.g., "Copied!", "Failed!")
+	copyFeedbackEndTime          time.Time // When the feedback message should disappear
 }
 
 func (pv *PackagesViewWidget) Build(context *guigui.Context, appender *guigui.ChildWidgetAppender) error {
@@ -186,23 +191,37 @@ func (pv *PackagesViewWidget) Build(context *guigui.Context, appender *guigui.Ch
 	pv.statusText.SetVerticalAlign(basicwidget.VerticalAlignTop)       // Use basicwidget package
 	pv.statusText.SetScale(1)                                          // Default text scale
 
-	pv.copyOutputButton.SetText("Copy Output")
+	if pv.copyOutputButtonOriginalText == "" {
+		pv.copyOutputButtonOriginalText = "Copy Output"
+	}
+
+	// Handle timed feedback for the copy button
+	if pv.isCopyFeedbackActive && time.Now().After(pv.copyFeedbackEndTime) {
+		pv.isCopyFeedbackActive = false
+		pv.copyOutputButton.SetText(pv.copyOutputButtonOriginalText)
+	} else if pv.isCopyFeedbackActive {
+		pv.copyOutputButton.SetText(pv.copyFeedbackText)
+	} else {
+		pv.copyOutputButton.SetText(pv.copyOutputButtonOriginalText)
+	}
+
 	pv.copyOutputButton.SetOnUp(func() {
 		textToCopy := pv.statusText.Value()
 		if err := clipboard.WriteAll(textToCopy); err != nil {
 			log.Printf("Error copying to clipboard: %v", err)
-			// Optionally update statusText to indicate failure, though it might overwrite useful output
-			// For now, just logging. Consider a small, temporary popup or icon change in a more advanced UI.
+			pv.copyFeedbackText = "Failed!"
 		} else {
-			// Optionally update statusText to indicate success
-			// pv.statusText.SetValue(textToCopy + "\n(Output copied to clipboard!)")
-			// For now, let's assume the user sees the button press and trusts it worked, or checks clipboard.
-			// A brief change in button text ("Copied!") would be ideal but requires more state.
 			log.Println("Output copied to clipboard.")
+			pv.copyFeedbackText = "Copied!"
 		}
+		pv.isCopyFeedbackActive = true
+		pv.copyFeedbackEndTime = time.Now().Add(2 * time.Second)
+		pv.copyOutputButton.SetText(pv.copyFeedbackText) // Show feedback immediately
+		// Assuming SetText() or the natural Build cycle of guigui will handle repaint.
 	})
 
-	// Layout with statusText and a copy button below it
+	// Layout
+
 	gl := layout.GridLayout{
 		Bounds: context.Bounds(pv).Inset(u), // Add padding to the whole view
 		Heights: []layout.Size{
