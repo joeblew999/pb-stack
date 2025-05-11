@@ -36,8 +36,8 @@ type Root struct {
 	model      *Model        // From model.go
 
 	// Views
-	homeView     HomeViewWidget
-	packagesView PackagesViewWidget // Placeholder
+	homeView     HomeViewWidget     // The main view for setup/teardown
+	packagesView PackagesViewWidget // View for listing packages
 	settingsView SettingsViewWidget // Placeholder
 }
 
@@ -56,8 +56,8 @@ func (h *HomeViewWidget) Build(context *guigui.Context, appender *guigui.ChildWi
 	}
 
 	h.statusText.SetSelectable(true)
-	h.statusText.SetHorizontalAlign(basicwidget.HorizontalAlignCenter)
-	h.statusText.SetVerticalAlign(basicwidget.VerticalAlignMiddle)
+	h.statusText.SetHorizontalAlign(basicwidget.HorizontalAlignCenter) // Use basicwidget package
+	h.statusText.SetVerticalAlign(basicwidget.VerticalAlignMiddle)     // Use basicwidget package
 	h.statusText.SetScale(1)
 	if h.statusText.Value() == "" {
 		h.statusText.SetValue("Select an action.")
@@ -144,22 +144,37 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 	return nil
 }
 
-// PackagesViewWidget - Placeholder
+// PackagesViewWidget displays information about packages, loaded from the CLI.
 type PackagesViewWidget struct {
 	guigui.DefaultWidget
-	label basicwidget.Text
-	bg    basicwidget.Background
+	statusText    basicwidget.Text // To display CLI output (package list or errors)
+	bg            basicwidget.Background
+	loadAttempted bool // To ensure CLI is called only once when view becomes active
 }
 
 func (pv *PackagesViewWidget) Build(context *guigui.Context, appender *guigui.ChildWidgetAppender) error {
-	// The SetColor method is not available on basicwidget.Background.
-	// This will now use the default theme background color.
 	appender.AppendChildWidgetWithBounds(&pv.bg, context.Bounds(pv))
-	pv.label.SetValue("This is the Packages View.")
-	labelSize := pv.label.DefaultSize(context)
-	bounds := context.Bounds(pv)
-	pos := image.Pt(bounds.Min.X+(bounds.Dx()-labelSize.X)/2, bounds.Min.Y+(bounds.Dy()-labelSize.Y)/2)
-	appender.AppendChildWidgetWithPosition(&pv.label, pos)
+
+	if !pv.loadAttempted {
+		pv.loadAttempted = true // Mark that we are attempting to load
+		// Set initial status
+		pv.statusText.SetValue("Loading package information...")
+		// Use the -inspect-config flag from the CLI to get package information.
+		// The migrationSet defaults to "main" in runCLIProcess if not specified.
+		go runCLIProcess("Inspecting packages", "-inspect-config", "", "", &pv.statusText)
+	}
+
+	// Configure statusText properties
+	pv.statusText.SetSelectable(true)
+	pv.statusText.SetHorizontalAlign(basicwidget.HorizontalAlignStart) // Use basicwidget package (Start usually means Left)
+	pv.statusText.SetVerticalAlign(basicwidget.VerticalAlignTop)       // Use basicwidget package
+	pv.statusText.SetScale(1)                                          // Default text scale
+
+	// Layout the statusText to fill most of the view, with some padding
+	unitSize := basicwidget.UnitSize(context)
+	contentBounds := context.Bounds(pv).Inset(unitSize) // Add padding
+	appender.AppendChildWidgetWithBounds(&pv.statusText, contentBounds)
+
 	return nil
 }
 
@@ -203,6 +218,10 @@ func Launch(initialMigrationSet string) {
 		model: appModel,
 		homeView: HomeViewWidget{ // Initialize HomeViewWidget with its specific needs
 			initialMigrationSet: initialMigrationSet,
+		},
+		packagesView: PackagesViewWidget{
+			// loadAttempted will be false by default.
+			// statusText (basicwidget.Text) will be zero-initialized and ready to use.
 		},
 	}
 

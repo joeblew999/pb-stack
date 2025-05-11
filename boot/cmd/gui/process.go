@@ -33,7 +33,10 @@ func runCLIProcess(actionName string, cliActionFlag string, packageName string, 
 	statusText.SetValue(fmt.Sprintf("%s... See console.", actionLog))
 	log.Printf("GUI: %s...", actionLog)
 
-	args := []string{"-cli", cliActionFlag}
+	args := []string{"-cli"}
+	if cliActionFlag != "" {
+		args = append(args, cliActionFlag)
+	}
 	if packageName != "" {
 		args = append(args, "-package", packageName)
 	}
@@ -49,18 +52,18 @@ func runCLIProcess(actionName string, cliActionFlag string, packageName string, 
 	// cmd.Stdout = os.Stdout
 	// cmd.Stderr = os.Stderr
 
-	log.Printf("GUI: Running command: %s %s %s", exePath, args[0], args[1])
+	log.Printf("GUI: Running command: %s %v", exePath, args)
 
 	// Capture combined output (stdout and stderr)
 	output, err := cmd.CombinedOutput()
 	outputStr := string(output)
 
 	if err != nil {
-		errMsg := fmt.Sprintf("GUI: Command '%s %s' failed: %v", args[0], args[1], err)
+		errMsg := fmt.Sprintf("GUI: Command '%s %v' failed: %v", exePath, args, err)
 		log.Println(errMsg)
 		statusText.SetValue(fmt.Sprintf("%s failed.\nError: %v\nOutput:\n%s", actionLog, err, outputStr))
 	} else {
-		log.Printf("GUI: Command '%s %s' finished successfully. Output below:\n%s", args[0], args[1], outputStr)
+		log.Printf("GUI: Command '%s %v' finished successfully. Output below:\n%s", exePath, args, outputStr)
 		statusText.SetValue(fmt.Sprintf("%s successful.\nOutput:\n%s", actionLog, outputStr))
 	}
 }
