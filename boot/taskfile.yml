@@ -32,10 +32,15 @@ tasks:
     cmds:
       - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "{{.MIGRATION_SET}}" {{.CLI_ARGS}}
 
-  cli-test:
-    desc: "Runs the Environment Setup in CLI mode using the 'test' migration set."
+  cli-test-setup:
+    desc: "Runs Environment Setup (setup) in CLI mode using the 'test' migration set."
     cmds:
-      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "test" {{.CLI_ARGS}}
+      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "test" -setup {{.CLI_ARGS}}
+
+  cli-test-teardown:
+    desc: "Runs Environment Setup (teardown) in CLI mode using the 'test' migration set."
+    cmds:
+      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "test" -teardown {{.CLI_ARGS}}
 
   gen:extensions:
     desc: "Generates/updates the migrations/extensions.txt file for VS Code."
