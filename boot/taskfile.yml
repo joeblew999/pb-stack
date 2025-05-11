@@ -42,6 +42,11 @@ tasks:
     cmds:
       - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "test" -teardown {{.CLI_ARGS}}
 
+  inspect-config:
+    desc: "Inspects the config.json for the specified MIGRATION_SET (defaults to 'test' via MIGRATION_SET var)."
+    cmds:
+      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "{{.MIGRATION_SET}}" -inspect-config
+
   gen:extensions:
     desc: "Generates/updates the migrations/extensions.txt file for VS Code."
     dir: ./migrations # Run commands from within the migrations directory

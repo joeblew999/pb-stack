@@ -26,6 +26,7 @@ func main() {
 	packageNameFlag := flag.String("package", "", "Specific package name for boot/deboot (e.g., Winget ID or Homebrew formula)")
 	logFileFlag := flag.String("logFile", "", "Path to log file. If empty, logs to stderr only.")
 	migrationSetFlag := flag.String("migrationSet", "main", "The set of migrations to use (e.g., 'main', 'test') from the migrations folder.")
+	inspectConfigFlag := flag.Bool("inspect-config", false, "Inspect the config.json for the selected migration set and exit.")
 	debugFlag := flag.Bool("debug", false, "Enable debug logging.")
 	flag.Parse()
 
@@ -48,8 +49,8 @@ func main() {
 
 	if *debugFlag {
 		log.Println("Debug mode enabled.")
-		log.Printf("Parsed flags: -cli=%t, -setup=%t, -teardown=%t, -package='%s', -logFile='%s', -migrationSet='%s', -debug=%t",
-			*cliModeFlag, *setupFlag, *teardownFlag, *packageNameFlag, *logFileFlag, *migrationSetFlag, *debugFlag)
+		log.Printf("Parsed flags: -cli=%t, -setup=%t, -teardown=%t, -package='%s', -logFile='%s', -migrationSet='%s', -inspect-config=%t, -debug=%t",
+			*cliModeFlag, *setupFlag, *teardownFlag, *packageNameFlag, *logFileFlag, *migrationSetFlag, *inspectConfigFlag, *debugFlag)
 	}
 
 	if *cliModeFlag {
@@ -66,7 +67,7 @@ func main() {
 		// The cli.Execute function will handle its specific logic,
 		// including the case where neither -boot nor -deboot is specified.
 		log.Println("Calling cli.Execute...")
-		cli.Execute(embeddedAssets, *setupFlag, *teardownFlag, *packageNameFlag, *migrationSetFlag, *debugFlag)
+		cli.Execute(embeddedAssets, *setupFlag, *teardownFlag, *packageNameFlag, *migrationSetFlag, *inspectConfigFlag, *debugFlag)
 	} else {
 		// --- GUI Mode (Default) ---
 		// If -boot or -deboot flags were passed without -cli, they are effectively ignored here,

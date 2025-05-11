@@ -17,7 +17,19 @@ import (
 	"main/pkg/vscodeutils"
 )
 
-func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName string, migrationSet string, appDebugMode bool) {
+func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName string, migrationSet string, inspectConfig bool, appDebugMode bool) {
+	if inspectConfig {
+		configPath := filepath.Join("migrations", migrationSet, "config.json")
+		log.Printf("Inspecting configuration for migration set '%s' from: %s", migrationSet, configPath)
+		configBytes, err := assets.ReadFile(configPath)
+		if err != nil {
+			log.Fatalf("Failed to read embedded config.json from set '%s': %v", migrationSet, err)
+		}
+		// Pretty print the JSON
+		fmt.Println(string(configBytes)) // For raw output
+		os.Exit(0)                       // Exit after inspection
+	}
+
 	var scriptBaseName string
 	if setupFlag {
 		scriptBaseName = "boot"
