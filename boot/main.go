@@ -18,11 +18,14 @@ import (
 var embeddedAssets embed.FS // Embed migrations folder
 
 func main() {
-	debootFlag := flag.Bool("deboot", false, "Run deboot scripts instead of boot scripts")
-	bootFlag := flag.Bool("boot", false, "Run boot scripts (used with -cli)")
+	log.Println("Application starting...")
+
+	teardownFlag := flag.Bool("teardown", false, "Run teardown scripts/operations (used with -cli)")
+	setupFlag := flag.Bool("setup", false, "Run setup scripts/operations (used with -cli)")
 	cliModeFlag := flag.Bool("cli", false, "Run command-line boot/deboot process instead of GUI")
 	packageNameFlag := flag.String("package", "", "Specific package name for boot/deboot (e.g., Winget ID or Homebrew formula)")
 	logFileFlag := flag.String("logFile", "", "Path to log file. If empty, logs to stderr only.")
+	migrationSetFlag := flag.String("migrationSet", "main", "The set of migrations to use (e.g., 'main', 'test') from the migrations folder.")
 	debugFlag := flag.Bool("debug", false, "Enable debug logging.")
 	flag.Parse()
 
@@ -43,24 +46,34 @@ func main() {
 		log.Printf("Logging to console only.")
 	}
 
+	if *debugFlag {
+		log.Println("Debug mode enabled.")
+		log.Printf("Parsed flags: -cli=%t, -setup=%t, -teardown=%t, -package='%s', -logFile='%s', -migrationSet='%s', -debug=%t",
+			*cliModeFlag, *setupFlag, *teardownFlag, *packageNameFlag, *logFileFlag, *migrationSetFlag, *debugFlag)
+	}
+
 	if *cliModeFlag {
 		// --- CLI Mode ---
-		//var action string
-		//var scriptBaseName string
+		log.Println("Entering CLI mode.")
 
-		if *bootFlag && *debootFlag {
-			fmt.Fprintln(os.Stderr, "Error: -boot and -deboot flags are mutually exclusive when using -cli.")
+		if *setupFlag && *teardownFlag {
+			// Log this error as well, before exiting
+			errMsg := "Error: -setup and -teardown flags are mutually exclusive when using -cli."
+			log.Println(errMsg)
+			fmt.Fprintln(os.Stderr, errMsg) // Keep user-facing stderr message
 			os.Exit(1)
 		}
 		// The cli.Execute function will handle its specific logic,
 		// including the case where neither -boot nor -deboot is specified.
-		cli.Execute(embeddedAssets, *bootFlag, *debootFlag, *packageNameFlag, *debugFlag)
+		log.Println("Calling cli.Execute...")
+		cli.Execute(embeddedAssets, *setupFlag, *teardownFlag, *packageNameFlag, *migrationSetFlag, *debugFlag)
 	} else {
 		// --- GUI Mode (Default) ---
 		// If -boot or -deboot flags were passed without -cli, they are effectively ignored here,
 		// which matches the original behavior where these flags were only checked within the cliModeFlag block.
+		log.Println("Entering GUI mode.")
 
-		log.Println("Launching GUI application...")
+		log.Println("Calling gui.Launch...")
 		gui.Launch() // Call the Launch function from the gui package
 		log.Println("GUI application closed.")
 	}

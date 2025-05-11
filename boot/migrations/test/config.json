@@ -1,0 +1,16 @@
+{
+  "packages": [
+    {
+      "name": "Micro Text Editor",
+      "description": "A modern and intuitive terminal-based text editor.",
+      "brew": {
+        "packageName": "micro"
+      },
+      "winget": {
+        "packageId": "zyedidia.micro"
+      },
+      "checkCommand": "micro --version"
+    }
+  ],
+  "vscodeExtensionsFile": ""
+}

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/hajimehoshi/ebiten/v2" // Import Ebiten
 	"github.com/hajimehoshi/guigui"
 	"github.com/hajimehoshi/guigui/basicwidget"
 	"github.com/hajimehoshi/guigui/layout"
@@ -13,13 +14,15 @@ import (
 type Root struct {
 	guigui.DefaultWidget
 
-	background   basicwidget.Background
-	packageLabel basicwidget.Text
-	packageInput basicwidget.TextInput
-	bootButton   basicwidget.TextButton
-	debootButton basicwidget.TextButton
-	clearButton  basicwidget.TextButton
-	statusText   basicwidget.Text
+	background        basicwidget.Background
+	packageLabel      basicwidget.Text
+	packageInput      basicwidget.TextInput
+	migrationSetLabel basicwidget.Text
+	migrationSetInput basicwidget.TextInput
+	bootButton        basicwidget.TextButton
+	debootButton      basicwidget.TextButton
+	clearButton       basicwidget.TextButton
+	statusText        basicwidget.Text
 }
 
 func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppender) error {
@@ -28,6 +31,11 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 
 	r.packageLabel.SetValue("Package Name (Winget/Homebrew):")
 	// r.packageInput.SetPlaceholder("e.g., Git.Git or htop") // Placeholder not available
+
+	r.migrationSetLabel.SetValue("Migration Set (e.g., main, test):")
+	if r.migrationSetInput.Value() == "" {
+		r.migrationSetInput.SetValue("main") // Default to "main"
+	}
 
 	r.statusText.SetSelectable(true) // Make status text selectable for copy-pasting
 	r.statusText.SetHorizontalAlign(basicwidget.HorizontalAlignCenter)
@@ -40,18 +48,19 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 	r.bootButton.SetText("Setup")
 	r.bootButton.SetOnUp(func() {
 		// Run in a goroutine to avoid blocking the UI thread
-		go runCLIProcess("Setting up", "-boot", r.packageInput.Value(), &r.statusText)
+		go runCLIProcess("Setting up", "-setup", r.packageInput.Value(), r.migrationSetInput.Value(), &r.statusText)
 	})
 
 	r.debootButton.SetText("Teardown")
 	r.debootButton.SetOnUp(func() {
 		// Run in a goroutine to avoid blocking the UI thread
-		go runCLIProcess("Tearing down", "-deboot", r.packageInput.Value(), &r.statusText)
+		go runCLIProcess("Tearing down", "-teardown", r.packageInput.Value(), r.migrationSetInput.Value(), &r.statusText)
 	})
 
 	r.clearButton.SetText("Clear")
 	r.clearButton.SetOnUp(func() {
 		r.packageInput.SetValue("")
+		r.migrationSetInput.SetValue("main") // Reset to default
 		r.statusText.SetValue("Select an action.")
 	})
 
@@ -61,35 +70,48 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 		Heights: []layout.Size{
 			layout.FixedSize(u),     // 0: packageLabel
 			layout.FixedSize(u * 2), // 1: packageInput
-			layout.FixedSize(u * 2), // 2: bootButton
-			layout.FixedSize(u * 2), // 3: debootButton
-			layout.FixedSize(u * 2), // 4: clearButton
-			layout.FlexibleSize(1),  // 5: statusText
+			layout.FixedSize(u),     // 2: migrationSetLabel
+			layout.FixedSize(u * 2), // 3: migrationSetInput
+			layout.FixedSize(u * 2), // 4: bootButton
+			layout.FixedSize(u * 2), // 5: debootButton
+			layout.FixedSize(u * 2), // 6: clearButton
+			layout.FlexibleSize(1),  // 7: statusText
 		},
 		RowGap: u,
 	}
 	// Add package label and input
 	appender.AppendChildWidgetWithBounds(&r.packageLabel, gl.CellBounds(0, 0))
 	appender.AppendChildWidgetWithBounds(&r.packageInput, gl.CellBounds(0, 1))
+	// Add migration set label and input
+	appender.AppendChildWidgetWithBounds(&r.migrationSetLabel, gl.CellBounds(0, 2))
+	appender.AppendChildWidgetWithBounds(&r.migrationSetInput, gl.CellBounds(0, 3))
 	// Add boot button
-	appender.AppendChildWidgetWithBounds(&r.bootButton, gl.CellBounds(0, 2))
+	appender.AppendChildWidgetWithBounds(&r.bootButton, gl.CellBounds(0, 4))
 	// Add deboot button
-	appender.AppendChildWidgetWithBounds(&r.debootButton, gl.CellBounds(0, 3))
+	appender.AppendChildWidgetWithBounds(&r.debootButton, gl.CellBounds(0, 5))
 	// Add clear button
-	appender.AppendChildWidgetWithBounds(&r.clearButton, gl.CellBounds(0, 4))
+	appender.AppendChildWidgetWithBounds(&r.clearButton, gl.CellBounds(0, 6))
 	// Add status text
-	appender.AppendChildWidgetWithBounds(&r.statusText, gl.CellBounds(0, 5))
+	appender.AppendChildWidgetWithBounds(&r.statusText, gl.CellBounds(0, 7))
 
 	return nil
 }
 
 // Launch is the public entry point to start the GUI.
 func Launch() {
+	// Get current screen dimensions to set the initial window size
+	// Use ScreenSizeInFullscreen() for broader compatibility
+	screenWidth, screenHeight := ebiten.ScreenSizeInFullscreen()
+
 	op := &guigui.RunOptions{
 		Title:         "PB-Stack Bootstrapper",
-		WindowMinSize: image.Pt(320, 240), // Adjusted size
+		WindowSize:    image.Pt(screenWidth, screenHeight), // Set initial size to screen dimensions
+		WindowMinSize: image.Pt(320, 240),                  // Still allow it to be shrunk
 		// WindowMaxSize: image.Pt(640, 480), // Remove or comment out to allow full maximization
 	}
+	// Allow the window to be resized by the user. This should be called before Run.
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
+
 	if err := guigui.Run(&Root{}, op); err != nil {
 		log.Printf("Error running GUI: %v", err) // Changed to log
 		os.Exit(1)

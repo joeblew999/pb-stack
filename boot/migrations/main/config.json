@@ -1,0 +1,52 @@
+{
+  "packages": [
+    {
+      "name": "Bun",
+      "description": "Fast JavaScript runtime, bundler, and package manager.",
+      "brew": { "packageName": "bun" },
+      "winget": { "packageId": "Oven-sh.Bun" },
+      "checkCommand": "bun --version"
+    },
+    {
+      "name": "Git",
+      "description": "Version control system.",
+      "brew": { "packageName": "git" },
+      "winget": { "packageId": "Git.Git" },
+      "checkCommand": "git --version"
+    },
+    {
+      "name": "Go",
+      "description": "Go programming language.",
+      "brew": { "packageName": "go" },
+      "winget": { "packageId": "GoLang.Go" },
+      "checkCommand": "go version"
+    },
+    {
+      "name": "OpenSSH",
+      "description": "OpenSSH client and server.",
+      "brew": { "packageName": "openssh" },
+      "winget": { "packageId": "Microsoft.OpenSSH.Beta" },
+      "checkCommand": "ssh -V"
+    },
+    {
+      "name": "Coreutils (for 'which' etc.)",
+      "description": "GNU core utilities. Provides 'gwhich' on macOS if installed via Homebrew.",
+      "brew": { "packageName": "coreutils" },
+      "winget": { "packageId": "GnuWin32.CoreUtils" },
+      "checkCommand": "gwhich --version"
+    },
+    {
+      "name": "Visual Studio Code",
+      "description": "Visual Studio Code editor.",
+      "brew": {
+        "packageName": "visual-studio-code",
+        "isCask": true
+      },
+      "winget": {
+        "packageId": "Microsoft.VisualStudioCode"
+      },
+      "checkCommand": "code --version"
+    }
+  ],
+  "vscodeExtensionsFile": "extensions.txt"
+}
