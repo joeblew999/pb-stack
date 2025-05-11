@@ -38,7 +38,7 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 		// r.targetInput.SetValue("localhost")
 	}
 
-	r.statusText.SetSelectable(false) // Status text usually isn't selectable
+	r.statusText.SetSelectable(true) // Make status text selectable for copy-pasting
 	r.statusText.SetHorizontalAlign(basicwidget.HorizontalAlignCenter)
 	r.statusText.SetVerticalAlign(basicwidget.VerticalAlignMiddle)
 	r.statusText.SetScale(1)        // Normal scale for status text
