@@ -75,7 +75,7 @@ func main() {
 		log.Println("Entering GUI mode.")
 
 		log.Println("Calling gui.Launch...")
-		gui.Launch() // Call the Launch function from the gui package
+		gui.Launch(*migrationSetFlag) // Pass the migrationSet to the GUI
 		log.Println("GUI application closed.")
 	}
 }

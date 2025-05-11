@@ -30,11 +30,11 @@ func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName str
 		os.Exit(0)                       // Exit after inspection
 	}
 
-	var scriptBaseName string
+	isTeardownOperation := false
 	if setupFlag {
-		scriptBaseName = "boot"
+		// Default is setup, isTeardownOperation remains false
 	} else if teardownFlag {
-		scriptBaseName = "deboot"
+		isTeardownOperation = true
 	} else {
 		log.Println("CLI mode selected. Please specify an action:") // Changed to log
 		programName := "your-program"                               // Default
@@ -48,7 +48,7 @@ func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName str
 
 	// Adjust actionMessage construction slightly for new terms
 	baseActionVerb := "Setting up"
-	if scriptBaseName == "deboot" {
+	if isTeardownOperation {
 		baseActionVerb = "Tearing down"
 	}
 	actionMessage := baseActionVerb // e.g., "Setting up" or "Tearing down"
@@ -61,7 +61,7 @@ func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName str
 	var err error
 
 	if packageName != "" { // If a specific package is named, handle it directly (always local now)
-		cmd, err = handleLocalPackageOperation(scriptBaseName, packageName)
+		cmd, err = handleLocalPackageOperation(isTeardownOperation, packageName)
 		if err != nil {
 			log.Printf("Warning: Could not prepare direct local package operation for '%s': %v. Will attempt script fallback if applicable.", packageName, err)
 		}
@@ -72,7 +72,7 @@ func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName str
 			// Fallback to script if direct operation wasn't possible or if we always want to run a script for packages
 			log.Printf("No direct local package operation for '%s', or script fallback intended. Attempting script execution...", packageName)
 			// This will run migrations/boot.sh or migrations/deboot.sh with packageName
-			err = executeScriptOperations(assets, scriptBaseName, migrationSet, packageName, appDebugMode)
+			err = executeScriptOperations(assets, isTeardownOperation, migrationSet, packageName, appDebugMode)
 			if err != nil {
 				log.Fatalf("Script execution for package '%s' failed: %v", packageName, err)
 			}
@@ -80,7 +80,7 @@ func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName str
 	} else {
 		// General local setup/teardown (no specific package specified by user)
 		log.Println("Performing general local setup/teardown...")
-		err = handleLocalJsonDrivenOperations(assets, scriptBaseName == "boot", migrationSet, appDebugMode)
+		err = handleLocalJsonDrivenOperations(assets, !isTeardownOperation, migrationSet, appDebugMode) // isSetup = !isTeardown
 		if err != nil {
 			log.Fatalf("Local JSON-driven operation failed: %v", err)
 		}
@@ -88,14 +88,14 @@ func Execute(assets embed.FS, setupFlag bool, teardownFlag bool, packageName str
 		// Optionally, run migration scripts AFTER JSON-driven local setup for other tasks
 		log.Println("Proceeding to run general migration scripts (if any)...")
 		// This will run setup_*.sh or teardown_*.sh
-		err = executeScriptOperations(assets, scriptBaseName, migrationSet, "", appDebugMode) // packageName is empty for migration scripts
+		err = executeScriptOperations(assets, isTeardownOperation, migrationSet, "", appDebugMode) // packageName is empty for migration scripts
 		if err != nil {
 			log.Fatalf("Script execution failed: %v", err)
 		}
 	}
 	log.Printf("%s complete.\n", actionMessage) // Changed to log
 }
-func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd, error) {
+func handleLocalPackageOperation(isTeardownOperation bool, packageName string) (*exec.Cmd, error) {
 	log.Println("Performing local package operation...") // Changed to log
 	var cmd *exec.Cmd
 	var pkgManagerCmd string
@@ -107,7 +107,7 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 			return nil, fmt.Errorf("%s command not found in PATH: %w. Please install Homebrew", pkgManagerCmd, err)
 		}
 		opCmd := "install"
-		if scriptBaseName == "deboot" {
+		if isTeardownOperation {
 			opCmd = "uninstall"
 		}
 		log.Printf("Using Homebrew: %s %s %s\n", pkgManagerCmd, opCmd, packageName) // Changed to log
@@ -124,7 +124,7 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 		}
 
 		opCmd := "install"
-		if scriptBaseName == "deboot" {
+		if isTeardownOperation {
 			opCmd = "remove"
 		}
 
@@ -146,7 +146,7 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 			return nil, fmt.Errorf("%s command not found in PATH: %w. Please install Winget", pkgManagerCmd, err)
 		}
 		opCmd := "install"
-		if scriptBaseName == "deboot" {
+		if isTeardownOperation {
 			opCmd = "uninstall"
 		}
 		log.Printf("Using Winget: %s %s --source winget --exact --id %s --accept-package-agreements --accept-source-agreements\n", pkgManagerCmd, opCmd, packageName) // Changed to log
@@ -157,7 +157,7 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 	return cmd, nil
 }
 
-func executeScriptOperations(assets embed.FS, scriptBaseName, migrationSet string, packageName string, appDebugMode bool) error {
+func executeScriptOperations(assets embed.FS, isTeardownOperation bool, migrationSet string, packageName string, appDebugMode bool) error {
 	var tempExtensionsPath string
 	extensionsFilePathInAssets := filepath.Join("migrations", migrationSet, "extensions.txt") // Path within the specific set
 	extensionsBytes, err := assets.ReadFile(extensionsFilePathInAssets)
@@ -227,12 +227,16 @@ func executeScriptOperations(assets embed.FS, scriptBaseName, migrationSet strin
 		singleScriptArgs := append([]string{}, scriptArgs...)                            // Copy base args
 		singleScriptArgs = append(singleScriptArgs, packageName)                         // Add packageName specifically for this script
 		// The script name for package operations is still the generic boot/deboot
-		scriptPathInAssets := filepath.Join("migrations", migrationSet, scriptBaseName+scriptSuffix)
+		baseScriptNameForPackage := "boot"
+		if isTeardownOperation {
+			baseScriptNameForPackage = "deboot"
+		}
+		scriptPathInAssets := filepath.Join("migrations", migrationSet, baseScriptNameForPackage+scriptSuffix)
 		return runSingleScript(assets, scriptPathInAssets, isUnixLike, singleScriptArgs)
 	} else {
 		// Migration-style: multiple ordered scripts
 		scriptPrefix := "setup_"
-		if scriptBaseName == "deboot" {
+		if isTeardownOperation {
 			scriptPrefix = "teardown_"
 		}
 		log.Printf("Performing migration-style operation with prefix '%s'...\n", scriptPrefix) // Changed to log

@@ -21,6 +21,12 @@ tasks:
       - task: gui # Calls the gui task below
     silent: true
 
+  gallery:
+    desc: "Run the Ebiten GUI gallery application"
+    dir: cmd/gallery # Corrected path relative to this Taskfile
+    cmds:
+      - go run .
+
   gui:
     desc: "Runs the Environment Setup GUI application."
     cmds:
