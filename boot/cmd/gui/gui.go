@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/atotto/clipboard"              // Added for clipboard operations
 	"github.com/hajimehoshi/ebiten/v2"         // Import Ebiten
 	"github.com/hajimehoshi/ebiten/v2/text/v2" // For font handling
 	"github.com/hajimehoshi/guigui"
@@ -25,6 +26,7 @@ type HomeViewWidget struct {
 	debootButton        basicwidget.TextButton
 	clearButton         basicwidget.TextButton
 	statusText          basicwidget.Text
+	copyStatusButton    basicwidget.TextButton // New button to copy status text
 }
 
 // Root is the main container widget for the application, holding sidebar and views
@@ -80,6 +82,16 @@ func (h *HomeViewWidget) Build(context *guigui.Context, appender *guigui.ChildWi
 		h.statusText.SetValue("Select an action.")
 	})
 
+	h.copyStatusButton.SetText("Copy Status")
+	h.copyStatusButton.SetOnUp(func() {
+		textToCopy := h.statusText.Value()
+		if err := clipboard.WriteAll(textToCopy); err != nil {
+			log.Printf("Error copying to clipboard: %v", err)
+			h.statusText.SetValue(h.statusText.Value() + "\n(Failed to copy to clipboard)")
+		} else {
+			h.statusText.SetValue(h.statusText.Value() + "\n(Status copied to clipboard!)")
+		}
+	})
 	u := basicwidget.UnitSize(context)
 	gl := layout.GridLayout{
 		Bounds: context.Bounds(h).Inset(u),
@@ -92,6 +104,7 @@ func (h *HomeViewWidget) Build(context *guigui.Context, appender *guigui.ChildWi
 			layout.FixedSize(u * 2),
 			layout.FixedSize(u * 2),
 			layout.FlexibleSize(1),
+			layout.FixedSize(u * 2), // Row for the copy button
 		},
 		RowGap: u,
 	}
@@ -102,7 +115,8 @@ func (h *HomeViewWidget) Build(context *guigui.Context, appender *guigui.ChildWi
 	appender.AppendChildWidgetWithBounds(&h.bootButton, gl.CellBounds(0, 4))
 	appender.AppendChildWidgetWithBounds(&h.debootButton, gl.CellBounds(0, 5))
 	appender.AppendChildWidgetWithBounds(&h.clearButton, gl.CellBounds(0, 6))
-	appender.AppendChildWidgetWithBounds(&h.statusText, gl.CellBounds(0, 7))
+	appender.AppendChildWidgetWithBounds(&h.statusText, gl.CellBounds(0, 7))       // Status text takes flexible space
+	appender.AppendChildWidgetWithBounds(&h.copyStatusButton, gl.CellBounds(0, 8)) // Copy button in the new last row
 
 	return nil
 }
@@ -147,13 +161,15 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 // PackagesViewWidget displays information about packages, loaded from the CLI.
 type PackagesViewWidget struct {
 	guigui.DefaultWidget
-	statusText    basicwidget.Text // To display CLI output (package list or errors)
-	bg            basicwidget.Background
-	loadAttempted bool // To ensure CLI is called only once when view becomes active
+	statusText       basicwidget.Text // To display CLI output (package list or errors)
+	bg               basicwidget.Background
+	copyOutputButton basicwidget.TextButton // New button to copy output text
+	loadAttempted    bool                   // To ensure CLI is called only once when view becomes active
 }
 
 func (pv *PackagesViewWidget) Build(context *guigui.Context, appender *guigui.ChildWidgetAppender) error {
 	appender.AppendChildWidgetWithBounds(&pv.bg, context.Bounds(pv))
+	u := basicwidget.UnitSize(context)
 
 	if !pv.loadAttempted {
 		pv.loadAttempted = true // Mark that we are attempting to load
@@ -170,11 +186,34 @@ func (pv *PackagesViewWidget) Build(context *guigui.Context, appender *guigui.Ch
 	pv.statusText.SetVerticalAlign(basicwidget.VerticalAlignTop)       // Use basicwidget package
 	pv.statusText.SetScale(1)                                          // Default text scale
 
-	// Layout the statusText to fill most of the view, with some padding
-	unitSize := basicwidget.UnitSize(context)
-	contentBounds := context.Bounds(pv).Inset(unitSize) // Add padding
-	appender.AppendChildWidgetWithBounds(&pv.statusText, contentBounds)
+	pv.copyOutputButton.SetText("Copy Output")
+	pv.copyOutputButton.SetOnUp(func() {
+		textToCopy := pv.statusText.Value()
+		if err := clipboard.WriteAll(textToCopy); err != nil {
+			log.Printf("Error copying to clipboard: %v", err)
+			// Optionally update statusText to indicate failure, though it might overwrite useful output
+			// For now, just logging. Consider a small, temporary popup or icon change in a more advanced UI.
+		} else {
+			// Optionally update statusText to indicate success
+			// pv.statusText.SetValue(textToCopy + "\n(Output copied to clipboard!)")
+			// For now, let's assume the user sees the button press and trusts it worked, or checks clipboard.
+			// A brief change in button text ("Copied!") would be ideal but requires more state.
+			log.Println("Output copied to clipboard.")
+		}
+	})
 
+	// Layout with statusText and a copy button below it
+	gl := layout.GridLayout{
+		Bounds: context.Bounds(pv).Inset(u), // Add padding to the whole view
+		Heights: []layout.Size{
+			layout.FlexibleSize(1),  // statusText takes most space
+			layout.FixedSize(u * 2), // copyOutputButton
+		},
+		RowGap: u / 2,
+	}
+
+	appender.AppendChildWidgetWithBounds(&pv.statusText, gl.CellBounds(0, 0))
+	appender.AppendChildWidgetWithBounds(&pv.copyOutputButton, gl.CellBounds(0, 1))
 	return nil
 }
 

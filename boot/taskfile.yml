@@ -9,6 +9,7 @@ vars:
   # Default log file path. Can be overridden by setting LOG_FILE_PATH environment variable.
   LOG_FILE: '{{.LOG_FILE | default "./pb-stack-boot.log"}}' # Renamed for brevity
   MIGRATION_SET: '{{.MIGRATION_SET | default "test"}}'
+  GIT_COMMIT_MESSAGE: '{{.MSG | default "Automated commit via Taskfile"}}' # Default commit message
 
 
 tasks:
@@ -60,3 +61,24 @@ tasks:
       - chmod +x ./extensions-gen.sh
       - ./extensions-gen.sh
     silent: true
+
+  # --- Git tasks ---
+  git-add-commit:
+    desc: "Stages all changes and commits with a message. Usage: task git-add-commit MSG='Your commit message'"
+    cmds:
+      - git add -A
+      - git commit -m "{{.GIT_COMMIT_MESSAGE}}" || true # Allow commit to fail (e.g., no changes)
+      - git status
+    silent: true
+
+  git-pull:
+    desc: "Pulls the latest changes from the remote repository (current branch)."
+    cmds:
+      - git pull
+      - git status
+
+  git-push:
+    desc: "Pushes committed changes to the remote repository (current branch)."
+    cmds:
+      - git push
+      - git status
