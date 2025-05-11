@@ -1,8 +1,8 @@
 package gui
 
 import (
-	"fmt"
 	"image"
+	"log"
 	"os"
 
 	"github.com/hajimehoshi/guigui"
@@ -108,7 +108,7 @@ func Launch() {
 		// WindowMaxSize: image.Pt(640, 480), // Remove or comment out to allow full maximization
 	}
 	if err := guigui.Run(&Root{}, op); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		log.Printf("Error running GUI: %v", err) // Changed to log
 		os.Exit(1)
 	}
 }

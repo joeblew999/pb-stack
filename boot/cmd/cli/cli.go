@@ -12,10 +12,7 @@ import (
 	"sort"
 )
 
-// debugMode can be set via a flag or environment variable in a real application
-const debugMode = false // Set to true to enable debug logging like fs.WalkDir
-
-func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string, packageName string) {
+func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string, packageName string, appDebugMode bool) {
 	var scriptBaseName string
 
 	if bootFlag {
@@ -23,8 +20,8 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 	} else if debootFlag {
 		scriptBaseName = "deboot"
 	} else {
-		fmt.Println("CLI mode selected. Please specify an action:")
-		programName := "your-program" // Default
+		log.Println("CLI mode selected. Please specify an action:") // Changed to log
+		programName := "your-program"                               // Default
 		if len(os.Args) > 0 {
 			programName = filepath.Base(os.Args[0])
 		}
@@ -45,7 +42,7 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 	if targetHost != "" {
 		actionMessage = fmt.Sprintf("%s on target '%s'", actionMessage, targetHost)
 	}
-	fmt.Printf("%s...\n", actionMessage)
+	log.Printf("%s...\n", actionMessage) // Changed to log
 
 	var cmd *exec.Cmd
 	var err error
@@ -63,16 +60,16 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 			}
 		}
 	} else {
-		err = executeScriptOperations(assets, scriptBaseName, targetHost, packageName)
+		err = executeScriptOperations(assets, scriptBaseName, targetHost, packageName, appDebugMode)
 		if err != nil {
 			log.Fatalf("Script execution failed: %v", err)
 		}
 	}
-	fmt.Printf("%s complete.\n", actionMessage)
+	log.Printf("%s complete.\n", actionMessage) // Changed to log
 }
 
 func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd, error) {
-	fmt.Println("Performing local package operation...")
+	log.Println("Performing local package operation...") // Changed to log
 	var cmd *exec.Cmd
 	var pkgManagerCmd string
 
@@ -86,7 +83,7 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 		if scriptBaseName == "deboot" {
 			opCmd = "uninstall"
 		}
-		fmt.Printf("Using Homebrew: %s %s %s\n", pkgManagerCmd, opCmd, packageName)
+		log.Printf("Using Homebrew: %s %s %s\n", pkgManagerCmd, opCmd, packageName) // Changed to log
 		cmd = exec.Command(pkgManagerCmd, opCmd, packageName)
 	case "linux":
 		// Basic example for apt. A real-world scenario might need more robust detection.
@@ -106,11 +103,11 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 
 		sudo := "sudo"
 		if _, err := exec.LookPath(sudo); err != nil {
-			fmt.Println("sudo command not found, attempting to run package manager without it.")
-			sudo = "" // sudo not found, try without
+			log.Println("sudo command not found, attempting to run package manager without it.") // Changed to log
+			sudo = ""                                                                            // sudo not found, try without
 		}
 
-		fmt.Printf("Using %s: %s %s %s -y %s\n", pkgManagerCmd, sudo, pkgManagerCmd, opCmd, packageName)
+		log.Printf("Using %s: %s %s %s -y %s\n", pkgManagerCmd, sudo, pkgManagerCmd, opCmd, packageName) // Changed to log
 		if sudo != "" {
 			cmd = exec.Command(sudo, pkgManagerCmd, opCmd, "-y", packageName)
 		} else {
@@ -125,7 +122,7 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 		if scriptBaseName == "deboot" {
 			opCmd = "uninstall"
 		}
-		fmt.Printf("Using Winget: %s %s --source winget --exact --id %s --accept-package-agreements --accept-source-agreements\n", pkgManagerCmd, opCmd, packageName)
+		log.Printf("Using Winget: %s %s --source winget --exact --id %s --accept-package-agreements --accept-source-agreements\n", pkgManagerCmd, opCmd, packageName) // Changed to log
 		cmd = exec.Command(pkgManagerCmd, opCmd, "--source", "winget", "--exact", "--id", packageName, "--accept-package-agreements", "--accept-source-agreements")
 	default:
 		return nil, fmt.Errorf("unsupported OS for local package operation: %s", runtime.GOOS)
@@ -133,17 +130,19 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 	return cmd, nil
 }
 
-func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packageName string) error {
+func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packageName string, appDebugMode bool) error {
 	var tempExtensionsPath string
 	// Prepare extensions.txt first, as its path will be an argument to scripts
 	extensionsFilePathInAssets := "migrations/extensions.txt"
 	extensionsBytes, err := assets.ReadFile(extensionsFilePathInAssets)
 	// Defer cleanup of extensions.txt if created
-	if tempExtensionsPath != "" { // This check needs to be after tempExtensionsPath is potentially set
-		defer os.Remove(tempExtensionsPath)
-	}
+	defer func() { // Ensure tempExtensionsPath is captured by the closure if it gets set
+		if tempExtensionsPath != "" {
+			defer os.Remove(tempExtensionsPath)
+		}
+	}()
 
-	if debugMode {
+	if appDebugMode {
 		fmt.Println("Listing embedded migration assets (debug mode):")
 		fs.WalkDir(assets, "migrations", func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -153,7 +152,7 @@ func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packag
 				}
 				return nil // Continue walking other files/dirs even if one file errors
 			}
-			fmt.Println(path)
+			log.Printf("[DEBUG] Embedded asset: %s", path) // Changed to log
 			return nil
 		})
 	}
@@ -175,7 +174,7 @@ func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packag
 			// os.Remove(tempExtensionsPath) // defer will handle this
 			return fmt.Errorf("failed to close temp file for extensions.txt: %w", errClose)
 		}
-		fmt.Printf("Found and prepared extensions.txt at temporary path: %s\n", tempExtensionsPath)
+		log.Printf("Found and prepared extensions.txt at temporary path: %s\n", tempExtensionsPath) // Changed to log
 	} else if !os.IsNotExist(err) { // An error other than "not found"
 		log.Printf("Warning: Error reading embedded extensions.txt: %v. Proceeding without it.", err)
 	} // If os.IsNotExist(err), we just proceed without it silently.
@@ -201,9 +200,9 @@ func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packag
 
 	if packageName != "" {
 		// Single script execution for a specific package
-		fmt.Printf("Performing operation for package '%s' via script...\n", packageName)
-		singleScriptArgs := append([]string{}, scriptArgs...)    // Copy base args
-		singleScriptArgs = append(singleScriptArgs, packageName) // Add packageName specifically for this script
+		log.Printf("Performing operation for package '%s' via script...\n", packageName) // Changed to log
+		singleScriptArgs := append([]string{}, scriptArgs...)                            // Copy base args
+		singleScriptArgs = append(singleScriptArgs, packageName)                         // Add packageName specifically for this script
 		// The script name for package operations is still the generic boot/deboot
 		scriptPathInAssets := filepath.Join("migrations", scriptBaseName+scriptSuffix)
 		return runSingleScript(assets, scriptPathInAssets, isUnixLike, singleScriptArgs)
@@ -213,7 +212,7 @@ func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packag
 		if scriptBaseName == "deboot" {
 			scriptPrefix = "teardown_"
 		}
-		fmt.Printf("Performing migration-style operation with prefix '%s'...\n", scriptPrefix)
+		log.Printf("Performing migration-style operation with prefix '%s'...\n", scriptPrefix) // Changed to log
 
 		entries, err := assets.ReadDir("migrations")
 		if err != nil {
@@ -229,14 +228,14 @@ func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packag
 		sort.Strings(scriptsToRun) // Ensure alphabetical order
 
 		if len(scriptsToRun) == 0 {
-			fmt.Printf("No scripts found matching pattern '%s*%s'. Nothing to do.\n", scriptPrefix, scriptSuffix)
+			log.Printf("No scripts found matching pattern '%s*%s'. Nothing to do.\n", scriptPrefix, scriptSuffix) // Changed to log
 			return nil
 		}
 
-		fmt.Printf("Found migration scripts to run: %v\n", scriptsToRun)
+		log.Printf("Found migration scripts to run: %v\n", scriptsToRun) // Changed to log
 		for _, scriptFilename := range scriptsToRun {
 			scriptPathInAssets := filepath.Join("migrations", scriptFilename)
-			fmt.Printf("Executing script: %s\n", scriptPathInAssets)
+			log.Printf("Executing script: %s\n", scriptPathInAssets) // Changed to log
 			// scriptArgs for migration scripts do not include packageName
 			err := runSingleScript(assets, scriptPathInAssets, isUnixLike, scriptArgs)
 			if err != nil {
