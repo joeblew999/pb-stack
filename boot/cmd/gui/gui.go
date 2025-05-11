@@ -178,25 +178,6 @@ func (pv *PackagesViewWidget) Build(context *guigui.Context, appender *guigui.Ch
 	return nil
 }
 
-// SettingsViewWidget - Placeholder
-type SettingsViewWidget struct {
-	guigui.DefaultWidget
-	label basicwidget.Text
-	bg    basicwidget.Background
-}
-
-func (sv *SettingsViewWidget) Build(context *guigui.Context, appender *guigui.ChildWidgetAppender) error {
-	// The SetColor method is not available on basicwidget.Background.
-	// This will now use the default theme background color.
-	appender.AppendChildWidgetWithBounds(&sv.bg, context.Bounds(sv))
-	sv.label.SetValue("Application Settings View.")
-	labelSize := sv.label.DefaultSize(context)
-	bounds := context.Bounds(sv)
-	pos := image.Pt(bounds.Min.X+(bounds.Dx()-labelSize.X)/2, bounds.Min.Y+(bounds.Dy()-labelSize.Y)/2)
-	appender.AppendChildWidgetWithPosition(&sv.label, pos)
-	return nil
-}
-
 // Launch is the public entry point to start the GUI.
 func Launch(initialMigrationSet string) {
 	// Set up the default font face sources for guigui widgets
