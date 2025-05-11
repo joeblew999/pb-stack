@@ -9,6 +9,7 @@ vars:
   # Default log file path. Can be overridden by setting LOG_FILE_PATH environment variable.
   LOG_FILE: '{{.LOG_FILE | default "./pb-stack-boot.log"}}' # Renamed for brevity
   MIGRATION_SET: '{{.MIGRATION_SET | default "test"}}'
+  TARGET_BRANCH: '{{.TARGET_BRANCH | default "main"}}' # Default target branch for rebase
   GIT_COMMIT_MESSAGE: '{{.MSG | default "Automated commit via Taskfile"}}' # Default commit message
 
 
@@ -63,22 +64,44 @@ tasks:
     silent: true
 
   # --- Git tasks ---
+  git-status:
+    desc: "Shows the working tree status."
+    cmds:
+      - git status
+
   git-add-commit:
     desc: "Stages all changes and commits with a message. Usage: task git-add-commit MSG='Your commit message'"
     cmds:
       - git add -A
       - git commit -m "{{.GIT_COMMIT_MESSAGE}}" || true # Allow commit to fail (e.g., no changes)
-      - git status
+      - task: git-status
     silent: true
 
   git-pull:
     desc: "Pulls the latest changes from the remote repository (current branch)."
     cmds:
       - git pull
-      - git status
+      - task: git-status
 
   git-push:
     desc: "Pushes committed changes to the remote repository (current branch)."
     cmds:
       - git push
-      - git status
+      - task: git-status
+
+  git-pull-rebase:
+    desc: "Pulls the latest changes and rebases the current branch onto them (git pull --rebase)."
+    cmds:
+      - git pull --rebase
+      - task: git-status
+
+  git-rebase-branch:
+    desc: "Rebases the current branch onto a specified target branch. Usage: task git-rebase-branch TARGET_BRANCH=develop"
+    vars:
+      # Allow TARGET_BRANCH to be overridden at runtime, otherwise use the one from global vars (which defaults to main)
+      BRANCH_TO_REBASE_ON: '{{.TARGET_BRANCH}}'
+    cmds:
+      - echo "Rebasing current branch onto {{.BRANCH_TO_REBASE_ON}}..."
+      - git rebase {{.BRANCH_TO_REBASE_ON}}
+      - task: git-status
+    silent: true # To make the echo command less noisy if desired, or remove silent for more verbosity
