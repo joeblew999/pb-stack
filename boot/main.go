@@ -21,7 +21,6 @@ func main() {
 	debootFlag := flag.Bool("deboot", false, "Run deboot scripts instead of boot scripts")
 	bootFlag := flag.Bool("boot", false, "Run boot scripts (used with -cli)")
 	cliModeFlag := flag.Bool("cli", false, "Run command-line boot/deboot process instead of GUI")
-	targetHostFlag := flag.String("target", "", "Target host/IP for boot/deboot operations (used with -cli)")
 	packageNameFlag := flag.String("package", "", "Specific package name for boot/deboot (e.g., Winget ID or Homebrew formula)")
 	logFileFlag := flag.String("logFile", "", "Path to log file. If empty, logs to stderr only.")
 	debugFlag := flag.Bool("debug", false, "Enable debug logging.")
@@ -55,7 +54,7 @@ func main() {
 		}
 		// The cli.Execute function will handle its specific logic,
 		// including the case where neither -boot nor -deboot is specified.
-		cli.Execute(embeddedAssets, *bootFlag, *debootFlag, *targetHostFlag, *packageNameFlag, *debugFlag)
+		cli.Execute(embeddedAssets, *bootFlag, *debootFlag, *packageNameFlag, *debugFlag)
 	} else {
 		// --- GUI Mode (Default) ---
 		// If -boot or -deboot flags were passed without -cli, they are effectively ignored here,

@@ -12,7 +12,7 @@ import (
 	"sort"
 )
 
-func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string, packageName string, appDebugMode bool) {
+func Execute(assets embed.FS, bootFlag bool, debootFlag bool, packageName string, appDebugMode bool) {
 	var scriptBaseName string
 
 	if bootFlag {
@@ -39,15 +39,12 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 	if packageName != "" {
 		actionMessage = fmt.Sprintf("%s for package '%s'", actionMessage, packageName)
 	}
-	if targetHost != "" {
-		actionMessage = fmt.Sprintf("%s on target '%s'", actionMessage, targetHost)
-	}
 	log.Printf("%s...\n", actionMessage) // Changed to log
 
 	var cmd *exec.Cmd
 	var err error
 
-	if packageName != "" && targetHost == "" {
+	if packageName != "" { // If a specific package is named, handle it directly (always local now)
 		cmd, err = handleLocalPackageOperation(scriptBaseName, packageName)
 		if err != nil {
 			log.Fatalf("Failed to prepare local package operation: %v", err)
@@ -60,7 +57,7 @@ func Execute(assets embed.FS, bootFlag bool, debootFlag bool, targetHost string,
 			}
 		}
 	} else {
-		err = executeScriptOperations(assets, scriptBaseName, targetHost, packageName, appDebugMode)
+		err = executeScriptOperations(assets, scriptBaseName, "", packageName, appDebugMode) // Pass empty string for targetHost
 		if err != nil {
 			log.Fatalf("Script execution failed: %v", err)
 		}
@@ -130,7 +127,7 @@ func handleLocalPackageOperation(scriptBaseName, packageName string) (*exec.Cmd,
 	return cmd, nil
 }
 
-func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packageName string, appDebugMode bool) error {
+func executeScriptOperations(assets embed.FS, scriptBaseName, _ /* targetHost - no longer used */ string, packageName string, appDebugMode bool) error {
 	var tempExtensionsPath string
 	// Prepare extensions.txt first, as its path will be an argument to scripts
 	extensionsFilePathInAssets := "migrations/extensions.txt"
@@ -180,9 +177,8 @@ func executeScriptOperations(assets embed.FS, scriptBaseName, targetHost, packag
 	} // If os.IsNotExist(err), we just proceed without it silently.
 
 	var scriptArgs []string
-	if targetHost != "" {
-		scriptArgs = append(scriptArgs, targetHost)
-	}
+	// targetHost argument removed
+
 	// Note: packageName is handled differently now for single vs multi-script
 	if tempExtensionsPath != "" {
 		scriptArgs = append(scriptArgs, tempExtensionsPath) // Common for all scripts if extensions.txt exists
