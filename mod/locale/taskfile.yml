@@ -1,0 +1,107 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+vars:
+  # Default log file path. Can be overridden by setting LOG_FILE_PATH environment variable.
+  LOG_FILE: '{{.LOG_FILE | default "./pb-stack-boot.log"}}' # Renamed for brevity
+  MIGRATION_SET: '{{.MIGRATION_SET | default "test"}}'
+  TARGET_BRANCH: '{{.TARGET_BRANCH | default "main"}}' # Default target branch for rebase
+  GIT_COMMIT_MESSAGE: '{{.MSG | default "Automated commit via Taskfile"}}' # Default commit message
+
+
+tasks:
+ 
+  # --- Bootstrapper tasks ---
+
+  default:
+    desc: "Runs the Environment Setup GUI application (default action from this Taskfile)."
+    cmds:
+      - task: gui # Calls the gui task below
+    silent: true
+
+  gallery:
+    desc: "Run the Ebiten GUI gallery application"
+    dir: cmd/gallery # Corrected path relative to this Taskfile
+    cmds:
+      - go run .
+
+  gui:
+    desc: "Runs the Environment Setup GUI application."
+    cmds:
+      - go run ./main.go -logFile "{{.LOG_FILE}}" -migrationSet "{{.MIGRATION_SET}}" {{.CLI_ARGS}}
+    silent: true
+
+  cli:
+    desc: "Runs the Environment Setup in CLI mode to install/configure tools."
+    cmds:
+      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "{{.MIGRATION_SET}}" {{.CLI_ARGS}}
+
+  cli-test-setup:
+    desc: "Runs Environment Setup (setup) in CLI mode using the 'test' migration set."
+    cmds:
+      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "test" -setup {{.CLI_ARGS}}
+
+  cli-test-teardown:
+    desc: "Runs Environment Setup (teardown) in CLI mode using the 'test' migration set."
+    cmds:
+      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "test" -teardown {{.CLI_ARGS}}
+
+  inspect-config:
+    desc: "Inspects the config.json for the specified MIGRATION_SET (defaults to 'test' via MIGRATION_SET var)."
+    cmds:
+      - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "{{.MIGRATION_SET}}" -inspect-config
+
+  gen:extensions:
+    desc: "Generates/updates the migrations/extensions.txt file for VS Code."
+    dir: ./migrations # Run commands from within the migrations directory
+    cmds:
+      - chmod +x ./extensions-gen.sh
+      - ./extensions-gen.sh
+    silent: true
+
+  # --- Git tasks ---
+  git-status:
+    desc: "Shows the working tree status."
+    cmds:
+      - git status
+
+  git-add-commit:
+    desc: "Stages all changes and commits with a message. Usage: task git-add-commit MSG='Your commit message'"
+    cmds:
+      - git add -A
+      - git commit -m "{{.GIT_COMMIT_MESSAGE}}" || true # Allow commit to fail (e.g., no changes)
+      - task: git-status
+    silent: true
+
+  git-pull:
+    desc: "Pulls the latest changes from the remote repository (current branch)."
+    cmds:
+      - git pull
+      - task: git-status
+
+  git-push:
+    desc: "Pushes committed changes to the remote repository (current branch)."
+    cmds:
+      - git push
+      - task: git-status
+
+  git-pull-rebase:
+    desc: "Pulls the latest changes and rebases the current branch onto them (git pull --rebase)."
+    cmds:
+      - git pull --rebase
+      - task: git-status
+
+  git-rebase-branch:
+    desc: "Rebases the current branch onto a specified target branch. Usage: task git-rebase-branch TARGET_BRANCH=develop"
+    vars:
+      # Allow TARGET_BRANCH to be overridden at runtime, otherwise use the one from global vars (which defaults to main)
+      BRANCH_TO_REBASE_ON: '{{.TARGET_BRANCH}}'
+    cmds:
+      - echo "Rebasing current branch onto {{.BRANCH_TO_REBASE_ON}}..."
+      - git rebase {{.BRANCH_TO_REBASE_ON}}
+      - task: git-status
+    silent: true # To make the echo command less noisy if desired, or remove silent for more verbosity

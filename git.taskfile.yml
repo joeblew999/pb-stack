@@ -241,7 +241,7 @@ tasks:
       - echo ''
       - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} status
       - echo ''
-    silent: true
+    silent: false
     
   config:
     desc: git config
@@ -393,6 +393,7 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey ''
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program ''
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format ''
+
   sign:set:
     desc: git sign set, to set the signing up in your git config.
     cmds:
@@ -402,6 +403,16 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
+  sign:set:src:
+    desc: git sign set, to set the signing up in your git config.
+    cmds:
+      - echo 'Setting signing up into your git config ...'
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_VAR_ROOT_SIGNING_USER_NAME}}
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local user.email {{.GIT_VAR_ROOT_SIGNING_USER_EMAIL}}
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
+  
   sign:get:
     desc: git sign get, to see what settings you have in your git config.
     cmds:
