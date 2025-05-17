@@ -1,0 +1,39 @@
+version: '3'
+
+tasks:
+  default:
+    desc: "Runs the main.go application"
+    deps:
+      - stop
+    cmds:
+      # Visit http://localhost:8080/__viz to see the dashboard
+      - go run main.go
+      
+  datastar:
+    desc: "Runs the Datastar backend server (cmd/server/main.go on port 8081)"
+    cmds:
+      - go run ./cmd/server/main.go
+
+  stop:
+    desc: "Stops the Go application by finding and forcefully killing processes listening on port 8080."
+    cmds:
+      - |
+        # Get PIDs. If lsof exits non-zero (e.g. 1 for 'not found'),
+        # 'true' runs, outputting nothing, so PIDS_TO_KILL is empty.
+        # The assignment line itself should then succeed (exit 0).
+        # 2>/dev/null silences lsof's own error messages (e.g., if it finds no process).
+        PIDS_TO_KILL=$(lsof -ti :8080 2>/dev/null || true)
+
+        if [ -n "$PIDS_TO_KILL" ]; then
+          echo "Found PIDs on port 8080 (will attempt SIGKILL):"
+          # Print each PID for clarity
+          echo "$PIDS_TO_KILL" | while IFS= read -r pid_line; do echo "  - $pid_line"; done
+          # Attempt to kill. Ignore errors from xargs/kill (e.g., if a PID no longer exists).
+          echo "$PIDS_TO_KILL" | xargs kill -9 || true
+          sleep 0.2 # Brief pause for the OS
+          echo "Kill command sent. Port 8080 should be free."
+        else
+          echo "No process found listening on port 8080."
+        fi
+        # Ensure this task always exits successfully so the dependent 'default' task can run.
+        exit 0

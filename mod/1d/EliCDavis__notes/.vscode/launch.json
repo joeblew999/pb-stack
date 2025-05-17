@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch via Delve DAP Server (Taskfile)",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "debugAdapter": "dlv-dap",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "program": "${workspaceFolder}/notes/cmd/notes",
+            "args": [
+                "project",
+                "new",
+                "--path",
+                "${workspaceFolder}/test",
+                "project01"
+            ],
+            "cwd": "${workspaceFolder}",
+            "showLog": true
+        },
+        {
+            "name": "Debug main.go (project new)",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/notes/cmd/notes",
+            "args": [
+                "project",
+                "new",
+                "--path",
+                "${workspaceFolder}/test",
+                "project01"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal", // Optional: shows output in integrated terminal
+            "showLog": true // Optional: shows Delve logs
+        }
+    ]
+}

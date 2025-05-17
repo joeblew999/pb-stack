@@ -1,0 +1,88 @@
+# https://taskfile.dev
+
+version: "3"
+
+interval: 100ms
+
+vars:
+  VERSION: 0.4.6
+
+tasks:
+  tools:
+    cmds:
+      - go install  github.com/valyala/quicktemplate/qtc@latest
+      - go install github.com/go-task/task/v3/cmd/task@latest
+      - go install github.com/a-h/templ/cmd/templ@latest
+  pb:
+    dir: pb
+    sources:
+      - "**/*.proto"
+      - "**/*.yaml"
+    generates:
+      - "gen/**/*"
+    cmds:
+      - go install github.com/bufbuild/buf/cmd/buf@latest
+      - buf dep update
+      - rm -rf gen
+      - buf generate
+
+  qtc:
+    sources:
+      - "**/*.qtpl"
+    cmds:
+      - qtc
+
+  libpub:
+    dir: ./library
+    cmds:
+      - git push origin
+      - git tag v{{.VERSION}}
+      - git push origin --tags
+      - git push --tags
+      - GOPROXY=proxy.golang.org go list -m github.com/delaneyj/geck@v{{.VERSION}}
+
+  profile:
+    dir: ./cmd/geckgen
+    cmds:
+      - go run main.go
+      - go tool pprof -http=localhost:5432 cpu.prof
+
+  test:
+    dir: ./cmd/geckgen
+    method: none
+    sources:
+      - "../../generator/**/*.go"
+      - "geckgen.json"
+    deps:
+      - qtc
+    cmds:
+      - go run main.go
+
+  templ:
+    env:
+      TEMPL_EXPERIMENT: rawgo
+    generates:
+      - "**/*_templ.go"
+    sources:
+      - "**/*.templ"
+    cmds:
+      - templ generate .
+
+  install:
+    dir: ./cmd/geckgen
+    deps:
+      - test
+    cmds:
+      - go install
+
+  example:
+    dir: ./cmd/example
+    method: none
+    deps:
+      - qtc
+      - templ
+    sources:
+      - "../../**/*.go"
+    cmds:
+      - lsof -t -i:8080 | xargs kill >/dev/null 2>&1 || true
+      - go run main.go

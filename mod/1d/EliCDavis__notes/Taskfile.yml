@@ -1,0 +1,272 @@
+version: '3'
+
+vars:
+  GIT_REPO_PATH: ./notes # Path to the Git repository
+  GIT_REPO_URL: "https://github.com/EliCDavis/notes" # <<< --- REPLACE THIS WITH YOUR ACTUAL REPO URL
+
+  BINARY_NAME: notes
+  # Output path for the binary, relative to the Taskfile (project root)
+  BINARY_PATH: ./.bin/{{.BINARY_NAME}}
+  # Source path for the main package, relative to the Taskfile
+  CMD_PATH: ./notes/cmd/notes
+
+  # Variables for the test task (moved to global scope)
+  TEST_PROJECT_NAME: project01 # Simplified project name
+  TEST_PROJECT_PATH: ./test
+  
+
+
+
+tasks:
+  default:
+    desc: "Lists all available tasks."
+    cmds:
+      - task -a # Changed to the shorter alias for listing all tasks
+    silent: true
+
+  tools:
+    desc: "Install or update to the latest version of Task (taskfile.dev)."
+    cmds:
+      - go install github.com/go-task/task/v3/cmd/task@latest
+    silent: false 
+
+
+
+### git
+
+  git:clone:
+    desc: "Clones the '{{.GIT_REPO_PATH}}' repository from {{.GIT_REPO_URL}} if it doesn't already exist."
+    cmds:
+      - git clone {{.GIT_REPO_URL}} {{.GIT_REPO_PATH}}
+    preconditions:
+      - sh: "[ ! -d '{{.GIT_REPO_PATH}}' ]"
+        msg: "Directory '{{.GIT_REPO_PATH}}' already exists. Skipping clone. To pull updates, use 'task git:pull'."
+    status: # Task is up-to-date if the directory already exists
+      - "[ -d '{{.GIT_REPO_PATH}}' ]"
+  git:clone:delete:
+    desc: "DANGER: Deletes the local '{{.GIT_REPO_PATH}}' repository directory. This does NOT affect the remote repository."
+    cmds:
+      - rm -rf {{.GIT_REPO_PATH}}
+
+  git:pull:
+    desc: "Pulls the latest changes from the remote repository for the 'notes' submodule."
+    cmds:
+      - cd {{.GIT_REPO_PATH}} && git pull
+
+  git:push:
+    desc: "Pushes local commits to the remote repository for the 'notes' submodule."
+    cmds:
+      - cd {{.GIT_REPO_PATH}} && git push
+
+  
+
+### vscode
+
+  vscode:setup-launchjson:
+    desc: |
+      Creates/updates ./.vscode/launch.json for debugging the '{{.BINARY_NAME}} project new'
+      command with Delve DAP using test data.
+      Assumes VS Code workspace root will be the project root directory.
+    cmds:
+      - mkdir -p ./.vscode
+      - |
+        echo '{
+            "version": "0.2.0",
+            "configurations": [
+                {
+                  "name": "Launch via Delve DAP Server (Taskfile)",
+                  "type": "go",
+                  "request": "launch",
+                  "mode": "debug",
+                  "debugAdapter": "dlv-dap",
+                  "port": 2345,
+                  "host": "127.0.0.1",
+                    "program": "${workspaceFolder}/{{ trimPrefix "./" .CMD_PATH }}",
+                  "args": [
+                    "project",
+                    "new",
+                    "--path",
+                        "${workspaceFolder}/{{ trimPrefix "./" .TEST_PROJECT_PATH }}",
+                    "{{.TEST_PROJECT_NAME}}"
+                  ],
+                    "cwd": "${workspaceFolder}",
+                  "showLog": true
+                }
+            ]
+        }' > ./.vscode/launch.json
+      - echo "./.vscode/launch.json created/updated successfully."
+
+  vscode:start-dap:
+    desc: |
+      Starts a Delve DAP server.
+      When used with VS Code and the 'Launch via Delve DAP Server (Taskfile)' configuration
+      (from ./.vscode/launch.json, created by 'task vscode:setup-launchjson'),
+      this will debug the '{{.BINARY_NAME}} project new' command with test data.
+      Listens on localhost:2345. The launch.json is expected at ./.vscode/launch.json.
+      In VS Code, select the 'Launch via Delve DAP Server (Taskfile)' configuration.
+    cmds:
+      - echo "Starting Delve DAP server on localhost:2345. VS Code will provide program and args."
+      - dlv dap --listen=:2345 --headless=true --api-version=2 # VS Code will provide program and args
+    deps:
+      - vscode:setup-launchjson # Ensures launch.json is created/updated first
+      - test:setup # Ensures the test environment is ready
+      - go:build    # Ensure the project builds before attempting to debug
+
+
+### go 
+
+  go:debug:
+    desc: "Debug the '{{.BINARY_NAME}} project new' command with test data using Delve."
+    cmds:
+      - echo '__debug*' >> .gitignore # This can stay here as it's specific to debug
+      # Delve will compile the package with debug symbols.
+      # Arguments for 'notes project new' are now hardcoded using test variables.
+      # Quoting the variables is important in case they contain spaces.
+      - dlv debug {{.CMD_PATH}} -- project new --path "{{.TEST_PROJECT_PATH}}" "{{.TEST_PROJECT_NAME}}"
+    deps:
+      - test:setup
+      - go:build
+
+  go:build:
+    desc: "Build the {{.BINARY_NAME}} CLI application."
+    cmds:
+      # Consider adding these patterns to your .gitignore file manually
+      - echo '.bin*' >> .gitignore
+      - echo '.task/*' >> .gitignore
+      - touch go.work
+      - go work use notes
+      - go build -v -o {{.BINARY_PATH}} {{.CMD_PATH}}
+    sources:
+      # Rebuild if any Go files in cmd/ or internal/ change, or go.mod/go.sum
+      # Watch all .go files within the notes module, its go.mod/sum,
+      # plus root go.mod/sum and any root-level internal packages.
+      - "{{.GIT_REPO_PATH}}/**/*.go"
+      - "{{.GIT_REPO_PATH}}/go.mod"
+      - "{{.GIT_REPO_PATH}}/go.sum"
+      - "./internal/**/*.go" # Common directory for internal packages
+      - "go.mod"
+      - "go.sum"
+    method: checksum # Use checksum to detect changes for rebuilding
+    generates:
+      - "{{.BINARY_PATH}}"
+
+  go:build:clean:
+    desc: "Remove the built {{.BINARY_NAME}} binary."
+    cmds:
+      - rm -f {{.BINARY_PATH}}
+
+### test 
+
+  test:setup:
+    desc: "Internal: Cleans and sets up the test project directory."
+    cmds:
+      - mkdir -p {{.TEST_PROJECT_PATH}}
+    silent: false
+
+  test:teardown:
+    desc: "Internal: Cleans and sets up the test project directory."
+    cmds:
+      - rm -rf {{.TEST_PROJECT_PATH}}
+    silent: false 
+
+  test:
+    desc: "Creates a new test project using variables."
+    cmds:
+      # Diagnostic echos for variable expansion
+      - echo "DEBUG TEST_PROJECT_NAME is '{{.TEST_PROJECT_NAME}}'"
+      - echo "DEBUG TEST_PROJECT_PATH is '{{.TEST_PROJECT_PATH}}'"
+      # Call the project new command with variables for name and path.
+      # Flags are placed before positional arguments for robustness with some CLI parsers.
+      # Quoting the variables is important in case they contain spaces.
+      #- "{{.BINARY_PATH}} project new --path \"{{.TEST_PROJECT_PATH}}\" \"{{.TEST_PROJECT_NAME}}\""
+      - '{{.BINARY_PATH}} project new --path {{.TEST_PROJECT_PATH}} {{.TEST_PROJECT_NAME}}'
+    deps:
+      - go:build # Ensure the binary is built before trying to run it
+      #- test:teardown # Depend on the new setup task
+      #- test:setup # Depend on the new setup task
+      
+### cli commands
+
+
+  # These tasks depend on the 'build' task, so the binary will be built if it's missing or outdated.
+  # You can pass arguments to the notes subcommands after '--'.
+  # For example: task project -- list
+  # Or: task task -- create --name "My new task"
+
+  project:
+    desc: "Run '{{.BINARY_NAME}} project' commands. Usage: task project -- [args...]"
+    cmds:
+      - "{{.BINARY_PATH}} project {{.CLI_ARGS}}"
+    deps:
+      - go:build
+    aliases: [p]
+
+  project:new:
+    desc: "Run '{{.BINARY_NAME}} project new'. Usage: task project:new -- [project name] [flags...]"
+    cmds:
+      - "{{.BINARY_PATH}} project new {{.CLI_ARGS}}"
+    deps:
+      - go:build
+
+  project:compile:
+    desc: "Run '{{.BINARY_NAME}} project compile'. Usage: task project:compile -- [flags...]"
+    cmds:
+      - "{{.BINARY_PATH}} project compile {{.CLI_ARGS}}"
+    deps:
+      - go:build
+
+  log:
+    desc: "Run '{{.BINARY_NAME}} log' commands. Usage: task log -- [args...]"
+    # Assuming the command is 'log' even if the package is 'plog'
+    cmds:
+      - "{{.BINARY_PATH}} log {{.CLI_ARGS}}"
+    deps:
+      - go:build
+    aliases: [l]
+
+  task:
+    desc: "Run '{{.BINARY_NAME}} task' commands. Usage: task task -- [args...]"
+    cmds:
+      - "{{.BINARY_PATH}} task {{.CLI_ARGS}}"
+    deps:
+      - go:build
+    aliases: [t]
+
+  meeting:
+    desc: "Run '{{.BINARY_NAME}} meeting' commands. Usage: task meeting -- [args...]"
+    cmds:
+      - "{{.BINARY_PATH}} meeting {{.CLI_ARGS}}"
+    deps:
+      - go:build
+    aliases: [m]
+
+  topic:
+    desc: "Run '{{.BINARY_NAME}} topic' commands. Usage: task topic -- [args...]"
+    cmds:
+      - "{{.BINARY_PATH}} topic {{.CLI_ARGS}}"
+    deps:
+      - go:build
+
+  images:
+    desc: "Run '{{.BINARY_NAME}} images' commands. Usage: task images -- [args...]"
+    cmds:
+      - "{{.BINARY_PATH}} images {{.CLI_ARGS}}"
+    deps:
+      - go:build
+    aliases: [i]
+
+  tag:
+    desc: "Run '{{.BINARY_NAME}} tag' commands. Usage: task tag -- [args...]"
+    cmds:
+      - "{{.BINARY_PATH}} tag {{.CLI_ARGS}}"
+    deps:
+      - go:build
+
+  run:
+    desc: "Run any '{{.BINARY_NAME}}' command directly. Usage: task run -- <subcommand> [args...]"
+    cmds:
+      - "{{.BINARY_PATH}} {{.CLI_ARGS}}"
+    deps:
+      - go:build # Keep build dep so binary is available if dlv has issues or for consistency
+
+  
