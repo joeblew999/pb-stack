@@ -439,10 +439,14 @@ tasks:
       - rm -rf {{.BASE_DEP_PATH}}/{{.BASE_SHELL_ARC_BIN_NAME}}
   shell-arc:
     cmds:
+      - task: base:shell-arc-dep
       - '{{.BASE_SHELL_ARC_BIN_NAME}} -h'
   shell-arc-extract:
     cmds:
-      - '{{.BASE_SHELL_ARC_BIN_NAME}} extract -f {{.CLI_ARGS}}'
+      - task: base:shell-arc-dep # Ensure arc is installed
+      # arc extract <archive> [destination]
+      # CLI_ARGS should be "<archive> [destination]"
+      - '{{.BASE_SHELL_ARC_BIN_NAME}} extract {{.CLI_ARGS}}'
   shell-arc-extract-tocwd:
     cmds:
       - mkdir -p {{.BASE_SRC_PATH}}
@@ -671,5 +675,3 @@ tasks:
     cmds:
       #- '{{if eq OS "windows"}}.exe{{end}}'
       #- mkdir -h
-
-

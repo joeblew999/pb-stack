@@ -1,0 +1,157 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# process_compose.taskfile.yml
+
+version: '3'
+
+env:
+  
+vars:
+  # bin
+  AQUA_BIN_NAME: mod-aqua
+
+  # run
+  AQUA_ROOT_DIR:
+    sh: echo "${AQUA_ROOT_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/aquaproj-aqua}"
+  AQUA_RUN_PACKAGE: hashicorp/terraform
+  AQUA_RUN_PACKAGE_ARGS: version
+
+tasks:
+  default:
+    desc: print
+    cmds:
+      - echo ''
+      - echo '- bin'
+      - echo 'AQUA_BIN_NAME:'                 {{.AQUA_BIN_NAME}}
+      - echo ''
+      - echo '- run vars:'
+      - echo AQUA_ROOT_DIR                    {{.AQUA_ROOT_DIR}}
+      - ls -al {{.AQUA_ROOT_DIR}}
+      - echo
+      - echo AQUA_RUN_PACKAGE                 {{.AQUA_RUN_PACKAGE}}
+      - echo AQUA_RUN_PACKAGE_ARGS            {{.AQUA_RUN_PACKAGE_ARGS}}
+      - echo
+      - echo ''
+    silent: true
+
+### test
+
+  test:
+    desc: test everything... 
+    cmds:
+      - task aqua:dep:del:config
+      - task aqua:dep
+
+      - task aqua:dep:registry
+      - task aqua:which:package:arg -- aquaproj/registry-tool
+
+      - task aqua:info
+      - task aqua:list:all
+      
+
+### run
+
+  dep:
+    desc: inits aqua
+    cmds:
+      - '{{.AQUA_BIN_NAME}} init'
+      - '{{.AQUA_BIN_NAME}} install'
+  dep:upgrade:
+    desc: upgrades aqua
+    cmds:
+      - '{{.AQUA_BIN_NAME}} update-aqua'
+  dep:upgrade:which:
+    desc: upgrades aqua to specific version
+    cmds:
+      - '{{.AQUA_BIN_NAME}} update-aqua {{.AQUA_BIN_VERSION}}'
+  dep:del:config:
+    desc: deletes aqua config
+    cmds:
+      - rm -rf {{.AQUA_ROOT_DIR}}
+
+  dep:registry:
+    desc: install aqua registry. aquaproj/registry-tool. WORKS
+    cmds:
+      - '{{.AQUA_BIN_NAME}} g -i aquaproj/registry-tool'
+
+
+ 
+
+
+
+  info:
+    desc: info
+    cmds:
+      - '{{.AQUA_BIN_NAME}} info'
+
+  list:all:
+    desc: list all
+    cmds:
+      - '{{.AQUA_BIN_NAME}} list --installed'
+  list:package:
+    desc: list all of a specific package
+    cmds:
+      - '{{.AQUA_BIN_NAME}} g -s -l 5 {{.AQUA_RUN_PACKAGE}}'
+  list:package:arg:
+    desc: list all of a specific package using args passed in. Opens stupid TUI..
+    cmds:
+      - echo 'CLI_ARGS      {{.CLI_ARGS}}'
+      - '{{.AQUA_BIN_NAME}} g -s -l 5 {{.CLI_ARGS}}'
+
+  which:package:
+    desc: which of a package
+    cmds:
+      - '{{.AQUA_BIN_NAME}} which {{.AQUA_RUN_PACKAGE}}'
+  which:package:arg:
+    desc: which of a package
+    cmds:
+      - echo 'CLI_ARGS      {{.CLI_ARGS}}'
+      - '{{.AQUA_BIN_NAME}} which {{.CLI_ARGS}}'
+  which:package:version:
+    desc: which version of a package
+    cmds:
+      - '{{.AQUA_BIN_NAME}} which --version {{.AQUA_RUN_PACKAGE}}'
+
+  delete:all:
+    desc: deletes all binaries
+    cmds:
+      #- aqua rm -h
+      - '{{.AQUA_BIN_NAME}} rm --all'
+  delete:package:
+    desc: deletes a specific package
+    cmds:
+      #- aqua rm -h
+      - '{{.AQUA_BIN_NAME}} rm {{.AQUA_RUN_PACKAGE}}'
+
+  update:help:
+    desc: help
+    cmds:
+      - '{{.AQUA_BIN_NAME}} update -h'
+  update:all:
+    desc: updates all binaries to the latest
+    cmds:
+      - '{{.AQUA_BIN_NAME}} update'
+  update:which:
+    desc: updates specific binary to specific version
+    cmds:
+      - '{{.AQUA_BIN_NAME}} update gh@v2.30.0'
+  exec:help:
+    desc: help
+    cmds:
+      - '{{.AQUA_BIN_NAME}} exec -h'
+  exec:
+    desc: executes a binary
+    cmds:
+      - '{{.AQUA_BIN_NAME}} exec -- {{.AQUA_RUN_PACKAGE}} {{.AQUA_RUN_PACKAGE_ARGS}}'
+        
+        
+
+
+  tf-init:
+    deps: [dep]
+    desc: inits terraform
+    cmds:
+      - terraform init
+  
+
+

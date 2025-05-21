@@ -1,0 +1,8 @@
+version: "0.5" # Specify a schema version, check process-compose docs for latest
+
+processes:
+  nats:
+    command: "nats-server -js"
+    # Ensure nats-server is in the PATH.
+    # It should be if installed via `go install` to GOBIN,
+    # and GOBIN is part of your shell's PATH when Task runs.

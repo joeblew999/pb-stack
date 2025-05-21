@@ -1,0 +1,27 @@
+searches: # This key should appear only ONCE at the top level
+  - name: "nats-server-darwin-arm64"
+    owner: "nats-io"
+    repo: "nats-server"
+    tag: "v2.11.2" # Or "latest"
+    filters:
+      osContains: "darwin"
+      archContains: "arm64"
+      extContains: ".tar.gz"
+    selectField: "browser_download_url"
+    firstOnly: true
+
+  - name: "github-cli-mac-arm64-name"
+    owner: "cli"
+    repo: "cli"
+    tag: "latest"
+    filters:
+      osContains: "macOS"
+      archContains: "arm64"
+      extContains: ".tar.gz"
+    selectField: "name"
+    firstOnly: true
+
+  # Add more search entries here as needed, each as a list item under 'searches'
+  # - name: "another-tool"
+  #   owner: "some-owner"
+  #   ...

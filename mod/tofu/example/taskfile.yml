@@ -25,7 +25,6 @@ includes:
   #   flatten: true
 
 vars:
- 
 
   THIS_SRC: '{{.GIT_VAR_ROOT_REPO_NAME}}/_examples/r2-image-server'
 

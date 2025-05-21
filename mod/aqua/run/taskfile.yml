@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  aqua: 
+    taskfile: ./../aqua.run.taskfile.yml
+
+vars:
+  AQUA_REG_BIN_NAME: aqua-registry
+  AQUA_REG_BIN: '{{.PWD}}/.bin/{{.AQUA_REG_BIN_NAME}}'
+
+  # run overrides
+  AQUA_REG_RUN_PACKAGE: hashicorp/terraform
+  AQUA_REG_RUN_REGISTRY: registry.yml
+  
+
+tasks:
+  default:
+    cmds:
+      - echo 
+      - echo 'AQUA_REG_BIN_NAME         {{.AQUA_REG_BIN_NAME}}'
+      - echo 'AQUA_REG_BIN              {{.AQUA_REG_BIN}}'
+      - echo
+      - echo 'AQUA_REG_RUN_PACKAGE      {{.AQUA_REG_RUN_PACKAGE}}'
+      - echo 'AQUA_REG_RUN_REGISTRY     {{.AQUA_REG_RUN_REGISTRY}}'
+      - echo
+      - echo
+    silent: true
+  dep:
+    cmds:
+      # https://github.com/aquaproj/registry-tool
+      # https://github.com/aquaproj/registry-tool/releases/tag/v0.3.5
+      - GOBIN={{.PWD}}/.bin go install github.com/aquaproj/registry-tool/cmd/aqua-registry@v0.3.5
+
+
+  reg:test:
+    desc: Runs a test
+    cmds:
+      - task reg:version
+      - task reg:init
+
+
+  reg:help:
+    cmds:
+      - '{{.AQUA_REG_BIN}} help'
+
+  reg:version:
+    cmds:
+      - '{{.AQUA_REG_BIN}} version --json'
+
+  
+
+  reg:init:
+    desc: Create configuration files. Idempotent thankfully.
+    cmds:
+      - '{{.AQUA_REG_BIN}} init'
+
+  reg:scaffold:help:
+    desc: Scaffold a package
+    cmds:
+      - '{{.AQUA_REG_BIN}} scaffold -h'
+
+  eg:scaffold:
+    desc: Scaffold a package
+    cmds:
+      - '{{.AQUA_REG_BIN}} scaffold'
+
+  reg:gen:help:
+    desc: Update registry.yaml
+    cmds:
+      - '{{.AQUA_REG_BIN}} generate-registry -h'
+
+  reg:gen:
+    desc: Update registry.yaml
+    cmds:
+      - '{{.AQUA_REG_BIN}} generate-registry'
+
+  reg:pr:
+    desc: Create a pull request to add new packages
+    cmds:
+      - '{{.AQUA_REG_BIN}} create-pr-new-pkg {{.AQUA_REG_RUN_PACKAGE}}'
+
+  reg:rename:
+    desc: Rename a package. FAILS.
+    cmds:
+      - '{{.AQUA_REG_BIN}} mv hashicorp/terraform hashicorp/terraform-new'
+
+
+      
+
+
+
+  

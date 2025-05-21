@@ -8,12 +8,12 @@ dotenv: ['.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
 includes:
   dev: 
-    taskfile: ./../../dev-taskfile.yml
+    taskfile: ./../../../dev-taskfile.yml
     flatten: true
   aqua: 
-    taskfile: ./aqua.taskfile.yml
+    taskfile: ./../aqua.dep.taskfile.yml
 
 
 
 
-
+  

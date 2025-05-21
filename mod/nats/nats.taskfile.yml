@@ -11,19 +11,38 @@ vars:
   NATS_SERVER_BIN_NAME: mod-nats-server
   # https://github.com/nats-io/nats-server/releases/tag/v2.11.2
   NATS_SERVER_BIN_VERSION: v2.11.2
-  #NATS_SERVER_BIN_WHICH: 
-    #sh: 'which {{.NATS_SERVER_BIN_NAME}}'
-  #NATS_SERVER_BIN_WHICH_VERSION:
-    #sh: '{{.NATS_SERVER_BIN_NAME}} version'
+  NATS_SERVER_BIN_WHICH: '{{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}'
+  NATS_SERVER_BIN_WHICH_VERSION:
+    sh: '{{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}} -v 2>/dev/null || echo "not installed"'
   
-  # https://github.com/nats-io/nats-server/releases/download/v2.11.2/nats-server-v2.11.2-darwin-arm64.tar.gz
-  # TODO: adapt to each OS.
-  NATS_SERVER_DEP_URL_COMPRESS_NAME: nats-server-{{.NATS_SERVER_BIN_VERSION}}-darwin-arm64.tar.gz
-  NATS_SERVER_DEP_URL_FOLDER_NAME: nats-server-{{.NATS_SERVER_BIN_VERSION}}-darwin-arm64
-  NATS_SERVER_DEP_URL_EXTRACT_NAME: nats-server
-  NATS_SERVER_DEP_URL: https://github.com/nats-io/nats-server/releases/download/{{.NATS_SERVER_BIN_VERSION}}/{{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
+  # Dynamic download variables
+  NATS_SERVER_DOWNLOAD_SUFFIX:
+    sh: |
+      os="{{.BASE_SHELL_OS_NAME}}"
+      arch="{{.BASE_SHELL_OS_ARCH}}"
+      # NATS uses 'amd64', 'arm64', 'arm7', '386'
+      # .BASE_SHELL_OS_ARCH might be 'arm' for 32-bit arm, map to 'arm7' if needed or adjust based on NATS naming
+      # For now, assuming direct mapping works for amd64, arm64. Others might need adjustment.
+      echo "${os}-${arch}"
+  NATS_SERVER_DOWNLOAD_EXTENSION:
+    sh: |
+      os="{{.BASE_SHELL_OS_NAME}}"
+      if [ "$os" = "windows" ]; then
+        echo ".zip"
+      else
+        echo ".tar.gz"
+      fi
 
-  NATS_SERVER_DEP_LIST_URL: https://api.github.com/repos/nats-io/nats-server/releases/tags/{{.NATS_SERVER_BIN_VERSION}}
+  NATS_SERVER_DOWNLOAD_FILENAME_BASE: nats-server-{{.NATS_SERVER_BIN_VERSION}}-{{.NATS_SERVER_DOWNLOAD_SUFFIX}}
+  NATS_SERVER_DOWNLOAD_ARCHIVE_FILENAME: '{{.NATS_SERVER_DOWNLOAD_FILENAME_BASE}}{{.NATS_SERVER_DOWNLOAD_EXTENSION}}' # This will be the primary filename used
+  NATS_SERVER_DOWNLOAD_URL: 'https://github.com/nats-io/nats-server/releases/download/{{.NATS_SERVER_BIN_VERSION}}/{{.NATS_SERVER_DOWNLOAD_ARCHIVE_FILENAME}}'
+
+  NATS_SERVER_EXTRACTED_FOLDER_NAME: '{{.NATS_SERVER_DOWNLOAD_FILENAME_BASE}}' # This is the folder name inside the archive
+  NATS_SERVER_EXTRACTED_BIN_NAME_IN_ARCHIVE: 'nats-server{{.BASE_BINARY_EXTENSION}}' # e.g., nats-server or nats-server.exe
+
+
+  NATS_RELEASE_INFO_JSON_PATH: '{{.BASE_SRC_PATH}}/github-releases-list.json' # Path where nats:dep:list saves the file
+  NATS_SERVER_DEP_LIST_URL: https://api.github.com/repos/nats-io/nats-server/releases/tags/{{.NATS_SERVER_BIN_VERSION}} # Kept for dep:list and dep:all
 
   # '{{ .VAR | default "value-from-child" }}'
   #NATS_SERVER_VAR_CONFIG_NAME: 'nats-server.conf' | default
@@ -38,61 +57,93 @@ tasks:
     cmds:
       - echo ''
       - echo '- bin'
-      - echo 'NATS_SERVER_BIN_NAME:'                   {{.NATS_SERVER_BIN_NAME}}
-      - echo 'NATS_SERVER_BIN_VERSION:'                {{.NATS_SERVER_BIN_VERSION}}
-      - echo 'NATS_SERVER_BIN_WHICH:'                  
-      - 'which {{.NATS_SERVER_BIN_NAME}}'
-      - echo 'NATS_SERVER_BIN_WHICH_VERSION:'          
-      - '{{.NATS_SERVER_BIN_NAME}} version'
+      - echo 'NATS_SERVER_BIN_NAME:'                    {{.NATS_SERVER_BIN_NAME}}
+      - echo 'NATS_SERVER_BIN_VERSION:'                 {{.NATS_SERVER_BIN_VERSION}} # The desired version
+      - echo 'NATS_SERVER_BIN_WHICH:'                   {{.NATS_SERVER_BIN_WHICH}} # Path to our managed binary
+      - echo 'NATS_SERVER_BIN_WHICH_VERSION:'           {{.NATS_SERVER_BIN_WHICH_VERSION}} # Actual version of managed binary
       - echo ''
-      - echo '- dep'
-      - echo 'NATS_SERVER_DEP_URL_COMPRESS_NAME:'      {{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
-      - echo 'NATS_SERVER_DEP_URL_FOLDER_NAME:'        {{.NATS_SERVER_DEP_URL_FOLDER_NAME}}
-      - echo 'NATS_SERVER_DEP_URL_EXTRACT_NAME:'       {{.NATS_SERVER_DEP_URL_EXTRACT_NAME}}
-      - echo 'NATS_SERVER_DEP_URL:'                    {{.NATS_SERVER_DEP_URL}}
-
-      - echo 'NATS_SERVER_DEP_LIST_URL:'               {{.NATS_SERVER_DEP_LIST_URL}}
+      - echo '- dep (download details)'
+      - echo 'NATS_SERVER_DOWNLOAD_SUFFIX:'             {{.NATS_SERVER_DOWNLOAD_SUFFIX}}
+      - echo 'NATS_SERVER_DOWNLOAD_EXTENSION:'          {{.NATS_SERVER_DOWNLOAD_EXTENSION}}
+      - echo 'NATS_SERVER_DOWNLOAD_FILENAME_BASE:'      {{.NATS_SERVER_DOWNLOAD_FILENAME_BASE}}
+      - echo 'NATS_SERVER_DOWNLOAD_ARCHIVE_FILENAME:'   {{.NATS_SERVER_DOWNLOAD_ARCHIVE_FILENAME}}
+      - echo 'NATS_SERVER_DOWNLOAD_URL:'                {{.NATS_SERVER_DOWNLOAD_URL}}
       - echo ''
-      - echo '- var'
+      - echo '- dep (extracted info)'
+      - echo 'NATS_SERVER_EXTRACTED_FOLDER_NAME:'       {{.NATS_SERVER_EXTRACTED_FOLDER_NAME}}
+      - echo 'NATS_SERVER_EXTRACTED_BIN_NAME_IN_ARCHIVE:' {{.NATS_SERVER_EXTRACTED_BIN_NAME_IN_ARCHIVE}}
+      - echo ''
+      # - dep (release listing info - still available via dep:list task)
+      # - echo 'NATS_SERVER_DEP_LIST_URL:'                {{.NATS_SERVER_DEP_LIST_URL}}
+      # - echo 'NATS_RELEASE_INFO_JSON_PATH:'             {{.NATS_RELEASE_INFO_JSON_PATH}}
+      - echo ''
+      - echo '- var (config)'
       - echo 'NATS_SERVER_VAR_CONFIG_NAME:'             {{.NATS_SERVER_VAR_CONFIG_NAME}}
       - echo 'NATS_SERVER_VAR_CONFIG_PATH:'             {{.NATS_SERVER_VAR_CONFIG_PATH}}
       - echo 'NATS_SERVER_VAR_CONFIG_WHICH:'            {{.NATS_SERVER_VAR_CONFIG_WHICH}}
-      
       - echo ''
     silent: true
 
   dep:
     desc: download and extract single.
     cmds:
-      # download 
-      - task base:shell-wgot-totmp -- {{.NATS_SERVER_DEP_URL}}
-      # extract
-      - task base:shell-arc-extract-totmp -- {{.NATS_SERVER_DEP_URL_COMPRESS_NAME}}
-      # place in .dep
-      - mv {{.BASE_TMP_PATH}}/{{.NATS_SERVER_DEP_URL_FOLDER_NAME}}/{{.NATS_SERVER_DEP_URL_EXTRACT_NAME}} {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
-      # cleanup
-      - rm -rf {{.BASE_TMP_PATH}}
-    silent: false
+      - mkdir -p "{{.BASE_DEP_PATH}}"
+      - mkdir -p "{{.BASE_TMP_PATH}}"
+      - rm -f "{{.BASE_TMP_PATH}}/{{.NATS_SERVER_DOWNLOAD_ARCHIVE_FILENAME}}"
+      - rm -rf "{{.BASE_TMP_PATH}}/{{.NATS_SERVER_EXTRACTED_FOLDER_NAME}}"
+      - task: base:shell-wgot-totmp
+        vars:
+          CLI_ARGS: "{{.NATS_SERVER_DOWNLOAD_URL}} --output {{.NATS_SERVER_DOWNLOAD_ARCHIVE_FILENAME}}"
+        silent: true
+      - task: base:shell-arc-extract-totmp # arc extracts to the specified tmp dir
+        vars:
+          CLI_ARGS: "{{.NATS_SERVER_DOWNLOAD_ARCHIVE_FILENAME}}"
+        silent: true
+      - mv "{{.BASE_TMP_PATH}}/{{.NATS_SERVER_EXTRACTED_FOLDER_NAME}}/{{.NATS_SERVER_EXTRACTED_BIN_NAME_IN_ARCHIVE}}" "{{.NATS_SERVER_BIN_WHICH}}"
+      - chmod +x "{{.NATS_SERVER_BIN_WHICH}}"
+      - rm -rf "{{.BASE_TMP_PATH}}"
+      - "{{.NATS_SERVER_BIN_WHICH}}" -v # Verify installation
+    status:
+      - '{{.NATS_SERVER_BIN_WHICH}} -v 2>/dev/null | grep -q "{{.NATS_SERVER_BIN_VERSION}}" || exit 1'
+
   dep:all:
-    desc: download and extract all.
+    desc: Lists download URLs for NATS server release assets for the configured version.
     cmds:
-      - task nats:dep:list
-      - go install github.com/itchyny/gojq/cmd/gojq@latest
-      - gojq -r '.assets[] | select(.name | contains("darwin")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
-      - gojq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
-      - gojq -r '.assets[] | select(.name | contains("windows")) | .browser_download_url' {{.BASE_SRC_PATH}}/github-releases-list.json
+      - echo ''
+      - echo '- NATS Server All Release Assets Listing'
+      - echo 'NATS_SERVER_BIN_VERSION:' {{.NATS_SERVER_BIN_VERSION}}
+      - echo 'NATS_SERVER_DEP_LIST_URL:' {{.NATS_SERVER_DEP_LIST_URL}}
+      - echo 'RELEASE_INFO_JSON_PATH:' '{{.NATS_RELEASE_INFO_JSON_PATH}}'
+      - echo ''
+      - echo 'Fetching release information and listing asset URLs (requires gojq)...'
+      - task: dep:list # Call local dep:list task
+      - "{{.GO_BIN_NAME}} install github.com/itchyny/gojq/cmd/gojq@latest"
+      - echo ''
+      - echo 'Darwin Assets:'
+      - gojq -r '.assets[] | select(.name | contains("darwin")) | .browser_download_url' {{.NATS_RELEASE_INFO_JSON_PATH}} || echo "  No Darwin assets found or gojq error."
+      - echo 'Linux Assets:'
+      - gojq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' {{.NATS_RELEASE_INFO_JSON_PATH}} || echo "  No Linux assets found or gojq error."
+      - echo 'Windows Assets:'
+      - gojq -r '.assets[] | select(.name | contains("windows")) | .browser_download_url' {{.NATS_RELEASE_INFO_JSON_PATH}} || echo "  No Windows assets found or gojq error."
       # loop: https://taskfile.dev/usage/#looping-over-tasks
     silent: false
+
   dep:del:
     cmds:
-      - rm -f {{.BASE_DEP_PATH}}/{{.NATS_SERVER_BIN_NAME}}
-      - ls -al {{.BASE_DEP_PATH}}/mod*
+      - echo "Removing {{.NATS_SERVER_BIN_WHICH}}..."
+      - rm -f {{.NATS_SERVER_BIN_WHICH}}
+      - echo "Remaining mod-* files in {{.BASE_DEP_PATH}}:"
+      - ls -al {{.BASE_DEP_PATH}}/mod* || true # Allow to fail if no files match
     silent: false
+
   dep:list:
     desc: download and extract all releases meta data from github.
     cmds:
+      # Downloads to {{.USER_WORKING_DIR}}/github-releases-list.json which is {{.BASE_SRC_PATH}}
+      # NATS_RELEASE_INFO_JSON_PATH points to this.
       - task base:shell-wgot-github-releases-tocwd -- {{.NATS_SERVER_DEP_LIST_URL}} 
     silent: false
+
   dep:which:
     cmds:
       - task base:shell-which -- {{.NATS_SERVER_BIN_NAME}}
@@ -102,12 +153,10 @@ tasks:
   run:
     desc: run
     cmds:
-      - '{{.NATS_SERVER_BIN_NAME}} -h'
+      - '{{.NATS_SERVER_BIN_WHICH}} -h'
     silent: false
   serve:
     desc: run
     cmds:
-      - '{{.NATS_SERVER_BIN_NAME}} -c {{.NATS_SERVER_VAR_CONFIG_NAME}}'
+      - '{{.NATS_SERVER_BIN_WHICH}} -c {{.NATS_SERVER_VAR_CONFIG_WHICH}}' # Use full path to config
     silent: false
-
-

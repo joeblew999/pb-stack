@@ -26,8 +26,8 @@ vars:
     sh: '{{.GO_BIN_NAME}} env GOROOT'
   GO_ENV_PATH:
     sh: '{{.GO_BIN_NAME}} env GOPATH'
-  GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
-
+  #GO_ENV_BIN_PATH: '{{joinPath .GO_ENV_PATH "bin" }}'
+  GO_ENV_BIN_PATH: '{{.GO_ENV_PATH}}/bin'
 
   ### garble
 

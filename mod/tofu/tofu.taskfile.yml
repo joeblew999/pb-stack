@@ -3,45 +3,91 @@
 # tofu.taskfile.yml
 
 version: '3'
-
-env:
   
 vars:
-  ### bin
-  TOFU_BIN_NAME: tofu
-  TOFU_BIN_WHICH: #/usr/local/bin/cloudflared
-  # https://github.com/opentofu/opentofu/releases/tag/v1.9.0
-  TOFU_BIN_VERSION: v1.9.0
+  ### bin configuration
+  TOFU_BIN_NAME_BASE: tofu
+  # Adjust binary name for Windows
+  TOFU_BIN_NAME: '{{if eq .OS "windows"}}{{.TOFU_BIN_NAME_BASE}}.exe{{else}}{{.TOFU_BIN_NAME_BASE}}{{end}}'
+
+  # User can set this to point to their own Tofu binary. If set, local download is skipped.
+  TOFU_BIN_WHICH: # e.g., /usr/local/bin/tofu or C:\Program Files\tofu\tofu.exe
   
-  # https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_darwin_arm64.zip
-  # TODO: adapt to each OS.
-  TOFU_BIN_URL_NAME: tofu_1.9.0_darwin_arm64.zip
-  TOFU_BIN_URL: https://github.com/opentofu/opentofu/releases/download/{{.TOFU_BIN_VERSION}}_{{.TOFU_BIN_URL_NAME}}
+  # OpenTofu version to download (tag from GitHub releases)
+  # https://github.com/opentofu/opentofu/releases
+  TOFU_BIN_VERSION: v1.9.0 
+  
+  # Internal variables for constructing download URL
+  _TOFU_VERSION_NO_V: '{{trimPrefix "v" .TOFU_BIN_VERSION}}'
+  # Taskfile's .OS and .ARCH (e.g., darwin, linux, windows; amd64, arm64) match OpenTofu's naming.
+  TOFU_ZIP_FILENAME: tofu_{{._TOFU_VERSION_NO_V}}_{{.OS}}_{{.ARCH}}.zip
+  TOFU_DOWNLOAD_URL: https://github.com/opentofu/opentofu/releases/download/{{.TOFU_BIN_VERSION}}/{{.TOFU_ZIP_FILENAME}}
+
+  # Local installation path configuration
+  TOFU_INSTALL_DIR: '{{.TASK_FILE_DIR}}/.bin' # Installs into .bin directory alongside this Taskfile
+  TOFU_LOCAL_BIN_PATH: '{{.TOFU_INSTALL_DIR}}/{{.TOFU_BIN_NAME}}'
+
+  # Effective command to run Tofu. Prefers TOFU_BIN_WHICH, otherwise uses the locally managed binary.
+  TOFU_CMD: '{{if .TOFU_BIN_WHICH}}{{.TOFU_BIN_WHICH}}{{else}}{{.TOFU_LOCAL_BIN_PATH}}{{end}}'
 
 tasks:
   default:
-    desc:  cloudflare print
+    desc: Prints OpenTofu configuration and variables
     cmds:
       - echo ''
-      - echo '- bin'
+      - echo 'OpenTofu Configuration:'
       - echo 'TOFU_BIN_NAME:'       {{.TOFU_BIN_NAME}}
       - echo 'TOFU_BIN_WHICH:'      {{.TOFU_BIN_WHICH}}
       - echo 'TOFU_BIN_VERSION:'    {{.TOFU_BIN_VERSION}}
-      - echo 'TOFU_BIN_URL:'        {{.TOFU_BIN_URL}}
+      - echo ''
+      - echo 'Download Details (if local install is used):'
+      - echo '  OS Detected:'         {{.OS}}
+      - echo '  ARCH Detected:'       {{.ARCH}}
+      - echo '  ZIP Filename:'        {{.TOFU_ZIP_FILENAME}}
+      - echo '  Download URL:'        {{.TOFU_DOWNLOAD_URL}}
+      - echo ''
+      - echo 'Paths:'
+      - echo '  Install Dir:'         {{.TOFU_INSTALL_DIR}}
+      - echo '  Local Binary Path:'   {{.TOFU_LOCAL_BIN_PATH}}
+      - echo '  Effective Command:'   {{.TOFU_CMD}}
       - echo ''
       - echo '- vars:'
       - echo ''
     silent: true
 
   dep:
+    desc: Ensures OpenTofu is available, downloading if necessary.
     cmds:
-      - brew install opentofu
-      #- task base:shell-wgot -- {{.TOFU_BIN_URL}}
+      - echo "Checking for OpenTofu..."
+      - '{{if .TOFU_BIN_WHICH}}echo "Using OpenTofu from TOFU_BIN_WHICH: {{.TOFU_BIN_WHICH}}"{{else}}echo "No TOFU_BIN_WHICH set, will attempt to use/install to: {{.TOFU_LOCAL_BIN_PATH}}"{{end}}'
+      - task: _ensure_tofu_installed
+    status:
+      # Considered up-to-date if the Tofu command can report its version
+      - '{{.TOFU_CMD}} version > /dev/null 2>&1'
 
   run:
-    desc: run tofu
+    desc: Run OpenTofu (e.g., "{{.TOFU_CMD}} -h")
+    deps: [dep] # Ensures OpenTofu is available before running
     cmds:
-      - '{{.TOFU_BIN_NAME}} -h'
+      - '{{.TOFU_CMD}} -h'
     silent: false
 
-
+  _ensure_tofu_installed:
+    internal: true
+    desc: Downloads and installs OpenTofu if not already present at TOFU_LOCAL_BIN_PATH.
+    cmds:
+      - mkdir -p {{.TOFU_INSTALL_DIR}}
+      - echo "Downloading OpenTofu {{.TOFU_BIN_VERSION}} ({{.TOFU_ZIP_FILENAME}}) from {{.TOFU_DOWNLOAD_URL}}..."
+      - curl --fail --silent --show-error --location --output {{.TOFU_INSTALL_DIR}}/{{.TOFU_ZIP_FILENAME}} {{.TOFU_DOWNLOAD_URL}}
+      - echo "Unzipping {{.TOFU_BIN_NAME}} from {{.TOFU_ZIP_FILENAME}} to {{.TOFU_INSTALL_DIR}}..."
+      - unzip -oq {{.TOFU_INSTALL_DIR}}/{{.TOFU_ZIP_FILENAME}} "{{.TOFU_BIN_NAME}}" -d {{.TOFU_INSTALL_DIR}}
+      - chmod +x {{.TOFU_LOCAL_BIN_PATH}}
+      - echo "OpenTofu {{.TOFU_BIN_VERSION}} installed to {{.TOFU_LOCAL_BIN_PATH}}"
+      - rm {{.TOFU_INSTALL_DIR}}/{{.TOFU_ZIP_FILENAME}}
+    generates:
+      - '{{.TOFU_LOCAL_BIN_PATH}}' # Task runs if this file doesn't exist
+    # Only run this task if TOFU_BIN_WHICH is not set (meaning we manage the binary)
+    # and the local binary path doesn't already exist (covered by 'generates')
+    preconditions:
+      - sh: test -z "{{.TOFU_BIN_WHICH}}"
+        msg: "TOFU_BIN_WHICH is set ({{.TOFU_BIN_WHICH}}), skipping local download."

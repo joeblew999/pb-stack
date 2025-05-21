@@ -15,7 +15,6 @@ includes:
     taskfile: ./../../cloudflare.taskfile.yml
   #  flatten: true
 
-  
 
 vars:
   GIT_VAR_ROOT_REPO_NAME: 'workers'

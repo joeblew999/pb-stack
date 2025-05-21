@@ -1,0 +1,90 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  # https://github.com/EliCDavis/polyform/releases/tag/v0.27.1
+  VERSION: v0.27.1
+  BIN_NAME: polyform
+  BIN_WASM_NAME: polywasm
+
+  WASM_NAME: main.wasm
+  WASM_PATH: '{{.PWD}}/polyform/cmd/polywasm/{{.WASM_NAME}}'
+
+  EXAMPLE_JSON_NAME: tower.json
+  EXAMPLE_JSON_PATH: '{{.PWD}}/polyform/generator/examples'
+  EXAMPLE_JSON_WHICH: '{{.EXAMPLE_JSON_PATH}}/{{.EXAMPLE_JSON_NAME}}'
+
+  EXAMPLE_GO_NAME: candle
+  EXAMPLE_GO_PATH: '{{.PWD}}/polyform/examples'
+  EXAMPLE_GO_WHICH: '{{.EXAMPLE_GO_PATH}}/{{.EXAMPLE_GO_NAME}}'
+
+tasks:
+  default:
+    cmds:
+      - echo
+      - task --list-all --sort alphanumeric
+      - echo
+      - echo 'VERSION                   {{.VERSION}}'
+
+      - echo 'BIN_NAME                  {{.BIN_NAME}}'
+      - echo 'BIN_WASM_NAME             {{.BIN_WASM_NAME}}'
+      - echo
+      - echo 'WASM_NAME                 {{.WASM_NAME}}'
+      - echo 'WASM_PATH                 {{.WASM_PATH}}'
+      - echo
+      - echo 'EXAMPLE_JSON_WHICH        {{.EXAMPLE_JSON_WHICH}}'
+      - echo
+      - echo 'EXAMPLE_GO_WHICH          {{.EXAMPLE_GO_WHICH}}'
+      - echo
+    silent: true
+
+  dep:bin:
+    cmds:
+      - go install github.com/EliCDavis/polyform/cmd/polyform@{{.VERSION}}
+      - go install github.com/EliCDavis/polyform/cmd/polywasm@{{.VERSION}}
+      # for https: https://github.com/FiloSottile/mkcert/releases/tag/v1.4.4
+      - go install filippo.io/mkcert@v1.4.4
+      # https://github.com/air-verse/air/releases/tag/v1.61.7
+      - go install github.com/air-verse/air@v1.61.7
+  dep:src:
+    cmds:
+      - rm -rf polyform
+      - git clone https://github.com/EliCDavis/polyform -b {{.VERSION}}
+      - echo polyform >> .gitignore
+
+  mkcert:
+    cmds:
+      # dumps pem files to disk, so localhost has https.
+      - mkcert -install
+      - mkcert -key-file key.pem -cert-file cert.pem localhost
+
+  wasm:bin:
+    cmds:
+      # builds a WASM version of polyform that can run in a browser.
+      - 'cd polyform/cmd/polyform && GOOS=js GOARCH=wasm go build -ldflags="-w -s" -o {{.WASM_PATH}}'
+      - '{{.BIN_WASM_NAME}} build --wasm {{.WASM_PATH}} -- out {{.PWD}}/out'
+
+  wasm:serve:
+    cmds:
+      # http://localhost:8080
+      - '{{.BIN_WASM_NAME}} serve' 
+
+  run:
+    cmds:
+      - '{{.BIN_NAME}} {{.EXAMPLE_JSON_WHICH}}'
+  edit:
+    cmds:
+      # http://localhost:8080
+      - '{{.BIN_NAME}} {{.EXAMPLE_JSON_WHICH}} edit' 
+
+  air:
+    cmds:
+      - air edit --port 8080 --ssl
+
+
+      
+
+
+   
+

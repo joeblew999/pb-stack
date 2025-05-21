@@ -3,11 +3,8 @@
 # cloudflare.taskfile.yml
 
 # TODO
-
 # Seems bun can install it. YEAH
-
 # We can build inside Cloudflare. https://developers.cloudflare.com/pages/configuration/build-image/#supported-languages-and-tools
-
 
 version: '3'
 
@@ -16,10 +13,9 @@ env:
   # CLOUDFLARE_ACCOUNT_ID: 
   # CF_API_TOKEN:
 
-  
-
 vars:
   
+  # domain
   CLOUDFLARE_ACCOUNT_DOMAIN_NAME: ubuntudesign.com
 
   # urls
@@ -32,17 +28,34 @@ vars:
   CLOUDFLARE_TUNNEL_BIN_NAME: cloudflared
   # https://github.com/cloudflare/cloudflared/releases/tag/2025.4.0
   CLOUDFLARE_TUNNEL_BIN_VERSION: 2025.4.0
-  # #/usr/local/bin/cloudflared
-  CLOUDFLARE_TUNNEL_BIN_WHICH: ''
-  CLOUDFLARE_TUNNEL_BIN_WHICH_VERSION: ''
-    #sh: '{{.CLOUDFLARE_TUNNEL_BIN_NAME}} version'
+  CLOUDFLARE_TUNNEL_BIN_WHICH: '{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}' # Points to our installed binary
+  CLOUDFLARE_TUNNEL_BIN_WHICH_VERSION:
+    sh: '{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}} version 2>/dev/null || echo "not installed"'
   
-  CLOUDFLARE_TUNNEL_BIN_URL_NAME: cloudflared-darwin-arm64.tgz
-  CLOUDFLARE_TUNNEL_BIN_URL: https://github.com/cloudflare/cloudflared/releases/download/{{.CLOUDFLARE_TUNNEL_BIN_VERSION}}/{{.CLOUDFLARE_TUNNEL_BIN_URL_NAME}}
+  # CLOUDFLARE_TUNNEL_BIN_URL_NAME: cloudflared-darwin-arm64.tgz # Replaced by dynamic var
+  # CLOUDFLARE_TUNNEL_BIN_URL: https://github.com/cloudflare/cloudflared/releases/download/{{.CLOUDFLARE_TUNNEL_BIN_VERSION}}/{{.CLOUDFLARE_TUNNEL_BIN_URL_NAME}} # Replaced by dynamic var
+
+  CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME:
+    sh: |
+      os="{{.BASE_SHELL_OS_NAME}}"
+      arch="{{.BASE_SHELL_OS_ARCH}}"
+      filename_base="cloudflared-${os}-${arch}"
+      ext=""
+      if [ "$os" = "darwin" ]; then
+        ext=".tgz"
+      elif [ "$os" = "windows" ]; then
+        ext=".exe"
+      fi
+      echo "${filename_base}${ext}"
+  CLOUDFLARE_TUNNEL_DOWNLOAD_URL: 'https://github.com/cloudflare/cloudflared/releases/download/{{.CLOUDFLARE_TUNNEL_BIN_VERSION}}/{{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}}'
+  CLOUDFLARE_TUNNEL_IS_ARCHIVE:
+    sh: |
+      filename="{{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}}"
+      if echo "$filename" | grep -q -E '\.tgz$|\.zip$'; then echo "true"; else echo "false"; fi
 
   # example: http://localhost:8080
   CLOUDFLARE_TUNNEL_VAR_URL: http://localhost:8080
-  CLOUDFLARE_TUNNEL_CMD: '{{.CLOUDFLARE_TUNNEL_BIN_NAME}}'
+  CLOUDFLARE_TUNNEL_CMD: '{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}'
 
   # wrangler
   CLOUDFLARE_WRANGLER_BIN_NAME: wrangler
@@ -93,10 +106,7 @@ tasks:
       - echo 'CLOUDFLARE_WRANGLER_BIN_URL:'            {{.CLOUDFLARE_WRANGLER_BIN_URL}}
       - echo ''
       - echo '- wrangle vars:'
-      - echo 'CLOUDFLARE_WRANGLER_VAR_PROJECT_NAME:'    {{.CLOUDFLARE_WRANGLER_VAR_PROJECT_NAME}}
-      
-
-      
+      - echo 'CLOUDFLARE_WRANGLER_VAR_PROJECT_NAME:'   {{.CLOUDFLARE_WRANGLER_VAR_PROJECT_NAME}}
     silent: true
 
   dashboard:open:
@@ -116,15 +126,48 @@ tasks:
 ### tunnel
 
   tunnel:dep:
+    desc: Downloads and installs the cloudflared binary from GitHub releases.
     cmds:
-      - brew install cloudflared
-      #- task base:shell-wgot -- {{.CLOUDFLARE_TUNNEL_BIN_URL}}
+      - echo "Ensuring {{.CLOUDFLARE_TUNNEL_BIN_NAME}} v{{.CLOUDFLARE_TUNNEL_BIN_VERSION}} is installed..."
+      - echo "Target OS: {{.BASE_SHELL_OS_NAME}}, ARCH: {{.BASE_SHELL_OS_ARCH}}"
+      - echo "Download URL: {{.CLOUDFLARE_TUNNEL_DOWNLOAD_URL}}"
+      - echo "Download Filename: {{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}}"
+      - echo "Is Archive: {{.CLOUDFLARE_TUNNEL_IS_ARCHIVE}}"
+
+      - mkdir -p {{.BASE_DEP_PATH}}
+      - mkdir -p {{.BASE_TMP_PATH}}
+      - rm -f {{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}}
+      - rm -f {{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}} # Clean up previously extracted binary in tmp
+
+      - task: base:shell-wgot-totmp
+        vars:
+          CLI_ARGS: '{{.CLOUDFLARE_TUNNEL_DOWNLOAD_URL}} --output {{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}}'
+
+      - |
+        set -e # Exit on error
+        if [ "{{.CLOUDFLARE_TUNNEL_IS_ARCHIVE}}" = "true" ]; then
+          echo "Extracting {{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}} to {{.BASE_TMP_PATH}}..."
+          # CLI_ARGS for base:shell-arc-extract will be "{{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}} {{.BASE_TMP_PATH}}"
+          {{.BASE_TASK_CMD}} base:shell-arc-extract -- "{{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}}" "{{.BASE_TMP_PATH}}"
+          echo "Moving extracted binary {{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}} to {{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}..."
+          mv "{{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}" "{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}"
+        else
+          echo "Moving downloaded binary {{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}} to {{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}..."
+          mv "{{.BASE_TMP_PATH}}/{{.CLOUDFLARE_TUNNEL_DOWNLOAD_FILENAME}}" "{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}"
+        fi
+        echo "Setting execute permissions for {{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}..."
+        chmod +x "{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}"
+        echo "{{.CLOUDFLARE_TUNNEL_BIN_NAME}} installed to {{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}"
+      # Verify
+      - '{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}} version'
+    status:
+      # Check if binary exists and version matches. Suppress errors if binary not found, fail status if grep fails.
+      - '{{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}} version 2>/dev/null | grep -q "{{.CLOUDFLARE_TUNNEL_BIN_VERSION}}" || exit 1'
   tunnel:dep:del:
     cmds:
-      - brew uninstall cloudflared
-      #- task base:shell-wgot -- {{.CLOUDFLARE_TUNNEL_BIN_URL}}
-
-  
+      - echo "Removing {{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}..."
+      - rm -f {{.BASE_DEP_PATH}}/{{.CLOUDFLARE_TUNNEL_BIN_NAME}}
+      - echo "{{.CLOUDFLARE_TUNNEL_BIN_NAME}} removed."
 
   tunnel:version:
     desc: run tunnel version
@@ -176,12 +219,9 @@ tasks:
     cmds:
       - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} whoami'
 
-
   wrangler:dev:
     cmds:
       - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} dev'
   wrangler:deploy:
     cmds:
       - '{{.CLOUDFLARE_WRANGLER_BIN_NAME}} deploy'
-
-

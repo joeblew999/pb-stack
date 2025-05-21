@@ -20,6 +20,7 @@ tasks:
       - task git:clone:src
       - task go:mod:work
       - task go:bin
+
   multi:
     vars:
       # https://taskfile.dev/blog/any-variables/

@@ -39,9 +39,10 @@ type Root struct {
 	model      *Model        // From model.go
 
 	// Views
-	homeView     HomeViewWidget     // The main view for setup/teardown
-	packagesView PackagesViewWidget // View for listing packages
-	settingsView SettingsViewWidget // Placeholder
+	homeView        HomeViewWidget        // The main view for setup/teardown
+	packagesView    PackagesViewWidget    // View for listing packages
+	settingsView    SettingsViewWidget    // Placeholder
+	assetFinderView AssetFinderViewWidget // New view for GitHub Asset Finder
 }
 
 // Build for HomeViewWidget (contains the original Root.Build logic)
@@ -151,6 +152,8 @@ func (r *Root) Build(context *guigui.Context, appender *guigui.ChildWidgetAppend
 		appender.AppendChildWidgetWithBounds(&r.packagesView, contentBounds)
 	case "settings":
 		appender.AppendChildWidgetWithBounds(&r.settingsView, contentBounds)
+	case "asset_finder": // New case for the asset finder view
+		appender.AppendChildWidgetWithBounds(&r.assetFinderView, contentBounds)
 	default:
 		// Fallback to home view if mode is unknown
 		appender.AppendChildWidgetWithBounds(&r.homeView, contentBounds)
@@ -261,6 +264,9 @@ func Launch(initialMigrationSet string) {
 		packagesView: PackagesViewWidget{
 			// loadAttempted will be false by default.
 			// statusText (basicwidget.Text) will be zero-initialized and ready to use.
+		},
+		assetFinderView: AssetFinderViewWidget{
+			// Initialize fields if needed, basicwidget.Text/Input are zero-initialized
 		},
 	}
 

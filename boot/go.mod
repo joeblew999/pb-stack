@@ -3,13 +3,14 @@ module main
 go 1.24.3
 
 require (
+	github.com/atotto/clipboard v0.1.4
 	github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.5.0.20250508150639-20a2c2c0a3fb
 	github.com/hajimehoshi/guigui v0.0.0-20250509150004-fbcbc876edb9
 	golang.org/x/text v0.24.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/ebitengine/gomobile v0.0.0-20250329061421-6d0a8e981e4c // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.9.0-alpha.3.0.20250507171635-5047c08daa38 // indirect

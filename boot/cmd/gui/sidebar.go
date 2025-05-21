@@ -60,6 +60,10 @@ func (s *sidebarContent) Build(context *guigui.Context, appender *guigui.ChildWi
 			Text: "Settings",
 			ID:   "settings",
 		},
+		{
+			Text: "Asset Finder", // New item for the sidebar
+			ID:   "asset_finder",
+		},
 	}
 
 	s.list.SetItems(items)

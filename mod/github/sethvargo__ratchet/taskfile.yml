@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# github - gh
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  dev: 
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+vars:
+  BIN_URL: https://github.com/sethvargo/ratchet
+  BIN_MOD: github.com/sethvargo/ratchet
+  BIN_CMD: 
+  BIN_NAME: ratchet
+  # https://github.com/sethvargo/ratchet/releases/tag/v0.11.3
+  BIN_VERSION: latest
+  #BIN_VERSION: v0.11.3
+
+  # run
+  RUN_VAR_WORKFLOW: test/workflow.yml
+
+tasks:
+  default:
+    cmds:
+      - echo ""
+      - echo "BIN_URL:"                 {{.BIN_URL}}
+      - echo "BIN_MOD:"                 {{.BIN_MOD}}
+      - echo "BIN_CMD:"                 {{.BIN_CMD}}
+      - echo "BIN_NAME:"                {{.BIN_NAME}}
+      - echo "BIN_VERSION:"             {{.BIN_VERSION}}
+      - echo ""
+      - echo "RUN_VAR_WORKFLOW:"        {{.RUN_VAR_WORKFLOW}}
+      - echo ""
+
+    silent: true
+
+  dep:
+    desc: install
+    cmds:
+      - echo ""
+      - echo "- gh dep"
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install {{.BIN_MOD}}@{{.BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/gh {{.BASE_DEP_PATH}}/{{.BIN_NAME}}
+
+  test:
+    cmds:
+      - task run-h
+      - task run-lint
+      - task run-pin
+      - task run-unpin
+      - task run-upgrade
+      - task run-update
+    
+  run-h:
+    cmds:
+      - '{{.BIN_NAME}} -h'
+  run-lint:
+    cmds:
+      - '{{.BIN_NAME}} lint {{.RUN_VAR_WORKFLOW}}'
+  run-pin:
+    cmds:
+      - '{{.BIN_NAME}} pin {{.RUN_VAR_WORKFLOW}}'
+  run-unpin:
+    cmds:
+      - '{{.BIN_NAME}} unpin {{.RUN_VAR_WORKFLOW}}'
+  
+  run-upgrade:
+    cmds:
+      - '{{.BIN_NAME}} upgrade {{.RUN_VAR_WORKFLOW}}' 
+  run-update:
+    cmds:
+      - '{{.BIN_NAME}} update {{.RUN_VAR_WORKFLOW}}'
+
+ 

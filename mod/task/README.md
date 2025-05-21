@@ -33,6 +33,26 @@ A Web GUI for task when its running inside docker.
 
 https://github.com/saydulaev/taskfile 
 
+## livekit task integration
+
+Cli uses task...
+
+https://github.com/livekit/livekit-cli is hardcoded to read projects templates from https://github.com/livekit-examples/index which has a taskfile and template file.
+
+---
+
+Server
+
+https://github.com/livekit/livekit
+
+https://github.com/nalgeon/redka to replace redis server.
+
+opts.DontListen=true
+
+
+
+
+
 
 
 

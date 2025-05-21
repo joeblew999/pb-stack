@@ -1,0 +1,41 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  
+  BIN_NAME: 'binst'
+  CONFIG_NAME: '.binstaller.yml'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - echo
+      - echo "BIN_NAME              {{.BIN_NAME}}"
+      - echo "CONFIG_NAME           {{.CONFIG_NAME}}"
+      - echo
+    silent: true
+  dep:
+    cmds:
+      # must clone due to go.mod having custom stuff..
+      - rm -rf binstaller
+      - git clone https://github.com/haya14busa/binstaller
+      - cd binstaller/cmd/binst && go build .
+      - mv binstaller/cmd/binst/binst {{.GOPATH}}/bin/{{.BIN_NAME}}
+      - rm -rf binstaller
+  dep:which:
+    cmds:
+      - which {{.BIN_NAME}} 
+
+  help:
+    cmds:
+      - '{{.BIN_NAME}} -h'
+  init:
+    cmds:
+      - '{{.BIN_NAME}} init --config tests/test.yml'
+  gen:
+    cmds:
+      - '{{.BIN_NAME}} gen --config tests/test.yml --output test/output'
+
+

@@ -14,8 +14,6 @@ vars:
   AQUA_BIN_WHICH: 
     #sh: 'which {{.AQUA_BIN_NAME}}'
   AQUA_BIN_WHICH_VERSION:
-    # Its too many lines.
-    # My Issue: https://github.com/F1bonacc1/process-compose/issues/330
     #sh: '{{.AQUA_BIN_NAME}} version'
   
   # https://github.com/aquaproj/aqua/releases/download/v2.50.0/aqua_darwin_arm64.tar.gz
@@ -29,6 +27,7 @@ vars:
   GIT_VAR_ROOT_REPO_NAME: aqua
 
   GIT_VAR_ROOT_RELEASE_LIST_URL: ??
+
 tasks:
   default:
     desc: print
@@ -45,16 +44,12 @@ tasks:
       - echo 'AQUA_BIN_URL_COMPRESS_NAME:'    {{.AQUA_BIN_URL_COMPRESS_NAME}}
       - echo 'AQUA_BIN_URL:'                  {{.AQUA_BIN_URL}}
       - echo ''
-      - echo '- vars:'
-      - echo ''
     silent: true
+
+### dep
 
   dep:
     cmds:
-      #- brew install f1bonacc1/tap/process-compose
-      # OR
-      # works !
-      # todo; add check if binary exist in .DEP_PATH, if else. 
       # pull
       - task base:shell-wgot-totmp -- {{.AQUA_BIN_URL}}
       # extract
@@ -72,32 +67,6 @@ tasks:
   dep:which:
     cmds:
       - task base:shell-which -- {{.AQUA_BIN_NAME}}
-    silent: false
-
-  release:list:
-    cmds:
-      - task git:release:list
-  
-
-  run:
-    cmds:
-      - '{{.AQUA_BIN_NAME}} -h'
-    silent: false
-  version:
-    cmds:
-      - '{{.AQUA_BIN_NAME}} version'
-    silent: false
-  up:
-    cmds:
-      - '{{.AQUA_BIN_NAME}} up'
-    silent: false
-  down:
-    cmds:
-      - '{{.AQUA_BIN_NAME}} down'
-    silent: false
-  list:
-    cmds:
-      - '{{.AQUA_BIN_NAME}} list'
     silent: false
 
 

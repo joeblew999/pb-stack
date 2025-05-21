@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# github - gh
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  dev: 
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+vars:
+  BIN_URL: https://github.com/nats-io/terraform-provider-jetstream
+  BIN_MOD: github.com/nats-io/terraform-provider-jetstream
+  BIN_CMD: 
+  BIN_NAME: terraform-provider-jetstream
+  # https://github.com/nats-io/terraform-provider-jetstream/releases/tag/v0.2.0
+  BIN_VERSION: latest
+  #BIN_VERSION: v0.2.0
+
+  # run
+  RUN_VAR_WORKFLOW: test/workflow.yml
+
+tasks:
+  default:
+    cmds:
+      - echo ""
+      - echo "BIN_URL:"                 {{.BIN_URL}}
+      - echo "BIN_MOD:"                 {{.BIN_MOD}}
+      - echo "BIN_CMD:"                 {{.BIN_CMD}}
+      - echo "BIN_NAME:"                {{.BIN_NAME}}
+      - echo "BIN_VERSION:"             {{.BIN_VERSION}}
+      - echo ""
+      - echo "RUN_VAR_WORKFLOW:"        {{.RUN_VAR_WORKFLOW}}
+      - echo ""
+
+    silent: true
+
+  dep:
+    desc: install
+    cmds:
+      - echo ""
+      - echo "- gh dep"
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install {{.BIN_MOD}}@{{.BIN_VERSION}}
+      - mv {{.BASE_DEP_PATH}}/terraform-provider-jetstream {{.BASE_DEP_PATH}}/{{.BIN_NAME}}
+
+  test:
+    deps: [test:setup]
+    cmds:
+      #- task run-h
+      - task test:run
+
+  test:setup:
+    cmds: 
+      - echo "Installing NATS Server..."
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/nats-io/nats-server/v2@latest
+      - echo "Installing OpenTofu (tofu)..."
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/opentofu/opentofu/cmd/tofu@latest
+      - echo "OpenTofu (tofu) installed and available."
+      - echo "Installing process-compose..."
+      - env GOBIN={{.BASE_DEP}} {{.GO_BIN_NAME}} install github.com/F1bonacc1/process-compose/cmd/process-compose@latest
+      - echo "Starting dependencies with process-compose..."
+      # process-compose will look for process-compose.yml or compose.yml by default
+      - process-compose up -d 
+      - sleep 5 # Give services some time to start
+
+  test:teardown:
+    cmds:
+      - echo "Stopping dependencies with process-compose..."
+      - process-compose down
+      - sleep 2 # Give it some time to stop
+
+  test:run:
+    deps: [test:setup]
+    cmds:
+      - go test -v ./...
+    
+  run-h:
+    cmds:
+      - '{{.BIN_NAME}} -h'
+  run-lint:
+    cmds:
+      - '{{.BIN_NAME}} lint {{.RUN_VAR_WORKFLOW}}'
+  run-pin:
+    cmds:
+      - '{{.BIN_NAME}} pin {{.RUN_VAR_WORKFLOW}}'
+  run-unpin:
+    cmds:
+      - '{{.BIN_NAME}} unpin {{.RUN_VAR_WORKFLOW}}'
+  
+  run-upgrade:
+    cmds:
+      - '{{.BIN_NAME}} upgrade {{.RUN_VAR_WORKFLOW}}' 
+  run-update:
+    cmds:
+      - '{{.BIN_NAME}} update {{.RUN_VAR_WORKFLOW}}'
+
+ 

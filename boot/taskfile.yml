@@ -50,6 +50,15 @@ tasks:
     cmds:
       - go run ./main.go -cli -logFile "{{.LOG_FILE}}" -migrationSet "test" -teardown {{.CLI_ARGS}}
 
+  cli-find-asset-test:
+    desc: "Tests the GitHub asset finder functionality. Example: NATS server."
+    vars:
+      ASSET_CONFIG_FILE: '{{.ASSET_CONFIG_FILE | default "./asset-searches.yml"}}'
+    cmds:
+      - 'echo Running asset finder with config: {{.ASSET_CONFIG_FILE}}'
+      - go run ./main.go -logFile "{{.LOG_FILE}}" -asset-config "{{.ASSET_CONFIG_FILE}}" {{.CLI_ARGS}}
+   
+
   inspect-config:
     desc: "Inspects the config.json for the specified MIGRATION_SET (defaults to 'test' via MIGRATION_SET var)."
     cmds:

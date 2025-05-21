@@ -1,0 +1,178 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  #dev: 
+  #  taskfile: ./../../../dev-taskfile.yml
+  #  flatten: true
+
+env:
+  # Env variables for livekit server.
+  REDIS_HOST: 'localhost:6379'
+  REDIS_PASSWORD: ''
+
+  # Only used for Production. For Dev, just use the --dev flag.
+  LIVEKIT_SERVER_CONFIG: 'lk_config-small.yml'
+    
+vars:
+  # bins
+  BIN_ROOT: '{{.PWD}}/.bin'
+
+  
+  LIVEKIT_BIN_CLI: '{{.BIN_ROOT}}/livekit-cli'
+  LIVEKIT_BIN_SERVER: '{{.BIN_ROOT}}/livekit-server'
+  REDKA_BIN_CLI: '{{.BIN_ROOT}}/redka-cli'
+  REDKA_BIN_SERVER: '{{.BIN_ROOT}}/redka-server'
+  
+
+
+
+  # CLI config
+  LK_CONFIG_NAME: 'cli-config.yaml'
+  LK_CONFIG_PATH: '{{.HOME}}/.livekit/'
+  LK_CONFIG_WHICH: '{{.HOME}}/.livekit/{{.LK_CONFIG_NAME}}'
+
+  LK_PROJECT_NAME: aaa
+  # The template index is here: https://github.com/livekit-examples/index
+  LK_TEMPLATE_NAME: example
+
+tasks:
+  default:
+    cmds:
+      - echo ''
+      - echo 'bins:'
+      - echo 'LIVEKIT_BIN_CLI           {{.LIVEKIT_BIN_CLI}}'
+      - echo 'LIVEKIT_BIN_SERVER        {{.LIVEKIT_BIN_SERVER}}'
+      - echo 'REDKA_BIN_CLI             {{.REDKA_BIN_CLI}}'
+      - echo 'REDKA_BIN_SERVER          {{.REDKA_BIN_SERVER}}'
+      - echo ''
+      - echo 'vars:'
+      - echo 'server:'
+      - echo 'REDIS_HOST                {{.REDIS_HOST}}'
+      - echo 'REDIS_PASSWORD            {{.REDIS_PASSWORD}}'
+      - echo ''
+      - echo 'LIVEKIT_SERVER_CONFIG     {{.LIVEKIT_SERVER_CONFIG}}'
+      - echo ''
+      - echo 'cli:'
+      - echo 'LK_CONFIG_WHICH           {{.LK_CONFIG_WHICH}}'
+      - echo 'LK_PROJECT_NAME           {{.LK_PROJECT_NAME}}'
+      - echo 'LK_TEMPLATE_NAME          {{.LK_TEMPLATE_NAME}}'
+      - echo ''
+    silent: true
+
+  bin:
+    # from https://github.com/livekit-examples/index/tree/main
+    cmds:
+      # cli
+      #- task go:bin
+      # https://github.com/livekit/livekit-cli/releases/tag/v2.4.9
+      - GOBIN={{.BIN_ROOT}} go install github.com/livekit/livekit-cli/v2/cmd/lk@v2.4.9
+      - mv {{.BIN_ROOT}}/lk {{.LIVEKIT_BIN_CLI}}
+
+      # server
+      # https://docs.livekit.io/home/self-hosting/local/
+      # https://github.com/livekit/livekit/releases/tag/v1.8.4
+      - GOBIN={{.BIN_ROOT}} go install github.com/livekit/livekit-server/cmd/server@v1.8.4
+      - mv {{.BIN_ROOT}}/server {{.LIVEKIT_BIN_SERVER}}
+
+      # server needs redis, so try redka.
+      # https://github.com/nalgeon/redka
+      # https://github.com/nalgeon/redka/releases/tag/v0.5.3
+      - GOBIN={{.BIN_ROOT}} go install github.com/nalgeon/redka/cmd/cli@v0.5.3
+      - mv {{.BIN_ROOT}}/cli {{.REDKA_BIN_CLI}}
+      - GOBIN={{.BIN_ROOT}} go install github.com/nalgeon/redka/cmd/redka@v0.5.3
+      - mv {{.BIN_ROOT}}/redka {{.REDKA_BIN_SERVER}}
+
+    
+  bin:del:
+    cmds:
+      - rm -rf {{.BIN_ROOT}}
+  
+### redka
+
+  redka:cli:
+    cmds:
+      # localhost:6379
+      - '{{.REDKA_BIN_CLI}}'
+  redka:server:
+    cmds:
+      # localhost:6379
+      - '{{.REDKA_BIN_SERVER}}'
+
+
+
+### livekit server
+
+  server:help:
+    cmds:
+      - '{{.LIVEKIT_BIN_SERVER}} -h' 
+  server:dev:
+    cmds:
+      # http://127.0.0.1:7880
+      - '{{.LIVEKIT_BIN_SERVER}} --dev' 
+  server:prod:
+    cmds:
+      # http://127.0.0.1:7880
+      - '{{.LIVEKIT_BIN_SERVER}}'
+  
+
+
+### livekit cli
+
+
+  cli:config:open:
+    cmds:
+      - code {{.LK_CONFIG_WHICH}}
+  cli:config:list:
+    cmds:
+      - ls {{.LK_CONFIG_PATH}}
+
+  cli:help:
+    # from https://github.com/livekit-examples/index/tree/main
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} -help' 
+
+  cli:app:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} app'  
+  cli:app:create:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} app create' 
+  cli:app:create:template:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} app create --template {{.LK_TEMPLATE_NAME}} my-app'
+
+
+  cli:app:list:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} app list' 
+  cli:app:env:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} app env' 
+
+  cli:agent:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} agent' 
+  cli:agent:list:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} agent list'
+
+  
+  cli:project:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} project' 
+  cli:project:add:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} project add'
+  cli:project:list:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} project list'
+  cli:project:remove:
+    cmds:
+      - '{{.LIVEKIT_BIN_CLI}} project remove {{.LK_PROJECT_NAME}}' 
+      

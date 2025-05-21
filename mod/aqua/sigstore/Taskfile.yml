@@ -1,0 +1,46 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  
+  BIN_NAME: 'mod-gitsign'
+  CONFIG_NAME: '.binstaller.yml'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - echo
+      - echo "BIN_NAME              {{.BIN_NAME}}"
+      - echo "CONFIG_NAME           {{.CONFIG_NAME}}"
+      - echo
+    silent: true
+  dep:
+    cmds:
+      # must clone due to go.mod having custom stuff..
+      - go install github.com/sigstore/gitsign@latest
+      - mv {{.GOPATH}}/bin/gitsign {{.GOPATH}}/bin/{{.BIN_NAME}}
+      
+  dep:which:
+    cmds:
+      - which {{.BIN_NAME}} 
+
+  help:
+    cmds:
+      - '{{.BIN_NAME}} -h'
+
+  version:
+    cmds: 
+      # works
+      - '{{.BIN_NAME}} version'
+  show:
+    cmds:
+      # works
+      - '{{.BIN_NAME}} show'
+
+  attest:
+    cmds:
+      - '{{.BIN_NAME}} attest'
+
+

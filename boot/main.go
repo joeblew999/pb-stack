@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -28,6 +27,11 @@ func main() {
 	migrationSetFlag := flag.String("migrationSet", "main", "The set of migrations to use (e.g., 'main', 'test') from the migrations folder.")
 	inspectConfigFlag := flag.Bool("inspect-config", false, "Inspect the config.json for the selected migration set and exit.")
 	debugFlag := flag.Bool("debug", false, "Enable debug logging.")
+
+	// Flags for the GitHub asset finder command (config file mode)
+	assetConfigFlag := flag.String("asset-config", "", "Path to a YAML file with asset search configurations.")
+	assetTokenFlag := flag.String("asset-token", os.Getenv("GITHUB_TOKEN"), "GitHub API token (for -find-asset, defaults to GITHUB_TOKEN env var).")
+
 	flag.Parse()
 
 	// Configure logging
@@ -51,23 +55,34 @@ func main() {
 		log.Println("Debug mode enabled.")
 		log.Printf("Parsed flags: -cli=%t, -setup=%t, -teardown=%t, -package='%s', -logFile='%s', -migrationSet='%s', -inspect-config=%t, -debug=%t",
 			*cliModeFlag, *setupFlag, *teardownFlag, *packageNameFlag, *logFileFlag, *migrationSetFlag, *inspectConfigFlag, *debugFlag)
+		if *assetConfigFlag != "" {
+			log.Printf("Asset Finder flags: -asset-config='%s', -asset-token set: %t", *assetConfigFlag, *assetTokenFlag != "")
+		}
 	}
 
-	if *cliModeFlag {
+	if *assetConfigFlag != "" {
+		// --- GitHub Asset Finder Mode (Config File) ---
+		log.Println("Entering GitHub Asset Finder mode (using config file).")
+		if *cliModeFlag || *setupFlag || *teardownFlag {
+			log.Fatalln("Error: -asset-config mode is mutually exclusive with -cli, -setup, or -teardown flags.")
+		}
+		cli.FindAssetsFromConfig(*assetConfigFlag, *assetTokenFlag)
+		log.Println("GitHub Asset Finder (config file) mode complete.")
+	} else if *cliModeFlag {
+
 		// --- CLI Mode ---
 		log.Println("Entering CLI mode.")
 
 		if *setupFlag && *teardownFlag {
 			// Log this error as well, before exiting
 			errMsg := "Error: -setup and -teardown flags are mutually exclusive when using -cli."
-			log.Println(errMsg)
-			fmt.Fprintln(os.Stderr, errMsg) // Keep user-facing stderr message
-			os.Exit(1)
+			log.Fatalln(errMsg) // Fatalln will print to log and exit
 		}
 		// The cli.Execute function will handle its specific logic,
 		// including the case where neither -boot nor -deboot is specified.
 		log.Println("Calling cli.Execute...")
 		cli.Execute(embeddedAssets, *setupFlag, *teardownFlag, *packageNameFlag, *migrationSetFlag, *inspectConfigFlag, *debugFlag)
+		log.Println("CLI mode complete.")
 	} else {
 		// --- GUI Mode (Default) ---
 		// If -boot or -deboot flags were passed without -cli, they are effectively ignored here,

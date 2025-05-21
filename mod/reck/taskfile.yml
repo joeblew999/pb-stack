@@ -12,10 +12,11 @@ includes:
   pc: 
     taskfile: ./../process-compose/pc.taskfile.yml
     #flatten: true
+
 env:
   
   # Darwin - works both locally and in Github CI.
-  #PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_NAME}}'
+  PATH: '{{.PATH}}:{{.BASE_DEP_PATH}}:{{.BASE_BIN_NAME}}'
 
   DECKFONTS: '{{.PWD}}/ajstarks__font/deckfonts'
 
@@ -25,6 +26,8 @@ var:
   DECK_DEEP_NAME_SH: '{{.DECK_DEEP_NAME_SH | default "test.dsh" }}'
   
   DECK_DEEP_WHICH_SH: '{{.DECK_DEEP_PATH}}/{{.DECK_DEEP_NAME_SH}}'
+
+  PATH: '{{.PATH}}'
 
 tasks:
   default:
@@ -86,7 +89,7 @@ tasks:
   run:sh:
     cmds:
       # Pipe off some folder
-      #- '{{.BASE_BIN_NAME}}/decksh_darwin_arm64 {{.DECK_DEEP}} > base.xml'
+      - '{{.BASE_BIN_NAME}}/decksh_darwin_arm64 {{.DECK_DEEP}} > base.xml'
       #- '{{.BASE_BIN_NAME}}/decksh_darwin_arm64 {{.DECK_DEEP}} > base.xml'
       #- task go:run -- -o foo.xml
       # decksh                   # input from stdin, output to stdout
@@ -98,7 +101,18 @@ tasks:
 
   run:svg:xml:
     cmds:
+      # will spew out a file per frame.
       - svgdeck_darwin_arm64 {{.DECK_DEEP_WHICH_XML}}
+  run:svg:del:
+    cmds:
+      - rm *.svg
+
+  run:pdf:xml:
+    cmds:
+      - pdfdeck_darwin_arm64 {{.DECK_DEEP_WHICH_XML}}
+  run:pdf:del:
+    cmds:
+      - rm *.svg
 
 
   run:gui:sh:
