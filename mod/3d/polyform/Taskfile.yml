@@ -5,15 +5,31 @@ version: '3'
 vars:
   # https://github.com/EliCDavis/polyform/releases/tag/v0.27.1
   VERSION: v0.27.1
-  BIN_NAME: polyform
-  BIN_WASM_NAME: polywasm
 
-  WASM_NAME: main.wasm
-  WASM_PATH: '{{.PWD}}/polyform/cmd/polywasm/{{.WASM_NAME}}'
+  BIN_ROOT_NAME: '.bin'
+  BIN_ROOT_PATH: '{{.PWD}}/{{.BIN_ROOT_NAME}}'
 
-  EXAMPLE_JSON_NAME: tower.json
+  BIN_POLYFORM_NAME: polyform
+  BIN_POLYFORM_WHICH: '{{.BIN_ROOT_PATH}}/{{.BIN_POLYFORM_NAME}}'
+
+  BIN_POLYWASM_NAME: polywasm
+  BIN_POLYWASM_WHICH: '{{.BIN_ROOT_PATH}}/{{.BIN_POLYWASM_NAME}}'
+
+  WASM_POLYFORM_NAME: main.wasm
+  WASM_POLYFORM_PATH: '{{.BIN_ROOT_PATH}}/wasm/{{.WASM_POLYFORM_NAME}}'
+
+  WEB_POLYFORM_NAME: polyweb
+  WEB_POLYFORM_PATH: '{{.BIN_ROOT_PATH}}/web/{{.WEB_POLYFORM_NAME}}'
+
+  ## meta
+  META_ROOT_NAME: '.meta'
+  META_ROOT_PATH: '{{.PWD}}/{{.META_ROOT_NAME}}'
+  
+
+  # examples ( todo chaneg to use the TASK -- trick)
+  EXAMPLE_JSON_NAME: tower
   EXAMPLE_JSON_PATH: '{{.PWD}}/polyform/generator/examples'
-  EXAMPLE_JSON_WHICH: '{{.EXAMPLE_JSON_PATH}}/{{.EXAMPLE_JSON_NAME}}'
+  EXAMPLE_JSON_WHICH: '{{.EXAMPLE_JSON_PATH}}/{{.EXAMPLE_JSON_NAME}}.json'
 
   EXAMPLE_GO_NAME: candle
   EXAMPLE_GO_PATH: '{{.PWD}}/polyform/examples'
@@ -21,69 +37,227 @@ vars:
 
 tasks:
   default:
+    desc: help
     cmds:
       - echo
       - task --list-all --sort alphanumeric
       - echo
+      - echo - src
       - echo 'VERSION                   {{.VERSION}}'
-
-      - echo 'BIN_NAME                  {{.BIN_NAME}}'
-      - echo 'BIN_WASM_NAME             {{.BIN_WASM_NAME}}'
       - echo
-      - echo 'WASM_NAME                 {{.WASM_NAME}}'
-      - echo 'WASM_PATH                 {{.WASM_PATH}}'
+      - echo - bins
+      - echo 'BIN_ROOT_NAME             {{.BIN_ROOT_NAME}}'
+      - echo 'BIN_ROOT_PATH             {{.BIN_ROOT_PATH}}'
       - echo
+      - echo 'BIN_POLYFORM_NAME         {{.BIN_POLYFORM_NAME}}'
+      - echo 'BIN_POLYFORM_WHICH        {{.BIN_POLYFORM_WHICH}}'
+      - echo
+      - echo 'BIN_POLYWASM_NAME         {{.BIN_POLYWASM_NAME}}'
+      - echo 'BIN_POLYWASM_WHICH        {{.BIN_POLYWASM_WHICH}}'
+      - echo
+      - echo 'WASM_POLYFORM_NAME        {{.WASM_POLYFORM_NAME}}'
+      - echo 'WASM_POLYFORM_PATH        {{.WASM_POLYFORM_PATH}}'
+      - echo
+      - echo 'WEB_POLYFORM_NAME         {{.WEB_POLYFORM_NAME}}'
+      - echo 'WEB_POLYFORM_PATH         {{.WEB_POLYFORM_PATH}}'
+      - echo
+      - echo - meta
+      - echo 'META_ROOT_NAME            {{.META_ROOT_NAME}}'
+      - echo 'META_ROOT_PATH            {{.META_ROOT_PATH}}'
+      - echo
+      - echo - examples
       - echo 'EXAMPLE_JSON_WHICH        {{.EXAMPLE_JSON_WHICH}}'
       - echo
       - echo 'EXAMPLE_GO_WHICH          {{.EXAMPLE_GO_WHICH}}'
       - echo
     silent: true
 
-  dep:bin:
+### dep
+
+  dep:
+    desc: go install deps 
     cmds:
-      - go install github.com/EliCDavis/polyform/cmd/polyform@{{.VERSION}}
-      - go install github.com/EliCDavis/polyform/cmd/polywasm@{{.VERSION}}
       # for https: https://github.com/FiloSottile/mkcert/releases/tag/v1.4.4
       - go install filippo.io/mkcert@v1.4.4
+
       # https://github.com/air-verse/air/releases/tag/v1.61.7
       - go install github.com/air-verse/air@v1.61.7
-  dep:src:
+
+      # does binary and wasm size analysis.
+      # https://github.com/Zxilly/go-size-analyzer/releases/tag/v1.9.2
+      - go install github.com/Zxilly/go-size-analyzer/cmd/gsa@v1.9.2
+
+  dep:setup:
+    desc: setup dependencies. mkcert, air. 
+    cmds:
+      # dumps pem files to disk, so localhost has https.
+      # TODO: change to the .bin/web
+      - mkcert -install
+      - mkcert -key-file key.pem -cert-file cert.pem localhost
+      #- air edit --port 8080 --ssl
+
+
+### src
+
+  src:
+    desc: git clone the source
     cmds:
       - rm -rf polyform
       - git clone https://github.com/EliCDavis/polyform -b {{.VERSION}}
+      
+      - echo {{.BIN_ROOT_NAME}} >> .gitignore
+      - echo {{.META_ROOT_NAME}} >> .gitignore
       - echo polyform >> .gitignore
 
-  mkcert:
+      - touch go.work
+      - go work use polyform
+  src:del:
     cmds:
-      # dumps pem files to disk, so localhost has https.
-      - mkcert -install
-      - mkcert -key-file key.pem -cert-file cert.pem localhost
+      - rm -rf polyform
 
-  wasm:bin:
+
+### bin
+
+  bin:
+    desc: build everything
     cmds:
-      # builds a WASM version of polyform that can run in a browser.
-      - 'cd polyform/cmd/polyform && GOOS=js GOARCH=wasm go build -ldflags="-w -s" -o {{.WASM_PATH}}'
-      - '{{.BIN_WASM_NAME}} build --wasm {{.WASM_PATH}} -- out {{.PWD}}/out'
+      - task bin:clean
+      - task bin:binary
+      - task bin:wasm
+  bin:clean:
+    cmds:
+      - rm -rf {{.BIN_ROOT_PATH}}
+  
 
-  wasm:serve:
+  bin:binary:
+    desc: go build the binaries ...
+    cmds:
+      - cd polyform/cmd/polyform && go build -o {{.BIN_POLYFORM_WHICH}}
+      - cd polyform/cmd/polywasm && go build -o {{.BIN_POLYWASM_WHICH}}
+
+  bin:wasm:
+    desc: go build the wasm of polyform.
+    cmds:
+      - 'cd polyform/cmd/polyform && GOOS=js GOARCH=wasm go build -ldflags="-w -s" -o {{.WASM_POLYFORM_PATH}}'
+      #- 'cd polyform/cmd/polyform && GOOS=js GOARCH=wasm tinygo build --no-debug -o {{.WASM_POLYFORM_PATH}}'
+      - '{{.BIN_POLYWASM_WHICH}} build --wasm {{.WASM_POLYFORM_PATH}} -- out {{.WEB_POLYFORM_PATH}}'
+
+### test
+
+  test:
+    cmds:
+      # go
+      - 'cd polyform/cmd/polyform && go test'
+      - 'cd polyform/cmd/polywasm && go test'
+      # tinygo
+      - 'cd polyform/cmd/polywasm && tinygo test'
+      - 'cd polyform/cmd/polywasm && tinygo test'
+     
+
+### inspect ( to help see whats so huge in the wasm )
+
+  inspect:web:
+    desc: test various things....
+    # deps is not checking if the out is done.
+    #deps: [dep, dep:setup]
     cmds:
       # http://localhost:8080
-      - '{{.BIN_WASM_NAME}} serve' 
-
-  run:
-    cmds:
-      - '{{.BIN_NAME}} {{.EXAMPLE_JSON_WHICH}}'
-  edit:
-    cmds:
-      # http://localhost:8080
-      - '{{.BIN_NAME}} {{.EXAMPLE_JSON_WHICH}} edit' 
-
-  air:
-    cmds:
-      - air edit --port 8080 --ssl
-
-
+      - 'echo go to: http://localhost:8080'
+      #- gsa --web {{.BIN_POLYFORM_WHICH}}
+      #- gsa --web {{.BIN_POLYWASM_WHICH}}
+      - gsa --web {{.WASM_POLYFORM_PATH}}
       
+  inspect:tui:
+    desc: test various things....
+    cmds:
+      - gsa --tui {{.WASM_POLYFORM_PATH}}
+
+  inspect:svg:
+    desc: test various things....
+    cmds:
+      - gsa {{.WASM_POLYFORM_PATH}} -f svg -o test.svg --hide-sections
+
+### meta
+
+  meta:
+    desc: meta
+    cmds:
+      #- mkdir -p {{.META_ROOT_PATH}}
+      - task meta:clean
+      - task run:doc
+      - task run:mermaid
+      - task run:new
+      - task run:swagger
+      - task run:zip
+  meta:clean:
+      - rm -rf {{.META_ROOT_PATH}}
+
+### run
+
+  run:serve:wasm:
+    desc: help
+    cmds:
+      # http://localhost:8080
+      - '{{.BIN_POLYWASM_WHICH}} serve' 
+
+  run:help:
+    desc: run help
+    cmds:
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}}'
+
+  
+  run:outline:
+    desc: run outline. Enumerates all parameters and producers in a heirarchial fashion formatted in JSON.
+    cmds:
+      # current outs to std out.
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} outline'
+
+  run:gen:
+    desc: run gen
+    cmds:
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} gen'
+  run:gen:
+    desc: run gen
+    cmds:
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} gen -h'
+  run:edit:
+    desc: run edit
+    cmds:
+      # http://localhost:8080
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} edit' 
+
+
+
+  run:new:
+    desc: run new
+    cmds:
+      #- '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} new -h'
+      - mkdir -p {{.META_ROOT_PATH}}/new/
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} new --out {{.META_ROOT_PATH}}/new/{{.EXAMPLE_JSON_NAME}}.json --author "author x" --name "name x" --description "description x" --version "v0.0.9"  '
+
+  run:mermaid:
+    desc: run mermaid, create a mermaid flow chart for a specific producer
+    cmds:
+      - mkdir -p {{.META_ROOT_PATH}}/mermaid/
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} mermaid --out {{.META_ROOT_PATH}}/mermaid/{{.EXAMPLE_JSON_NAME}}.md'
+  
+  run:doc:
+    desc: run doc
+    cmds:
+      - mkdir -p {{.META_ROOT_PATH}}/doc/
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} documentation --out {{.META_ROOT_PATH}}/doc/{{.EXAMPLE_JSON_NAME}}.md'
+  
+  run:swagger:
+    desc: run swagger
+    cmds:
+      - mkdir -p {{.META_ROOT_PATH}}/swagger/
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} swagger --out {{.META_ROOT_PATH}}/swagger/{{.EXAMPLE_JSON_NAME}}.json'
+    
+  run:zip:
+    desc: run zip
+    cmds:
+      - mkdir -p {{.META_ROOT_PATH}}/zip/
+      - '{{.BIN_POLYFORM_WHICH}} {{.EXAMPLE_JSON_WHICH}} zip --out {{.META_ROOT_PATH}}/zip/{{.EXAMPLE_JSON_NAME}}.zip'
 
 
    
