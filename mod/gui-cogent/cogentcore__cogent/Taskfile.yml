@@ -16,7 +16,7 @@ tasks:
   clone:
     cmds:
       - git clone https://github.com/cogentcore/cogent
-      - echo core >> .gitignore
+      - echo cogent >> .gitignore
 
 
   run:canvas:
