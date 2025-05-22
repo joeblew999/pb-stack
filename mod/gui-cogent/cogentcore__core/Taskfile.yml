@@ -1,0 +1,46 @@
+# https://taskfile.dev
+
+version: '3'
+
+includes:
+  cogent:
+    taskfile: ./../cogent.taskfile.yml
+
+vars:
+    EX_PATH: '{{.PWD}}/core/examples'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+  clone:
+    cmds:
+      - git clone https://github.com/cogentcore/core
+      - echo core >> .gitignore
+
+  clean:demo:
+    cmds:
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent:clean
+
+  test:demo:
+    cmds:
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent 
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent:test
+  build:demo:
+    cmds:
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent 
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent:build:web
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent:build
+
+  run:demo:
+    cmds:
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent 
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/demo' cogent:run
+
+  run:xyz:
+    cmds:
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/xyz' cogent 
+      #- task COGENT_SRC_PATH='{{.EX_PATH}}/xyz' cogent:build 
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/xyz' cogent:pack 
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/xyz' cogent:pack:all
+      - task COGENT_SRC_PATH='{{.EX_PATH}}/xyz' cogent:run

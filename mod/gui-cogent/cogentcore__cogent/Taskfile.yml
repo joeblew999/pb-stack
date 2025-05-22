@@ -1,0 +1,31 @@
+# https://taskfile.dev
+
+version: '3'
+
+includes:
+  cogent:
+    taskfile: ./../cogent.taskfile.yml
+
+vars:
+    CANVAS_PATH: '{{.PWD}}/cogent/canvas/cmd/canvas'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+  clone:
+    cmds:
+      - git clone https://github.com/cogentcore/cogent
+      - echo core >> .gitignore
+
+
+  run:canvas:
+    cmds:
+      - task COGENT_SRC_PATH='{{.CANVAS_PATH}}' cogent 
+      - task COGENT_SRC_PATH='{{.CANVAS_PATH}}' cogent:run
+  pack:canvas:
+    cmds:
+      - task COGENT_SRC_PATH='{{.CANVAS_PATH}}' cogent 
+      - task COGENT_SRC_PATH='{{.CANVAS_PATH}}' cogent:pack 
+      - task COGENT_SRC_PATH='{{.CANVAS_PATH}}' cogent:pack:all
+      

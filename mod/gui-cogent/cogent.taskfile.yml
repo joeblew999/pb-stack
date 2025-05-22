@@ -1,0 +1,131 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  COGENT_BIN_NAME: mod-cogent-core
+
+  # NOT here, so main can override.
+  #COGENT_SRC_PATH: '{{.PWD}}'
+
+  COGENT_BUILD_ROOT: '.bin'
+  COGENT_BUILD_WEB: '{{.COGENT_BUILD_ROOT}}/web'
+  COGENT_BUILD_DESKTOP: '{{.COGENT_BUILD_ROOT}}/desktop'
+
+  COGENT_VAR_VERBOSE: '-verbose'
+  #COGENT_VAR_VERBOSE: ''
+  # Name is the user-friendly name of the project.The default is based on the current directory name.
+  COGENT_VAR_NAME: 'cogent-app'
+  # NamePrefix is the prefix to add to the default name of the project and any projects nested below it. A separating space is automatically included.
+  COGENT_VAR_NAME_PREFIX: 'prefix'
+
+  # ID is the bundle / package ID to use for the project.
+  # (required for building for mobile platforms and packaging
+  # for desktop platforms). It is typically in the format com.org.app
+  # (eg: com.cogent.mail). It defaults to com.parentDirectory.currentDirectory
+  COGENT_VAR_ID: 'com.cogent.app'
+
+  COGENT_VAR_RELEASE: 'v0.0.0'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - echo 
+      - echo 'COGENT_BIN_NAME         {{.COGENT_BIN_NAME}}'
+      - echo 'COGENT_BIN_WHICH        '
+      - 'which {{.COGENT_BIN_NAME}}'
+      - echo 
+      - echo - src
+      - echo 'COGENT_SRC_PATH         {{.COGENT_SRC_PATH}}'
+      - echo 
+      - echo - os
+      - echo 'TASK_DIR                {{.TASK_DIR}}'
+      - echo 'GOPATH                  {{.GOPATH}} '
+      - echo 
+      - echo - vars
+      - echo 'COGENT_VAR_VERBOSE      {{.COGENT_VAR_VERBOSE}}'
+      - echo 'COGENT_VAR_NAME         {{.COGENT_VAR_NAME}}'
+      - echo 'COGENT_VAR_NAME_PREFIX  {{.COGENT_VAR_NAME_PREFIX}}'
+      - echo 'COGENT_VAR_ID           {{.COGENT_VAR_ID}}'
+      - echo 'COGENT_VAR_RELEASE      {{.COGENT_VAR_RELEASE}}'
+      - echo 
+    silent: true
+
+  install:
+    cmds:
+      # https://github.com/cogentcore/core/releases/tag/v0.3.11
+      - go install cogentcore.org/core/cmd/core@v0.3.11
+      - mv {{.GOPATH}}/bin/core {{.GOPATH}}/bin/{{.COGENT_BIN_NAME}}
+
+  help:
+    cmds:
+      - '{{.COGENT_BIN_NAME}} -h'
+  setup:
+    cmds:
+      - '{{.COGENT_BIN_NAME}} setup'
+  clean:
+    cmds:
+      - rm -rf {{.COGENT_SRC_PATH}}/{{.COGENT_BUILD_ROOT}}
+
+  test:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && go test '
+
+  generate:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} generate {{.COGENT_VAR_VERBOSE}}'
+
+  run:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} run {{.COGENT_VAR_VERBOSE}}'
+
+  build:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} build {{.COGENT_VAR_VERBOSE}} -o {{.COGENT_BUILD_DESKTOP}}'
+  build:web:
+    cmds:
+      # - core build web -dir docs -o static
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} build {{.COGENT_VAR_VERBOSE}} web -o {{.COGENT_BUILD_WEB}}'
+ 
+  install:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} install {{.COGENT_VAR_VERBOSE}}'
+
+  pack:help:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pack {{.COGENT_VAR_VERBOSE}} -h'
+  pack:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pack {{.COGENT_VAR_VERBOSE}}'
+  pack:all:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pack {{.COGENT_VAR_VERBOSE}} --target darwin arm64'
+
+  log:
+    cmds:
+      # android only. 
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} log {{.COGENT_VAR_VERBOSE}}'
+  
+      
+### git
+
+  ignore:
+    cmds:
+      # all the folders, files that cogent creates
+      - 'cd {{.COGENT_SRC_PATH}} && echo bin >> .gitignore'
+      - 'cd {{.COGENT_SRC_PATH}} && echo bin >> .gitignore'
+  pull:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pull {{.COGENT_VAR_VERBOSE}}'
+  changed:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} changed {{.COGENT_VAR_VERBOSE}}'
+  release:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} release {{.COGENT_VAR_RELEASE}} {{.COGENT_VAR_VERBOSE}}'
+  release:next:
+    cmds:
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} next-release {{.COGENT_VAR_VERBOSE}}'
+
+    
