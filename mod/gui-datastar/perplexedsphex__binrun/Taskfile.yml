@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  dev:
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+
+
+

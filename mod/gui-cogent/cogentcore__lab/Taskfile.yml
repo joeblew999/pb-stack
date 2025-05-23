@@ -1,0 +1,57 @@
+# https://taskfile.dev
+
+version: '3'
+
+includes:
+  cogent:
+    taskfile: ./../cogent.taskfile.yml
+
+vars:
+
+    #COGENT_SRC_PATH: '{{.PWD}}/lab/examples/baremetal/cmd/baremetal'
+    #COGENT_SRC_PATH: '{{.PWD}}/lab/examples/planets'
+    COGENT_SRC_PATH: '{{.PWD}}/lab/examples/simmer'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+  clone:
+    cmds:
+      - git clone https://github.com/cogentcore/lab
+      - echo lab >> .gitignore
+
+# --- Process helpers -------------------------------------------------------
+  kill:
+    desc: "Kill running {{.BIN_NAME}} process (matching command line)"
+    silent: false
+    cmds:
+      # Use pkill -f to match the command path, more reliable than -x
+      - pkill -f "{{.BIN_DIR}}/{{.BIN_NAME}}" 2>/dev/null || true 
+
+  clean:
+    cmds:
+      - task  cogent:clean
+
+  test:
+    cmds:
+      - task  cogent 
+      - task  cogent:test
+
+  build:
+    cmds:
+      - task  cogent 
+      - task  cogent:build:web
+      - task  cogent:build
+
+  run:
+    cmds:
+      - task  cogent 
+      - task  cogent:run
+
+  pack:
+    cmds:
+      - task  cogent 
+      - task  cogent:pack 
+      - task  cogent:pack:all
+      

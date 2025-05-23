@@ -2,11 +2,35 @@
 
 version: '3'
 
-vars:
-  COGENT_BIN_NAME: mod-cogent-core
+env:
+  # ssh
+  #ENV_GIT_VAR_ROOT_SIGNING_USER_NAME=joeblew999
+  #ENV_GIT_VAR_ROOT_SIGNING_USER_EMAIL=joeblew999@gmail.com
+  #ENV_GIT_SIGNING_KEY_PRIVATE_PATH=~/.ssh/id_rsa
+  #ENV_GIT_SIGNING_PROGRAM=ssh-keygen
+  #ENV_GIT_SIGNING_FORMAT=OpenSSH
 
-  # NOT here, so main can override.
-  #COGENT_SRC_PATH: '{{.PWD}}'
+  # git
+  #ENV_GIT_REPO: '{{.ENV_GIT_REPO}}'
+  #ENV_GIT_REPO_NAME: 
+  #ENV_GIT_REPO_VERSION: 
+  # src
+
+  #COGENT_ENV_SRC_PREFIX:
+
+vars:
+  COGENT_BIN_NAME: mod-cogent
+  # https://github.com/cogentcore/core/releases/tag/v0.3.11
+  COGENT_BIN_VERSION: v0.3.11
+
+  GH_BIN_NAME: mod-gh
+  # https://github.com/cli/cli/releases/tag/v2.73.0
+  GH_BIN_VERSION: v2.73.0
+
+  GIT_BIN_NAME: git
+
+  COGENT_REPO_PATH: '{{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}}'
+  COGENT_SRC_PATH: '{{.COGENT_REPO_PATH}}/{{.COGENT_ENV_SRC_PREFIX}}'
 
   COGENT_BUILD_ROOT: '.bin'
   COGENT_BUILD_WEB: '{{.COGENT_BUILD_ROOT}}/web'
@@ -28,20 +52,26 @@ vars:
   COGENT_VAR_RELEASE: 'v0.0.0'
 
 tasks:
+
+  
   default:
+    desc: default
     cmds:
+      - echo 
       - task --list-all
       - echo 
-      - echo 'COGENT_BIN_NAME         {{.COGENT_BIN_NAME}}'
-      - echo 'COGENT_BIN_WHICH        '
-      - 'which {{.COGENT_BIN_NAME}}'
+    silent: true
+
+  print:
+    desc: print
+    cmds:
       - echo 
-      - echo - src
-      - echo 'COGENT_SRC_PATH         {{.COGENT_SRC_PATH}}'
-      - echo 
-      - echo - os
+      - echo - task
       - echo 'TASK_DIR                {{.TASK_DIR}}'
-      - echo 'GOPATH                  {{.GOPATH}} '
+      - echo 'USER_WORKING_DIR        {{.USER_WORKING_DIR}}'
+      - echo 
+      - echo - go
+      - echo 'GOPATH                  {{.GOPATH}}'
       - echo 
       - echo - vars
       - echo 'COGENT_VAR_VERBOSE      {{.COGENT_VAR_VERBOSE}}'
@@ -52,79 +82,263 @@ tasks:
       - echo 
     silent: true
 
-  install:
+  print:dep:
     cmds:
-      # https://github.com/cogentcore/core/releases/tag/v0.3.11
-      - go install cogentcore.org/core/cmd/core@v0.3.11
+      - echo 
+      - echo - dep
+      - echo 'COGENT_BIN_NAME         {{.COGENT_BIN_NAME}}'
+      - echo 'COGENT_BIN_VERSION      {{.COGENT_BIN_VERSION}}'
+      - echo 'COGENT_BIN_WHICH'
+      - 'which {{.COGENT_BIN_NAME}}'
+      - echo 
+      - echo 'GH_BIN_NAME             {{.GH_BIN_NAME}}'
+      - echo 'GH_BIN_VERSION          {{.GH_BIN_VERSION}}'
+      - echo 'GH_BIN_WHICH'
+      - 'which {{.GH_BIN_NAME}}'
+      - echo 
+      - echo 'GIT_BIN_NAME            {{.GIT_BIN_NAME}}'
+      - echo 'GIT_BIN_VERSION'
+      - '{{.GIT_BIN_NAME}} --version'
+      - echo 'GIT_BIN_WHICH'
+      - 'which {{.GIT_BIN_NAME}}'
+      - echo 
+    silent: true
+
+  print:env:
+    cmds:
+      - echo 
+      - echo - env
+      - echo 'ENV_GIT_REPO         {{.ENV_GIT_REPO}}'
+      - echo 'ENV_GIT_REPO_NAME    {{.ENV_GIT_REPO_NAME}}'
+      - echo 'ENV_GIT_REPO_VERSION {{.ENV_GIT_REPO_VERSION}}'
+      - echo 
+    silent: true
+
+  print:src:
+    cmds:
+      - echo 
+      - echo - src
+      - echo 'COGENT_ENV_SRC_PREFIX   {{.COGENT_ENV_SRC_PREFIX}}'
+      - echo 'COGENT_REPO_PATH        {{.COGENT_REPO_PATH}}'
+      - echo 'COGENT_SRC_PATH         {{.COGENT_SRC_PATH}}'
+      - echo
+    silent: true
+
+### dep
+
+  dep:
+    desc: "dep cogent"
+    cmds:
+      - go install cogentcore.org/core/cmd/core@{{.COGENT_BIN_VERSION}}
       - mv {{.GOPATH}}/bin/core {{.GOPATH}}/bin/{{.COGENT_BIN_NAME}}
 
+      - go install github.com/cli/cli/v2/cmd/gh@{{.GH_BIN_VERSION}}
+      - mv {{.GOPATH}}/bin/gh {{.GOPATH}}/bin/{{.GH_BIN_NAME}}
+  dep:del:
+    desc: "delete cogent"
+    cmds:
+      - rm -f {{.GOPATH}}/bin/{{.COGENT_BIN_NAME}}
+
+  kill:
+    desc: "Kill running {{.BIN_NAME}} process (matching command line)"
+    silent: false
+    cmds:
+      # Use pkill -f to match the command path, more reliable than -x
+      # TODO: Once we have a definite bin name, turn this back on.
+      #- pkill -f "{{.BIN_DIR}}/{{.BIN_NAME}}" 2>/dev/null || true 
+
+### ssh
+
+  ssh:create:
+    desc: "ssh create"
+    cmds:
+  ssh:sign:del:
+    desc: git sign delete, to delete the signing up in your git config.
+    cmds:
+      - echo 'Deleting signing settings in your git config ...'
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local user.name ''
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local user.email ''
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local user.signingkey ''
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local gpg.program ''
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local gpg.format ''
+
+  ssh:sign:set:
+    desc: git sign set, to set the signing up in your git config.
+    cmds:
+      - echo 'Setting signing up into your git config ...'
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_VAR_ROOT_SIGNING_USER_NAME}}
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local user.email {{.GIT_VAR_ROOT_SIGNING_USER_EMAIL}}
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local user.signingkey {{.GIT_SIGNING_KEY_PRIVATE_PATH}}
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
+      - cd {{.USER_WORKING_DIR}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
+  
+### git.
+
+  git:create:
+    desc: "create repo"
+    # https://kbroman.org/github_tutorial/pages/init.html
+    # git clone git@github.com-joeblew999:joeblew999/test.git
+    # todo git url
+    # todo name
+    cmds:
+      - echo
+      - echo PWD                            {{.PWD}}
+      - echo
+      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO}}
+      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO_NAME}}
+      - echo ENV_GIT_REPO_VERSION        {{.ENV_GIT_REPO_VERSION}}
+      - echo
+      # write out dev.env above git repo, so we can use for other tasks.
+      - cd {{.USER_WORKING_DIR}} && touch dev.env
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO='{{.ENV_GIT_REPO}}' >> dev.env
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_NAME='{{.ENV_GIT_REPO_NAME}}' >> dev.env
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_VERSION='{{.ENV_GIT_REPO_VERSION}}' >> dev.env
+      - cd {{.USER_WORKING_DIR}} && echo COGENT_ENV_SRC_PREFIX='.' >> dev.env
+      # git init flow.
+      - cd {{.USER_WORKING_DIR}} && mkdir -p {{.ENV_GIT_REPO_NAME}}
+      - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && git init
+      - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && git remote add origin {{.ENV_GIT_REPO}}
+      - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && touch README.md && echo "# {{.ENV_GIT_REPO_NAME}}" >> README.md
+      - echo
+
+  git:create:github:
+    # gh cli to make the repo on github.  
+    desc: "create repo on github"
+    cmds:
+      - echo
+      - echo PWD                            {{.PWD}}
+      - echo
+      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO}}
+      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO_NAME}}
+      - echo ENV_GIT_REPO_VERSION        {{.ENV_GIT_REPO_VERSION}}
+      - echo
+
+
+
+  git:clone:
+    desc: "git clone repo"
+    cmds:
+      - echo PWD {{.PWD}}
+      - echo
+      - cd {{.USER_WORKING_DIR}} && git clone {{.ENV_GIT_REPO}} -b {{.ENV_GIT_REPO_VERSION}}
+      - cd {{.USER_WORKING_DIR}} && echo {{.ENV_GIT_REPO_NAME}} >> .gitignore
+      - cd {{.USER_WORKING_DIR}} && echo bin >> .gitignore
+
+  git:del:
+    desc: "delete repo"
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && rm -rf {{.COGENT_REPO_PATH}}
+      - cd {{.USER_WORKING_DIR}} && rm -f .gitignore
+
+  git:pull:
+    desc: "git pull"
+    cmds:
+      - cd {{.COGENT_REPO_PATH}} && git pull
+  git:status:
+    desc: "git status"
+    cmds:
+      - cd {{.COGENT_REPO_PATH}} && git status
+  git:commit:
+    desc: "git commit"
+    cmds:
+      #- cd {{.COGENT_REPO_PATH}} && git commit -am --{{.}}
+  git:push:
+    desc: "git push"
+    cmds:
+      - cd {{.COGENT_REPO_PATH}} && git push
+
+
   help:
+    desc: "help"
     cmds:
       - '{{.COGENT_BIN_NAME}} -h'
   setup:
+    desc: "setup cogent"
     cmds:
       - '{{.COGENT_BIN_NAME}} setup'
   clean:
+    desc: "clean cogent"
     cmds:
       - rm -rf {{.COGENT_SRC_PATH}}/{{.COGENT_BUILD_ROOT}}
 
   test:
+    desc: "go test"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && go test '
 
   generate:
+    desc: "gen"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} generate {{.COGENT_VAR_VERBOSE}}'
 
   run:
+    desc: "run"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} run {{.COGENT_VAR_VERBOSE}}'
 
   build:
+    desc: "build desktop"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} build {{.COGENT_VAR_VERBOSE}} -o {{.COGENT_BUILD_DESKTOP}}'
   build:web:
+    desc: "build web"
     cmds:
       # - core build web -dir docs -o static
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} build {{.COGENT_VAR_VERBOSE}} web -o {{.COGENT_BUILD_WEB}}'
- 
+  build:desktop:
+    desc: "build desktop"
+    cmds:
+      # - core build web -dir docs -o static
+      - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} build {{.COGENT_VAR_VERBOSE}} desktop -o {{.COGENT_BUILD_DESKTOP}}'
+
+
   install:
+    desc: "install"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} install {{.COGENT_VAR_VERBOSE}}'
 
   pack:help:
+    desc: "pack help"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pack {{.COGENT_VAR_VERBOSE}} -h'
   pack:
+    desc: "pack"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pack {{.COGENT_VAR_VERBOSE}}'
   pack:all:
+    desc: "pack all"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pack {{.COGENT_VAR_VERBOSE}} --target darwin arm64'
 
   log:
+    desc: "log"
     cmds:
       # android only. 
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} log {{.COGENT_VAR_VERBOSE}}'
   
       
-### git
+### git with built in cogent git commands.
 
   ignore:
+    desc: "ignore"
     cmds:
       # all the folders, files that cogent creates
       - 'cd {{.COGENT_SRC_PATH}} && echo bin >> .gitignore'
       - 'cd {{.COGENT_SRC_PATH}} && echo bin >> .gitignore'
   pull:
+    desc: "pull"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} pull {{.COGENT_VAR_VERBOSE}}'
   changed:
+    desc: "changed"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} changed {{.COGENT_VAR_VERBOSE}}'
   release:
+    desc: "release"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} release {{.COGENT_VAR_RELEASE}} {{.COGENT_VAR_VERBOSE}}'
   release:next:
+    desc: "release next"
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} next-release {{.COGENT_VAR_VERBOSE}}'
 
