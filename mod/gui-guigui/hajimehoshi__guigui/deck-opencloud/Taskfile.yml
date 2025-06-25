@@ -1,0 +1,322 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+# Include specialized task files
+includes:
+  pc: ./Taskfile.process.yml
+  oc: ./Taskfile.opencloud.yml
+
+vars:
+  BIN_DIR: .bin
+  DATA_DIR: ./data
+  INDEX_DIR: ./index
+
+  APP_NAME_SERVER: opencloud-server
+  CMD_DIR_SERVER: ./cmd/opencloud-server
+
+  APP_NAME_GUI: opencloud-gui
+  CMD_DIR_GUI: ./cmd/opencloud-gui
+
+  APP_NAME_CLI: opencloud-cli
+  CMD_DIR_CLI: ./cmd/opencloud-cli
+
+  APP_NAME_HTTP_TEST: http-test
+  CMD_DIR_HTTP_TEST: ./cmd/http-test
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list-all
+
+  build:
+    desc: "Build the OpenCloud application"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -v -o {{.BIN_DIR}}/{{.APP_NAME_SERVER}} {{.CMD_DIR_SERVER}}/main.go
+      - go build -v -o {{.BIN_DIR}}/{{.APP_NAME_GUI}} {{.CMD_DIR_GUI}}/main.go
+      - go build -v -o {{.BIN_DIR}}/{{.APP_NAME_CLI}} {{.CMD_DIR_CLI}}/main.go
+      - go build -v -o {{.BIN_DIR}}/{{.APP_NAME_HTTP_TEST}} {{.CMD_DIR_HTTP_TEST}}/main.go
+
+  clean:
+    desc: "Clean build artifacts and indexes"
+    cmds:
+      - rm -rf {{.BIN_DIR}}
+      - rm -rf {{.INDEX_DIR}}
+      - echo "Cleaned build artifacts and indexes"
+
+  test:
+    desc: "Run tests"
+    cmds:
+      - go test -v ./...
+
+  deps:
+    desc: "Update dependencies"
+    cmds:
+      - go mod tidy
+      - go mod download
+
+  # =============================================================================
+  # INDEXING & SEARCH
+  # =============================================================================
+
+  index:
+    desc: "Index documents in data directory"
+    deps: [build]
+    cmds:
+      - mkdir -p {{.DATA_DIR}} # Ensure data dir exists, though indexing might not need it if already present
+      - ./{{.BIN_DIR}}/{{.APP_NAME_CLI}} -mode index -data {{.DATA_DIR}} -index {{.INDEX_DIR}}
+
+  search:
+    desc: "Search indexed documents (requires QUERY env var)"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME_CLI}} -mode search -index {{.INDEX_DIR}} -query "{{.QUERY}}"
+
+  demo-index:
+    desc: "Create sample data and index it"
+    deps: [build]
+    cmds:
+      - task: create-sample-data
+      - task: index
+
+  demo-search:
+    desc: "Run search demonstrations"
+    deps: [build]
+    cmds:
+      - echo "Demo Search 1 - Search for 'markdown'"
+      - ./{{.BIN_DIR}}/{{.APP_NAME_CLI}} -mode search -index {{.INDEX_DIR}} -query "markdown"
+      - echo ""
+      - echo "Demo Search 2 - Search for Go files"
+      - ./{{.BIN_DIR}}/{{.APP_NAME_CLI}} -mode search -index {{.INDEX_DIR}} -query "type:go" # Assuming your CLI search supports this KQL-like syntax
+      - echo ""
+      - echo "Demo Search 3 - Search in titles"
+      - ./{{.BIN_DIR}}/{{.APP_NAME_CLI}} -mode search -index {{.INDEX_DIR}} -query "title:sample" # Assuming your CLI search supports this
+
+  # =============================================================================
+  # GUI & SERVER
+  # =============================================================================
+
+  gui:
+    desc: "Start GUI mode"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME_GUI}}
+
+  server:
+    desc: "Start collaboration server"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME_SERVER}} -port 8080 -index {{.INDEX_DIR}} -debug
+
+  server-kill:
+    desc: "Kill running OpenCloud server processes (cross-platform)"
+    cmds:
+      - echo "🛑 Stopping OpenCloud server processes..."
+      - |
+        # Cross-platform process killing
+        if command -v pkill >/dev/null 2>&1; then
+          pkill -f "opencloud-server" || echo "No opencloud-server processes found"
+        elif command -v taskkill >/dev/null 2>&1; then
+          taskkill /F /IM "opencloud-server.exe" 2>/dev/null || echo "No opencloud-server processes found"
+        else
+          echo "⚠️  Manual process killing required - pkill/taskkill not available"
+        fi
+      - |
+        # Cross-platform port killing
+        if command -v lsof >/dev/null 2>&1; then
+          lsof -ti:8080 | xargs kill -9 2>/dev/null || echo "No processes using port 8080"
+        else
+          echo "⚠️  Port cleanup - manual intervention may be required on Windows"
+        fi
+      - echo "✅ Server processes stopped"
+
+  server-restart:
+    desc: "Restart the collaboration server"
+    cmds:
+      - task: server-kill
+      - echo "⏳ Waiting 2 seconds for cleanup..."
+      - sleep 2
+      - task: server
+
+  kill:
+    desc: "Kill running OpenCloud server processes (alias for server-kill)"
+    cmds:
+      - task: server-kill
+
+  # =============================================================================
+  # UTILITIES
+  # =============================================================================
+
+  create-sample-data:
+    desc: "Create sample markdown and other files for testing"
+    cmds:
+      - mkdir -p {{.DATA_DIR}}/docs
+      - mkdir -p {{.DATA_DIR}}/code
+      - |
+        cat > {{.DATA_DIR}}/docs/sample.md << 'EOF'
+        ---
+        title: Sample Markdown Document
+        tags: [sample, markdown, demo]
+        language: en
+        ---
+
+        # Sample Markdown Document
+
+        This is a **sample markdown document** for testing the OpenCloud indexing system.
+
+        ## Features
+
+        - Markdown processing with metadata
+        - Full-text search with Bleve
+        - KQL query language support
+        - Integration with Guigui framework
+
+        ## Code Example
+
+        ```go
+        func main() {
+            fmt.Println("Hello, OpenCloud!")
+        }
+        ```
+
+        ## Tags
+
+        This document is tagged with: sample, markdown, demo
+        EOF
+      - |
+        cat > {{.DATA_DIR}}/docs/collaboration.md << 'EOF'
+        ---
+        title: Collaboration Features
+        tags: [collaboration, server, realtime]
+        ---
+
+        # Collaboration Features
+
+        OpenCloud provides real-time collaboration capabilities:
+
+        - **Document sharing** - Share documents with team members
+        - **Real-time editing** - Multiple users can edit simultaneously
+        - **Version control** - Track changes and history
+        - **Search integration** - Find documents quickly
+
+        ## Technical Stack
+
+        - Go backend server
+        - Guigui frontend framework
+        - Bleve search engine
+        - Apache Tika integration
+        EOF
+      - |
+        cat > {{.DATA_DIR}}/code/example.go << 'EOF'
+        package main
+
+        import (
+            "fmt"
+            "log"
+        )
+
+        // Example Go code for OpenCloud
+        func main() {
+            fmt.Println("OpenCloud - Collaboration Server")
+
+            // Initialize search engine
+            if err := initializeSearch(); err != nil {
+                log.Fatal(err)
+            }
+
+            // Start GUI
+            startGUI()
+        }
+
+        func initializeSearch() error {
+            // TODO: Initialize Bleve search
+            return nil
+        }
+
+        func startGUI() {
+            // TODO: Start Guigui interface
+        }
+        EOF
+      - echo "Sample data created in {{.DATA_DIR}}"
+
+  # =============================================================================
+  # SERVER TESTING (using our cross-platform HTTP test tool)
+  # =============================================================================
+
+  test-server:
+    desc: "Test server endpoints (cross-platform)"
+    deps: [build]
+    cmds:
+      - echo "🧪 Testing OpenCloud server endpoints..."
+      - echo "📡 Health check:"
+      - ./{{.BIN_DIR}}/{{.APP_NAME_HTTP_TEST}} -url http://localhost:8080/health -pretty -timing
+      - echo ""
+      - echo "🔍 Search test:"
+      - ./{{.BIN_DIR}}/{{.APP_NAME_HTTP_TEST}} -url "http://localhost:8080/api/search?q=markdown" -pretty -timing
+      - echo ""
+      - echo "📄 Documents list:"
+      - ./{{.BIN_DIR}}/{{.APP_NAME_HTTP_TEST}} -url http://localhost:8080/api/documents -pretty -timing
+      - echo "✅ Server tests completed"
+
+  test-health:
+    desc: "Quick health check"
+    deps: [build]
+    cmds:
+      - echo "🏥 Checking server health..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME_HTTP_TEST}} -url http://localhost:8080/health -pretty
+
+  test-search:
+    desc: "Test search functionality"
+    deps: [build]
+    cmds:
+      - echo "🔍 Testing search with query - {{.QUERY}}"
+      - ./{{.BIN_DIR}}/{{.APP_NAME_HTTP_TEST}} -url "http://localhost:8080/api/search?q={{.QUERY}}" -pretty
+
+  benchmark-server:
+    desc: "Simple server benchmark"
+    deps: [build]
+    cmds:
+      - echo "⚡ Running simple server benchmark..."
+      - echo "🔄 Testing health endpoint 5 times:"
+      - |
+        for i in {1..5}; do
+          echo "Request $i:"
+          ./{{.BIN_DIR}}/{{.APP_NAME_HTTP_TEST}} -url http://localhost:8080/health -timing
+          echo ""
+        done
+      - echo "✅ Benchmark completed"
+
+  # =============================================================================
+  # DEVELOPMENT WORKFLOWS (Build -> Run -> Test)
+  # =============================================================================
+  # Note: Development workflows moved to Taskfile.process.yml
+  # Use: task pc:dev, task pc:dev-minimal, task pc:dev-gui, task pc:dev-stop
+
+  # =============================================================================
+  # DEPENDENCIES & EXTERNAL COMPONENTS
+  # =============================================================================
+
+  get-dependencies:
+    desc: "Get all external dependencies"
+    cmds:
+      - task: deps
+      - task: oc:dep
+      - task: pc:dep
+
+  # Add this to the build task as a dependency
+  build-with-deps:
+    desc: "Build the OpenCloud application with all dependencies"
+    deps: [get-dependencies]
+    cmds:
+      - task: build
+
+  # =============================================================================
+  # OPENCLOUD BINARY COMMANDS
+  # =============================================================================
+  # Note: OpenCloud binary commands moved to Taskfile.opencloud.yml
+  # Use: task oc:server, task oc:version, task oc:help

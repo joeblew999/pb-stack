@@ -1,0 +1,35 @@
+# .config/benthos.yaml
+input:
+  nats_jetstream:
+    urls: ["nats://localhost:4222"]
+    subject: "deck.generate.*"
+    durable: "deck_processor"
+    
+pipeline:
+  processors:
+    # Route based on subject
+    - switch:
+      - check: 'meta("nats_subject") == "deck.generate.svg"'
+        processors:
+          - subprocess:
+              name: "svgdeck"
+              args: ["./.bin/svgdeck", "-pagesize=Letter", "${! json(\"input_file\") }"]
+              codec: "lines"
+              
+      - check: 'meta("nats_subject") == "deck.generate.png"'  
+        processors:
+          - subprocess:
+              name: "pngdeck"
+              args: ["./.bin/pngdeck", "-fontdir", "./.assets/fonts", "${! json(\"input_file\") }"]
+              codec: "lines"
+              
+    # Add metadata
+    - mapping: |
+        root = this
+        root.processed_at = now()
+        root.processor_type = meta("nats_subject").split(".").index(2)
+
+output:
+  nats_jetstream:
+    urls: ["nats://localhost:4222"] 
+    subject: "deck.results.${! json(\"processor_type\") }"

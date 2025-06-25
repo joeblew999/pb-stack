@@ -1,0 +1,44 @@
+{
+  "fonts": [
+    {
+      "name": "FiraSans-Regular.ttf",
+      "displayName": "Fira Sans Regular",
+      "url": "https://github.com/google/fonts/raw/main/ofl/firasans/FiraSans-Regular.ttf",
+      "family": "Fira Sans",
+      "weight": "400",
+      "style": "normal"
+    },
+    {
+      "name": "FiraSans-Bold.ttf",
+      "displayName": "Fira Sans Bold",
+      "url": "https://github.com/google/fonts/raw/main/ofl/firasans/FiraSans-Bold.ttf",
+      "family": "Fira Sans",
+      "weight": "700",
+      "style": "normal"
+    },
+    {
+      "name": "FiraMono-Regular.ttf",
+      "displayName": "Fira Mono Regular",
+      "url": "https://github.com/google/fonts/raw/main/ofl/firamono/FiraMono-Regular.ttf",
+      "family": "Fira Mono",
+      "weight": "400",
+      "style": "normal"
+    },
+    {
+      "name": "Lato-Regular.ttf",
+      "displayName": "Lato Regular",
+      "url": "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Regular.ttf",
+      "family": "Lato",
+      "weight": "400",
+      "style": "normal"
+    },
+    {
+      "name": "LibreBaskerville-Regular.ttf",
+      "displayName": "Libre Baskerville Regular",
+      "url": "https://github.com/google/fonts/raw/main/ofl/librebaskerville/LibreBaskerville-Regular.ttf",
+      "family": "Libre Baskerville",
+      "weight": "400",
+      "style": "normal"
+    }
+  ]
+}

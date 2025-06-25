@@ -1,0 +1,134 @@
+version: '3'
+
+vars:
+  PROJECT_NAME: web-testing
+  # Cross-platform binary extension (.exe on Windows)
+  BIN_EXT: '{{if eq OS "windows"}}.exe{{end}}'
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - echo "Web Testing Framework"
+      - echo "===================="
+      - echo ""
+      - echo "DEVELOPMENT:"
+      - echo "  init             - Initialize project dependencies"
+      - echo "  test             - Run all tests"
+      - echo "  test-simple      - Run simple tests only"
+      - echo "  test-basic       - Run basic browser tests"
+      - echo "  test-datastar    - Run DataStar tests"
+      - echo "  test-wasm        - Run WASM tests"
+      - echo ""
+      - echo "EXAMPLES:"
+      - echo "  example-simple   - Run simple browser example"
+      - echo "  example-basic    - Run basic automation example"
+      - echo "  example-datastar - Run DataStar example"
+      - echo ""
+      - echo "UTILITIES:"
+      - echo "  clean            - Clean test artifacts"
+      - echo "  lint             - Run code linting"
+      - echo "  format           - Format code"
+
+  init:
+    desc: "Initialize project dependencies"
+    cmds:
+      - echo "🔧 Initializing Web Testing Framework dependencies..."
+      - go mod tidy
+      - echo "✅ Dependencies initialized"
+
+  test:
+    desc: "Run all tests"
+    cmds:
+      - echo "🧪 Running all Web Testing Framework tests..."
+      - go test -v ./...
+
+  test-simple:
+    desc: "Run simple tests only"
+    cmds:
+      - echo "🧪 Running simple tests..."
+      - go test -v ./examples -run TestSimple
+
+  test-basic:
+    desc: "Run basic browser tests"
+    cmds:
+      - echo "🧪 Running basic browser tests..."
+      - go test -v ./examples -run TestBasic
+
+  test-datastar:
+    desc: "Run DataStar tests"
+    cmds:
+      - echo "🧪 Running DataStar tests..."
+      - go test -v ./examples -run TestDataStar
+
+  test-wasm:
+    desc: "Run WASM tests"
+    cmds:
+      - echo "🧪 Running WASM tests..."
+      - go test -v ./examples -run TestWASM
+
+  example-simple:
+    desc: "Run simple browser example"
+    cmds:
+      - echo "🌟 Running simple browser example..."
+      - go test -v ./examples -run TestSimpleBrowser
+
+  example-basic:
+    desc: "Run basic automation example"
+    cmds:
+      - echo "🌟 Running basic automation example..."
+      - go test -v ./examples -run TestBasicBrowserAutomation
+
+  example-datastar:
+    desc: "Run DataStar example"
+    cmds:
+      - echo "🌟 Running DataStar example..."
+      - go test -v ./examples -run TestDataStarBasic
+
+  clean:
+    desc: "Clean test artifacts"
+    cmds:
+      - echo "🧹 Cleaning test artifacts..."
+      - rm -rf screenshots/
+      - rm -rf test_screenshots/
+      - rm -rf *.png
+      - echo "✅ Test artifacts cleaned"
+
+  lint:
+    desc: "Run code linting"
+    cmds:
+      - echo "🔍 Running code linting..."
+      - go vet ./...
+      - echo "✅ Linting completed"
+
+  format:
+    desc: "Format code"
+    cmds:
+      - echo "📝 Formatting code..."
+      - go fmt ./...
+      - echo "✅ Code formatted"
+
+  build-check:
+    desc: "Check if code builds correctly"
+    cmds:
+      - echo "🔨 Checking build..."
+      - go build ./...
+      - echo "✅ Build successful"
+
+  demo:
+    desc: "Run framework demonstration"
+    cmds:
+      - echo "🎮 Web Testing Framework Demo"
+      - echo "============================="
+      - echo ""
+      - echo "This framework provides:"
+      - echo "  ✅ Browser automation with Rod"
+      - echo "  ✅ DataStar reactive UI testing"
+      - echo "  ✅ WASM application testing"
+      - echo "  ✅ Service management utilities"
+      - echo "  ✅ Screenshot capture and debugging"
+      - echo ""
+      - echo "Run 'task test-simple' to see basic functionality"
+      - echo "Run 'task example-datastar' for DataStar testing"
+      - echo ""
+      - echo "📚 See README.md for complete documentation"

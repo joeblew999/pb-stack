@@ -1,0 +1,36 @@
+# Local binaries
+.bin/
+
+# Generated assets (includes fonts, xml, svg, png)
+.assets/
+decksh-cards/decksh-output/
+decksh-cards/*.pdf
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work.sum
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp

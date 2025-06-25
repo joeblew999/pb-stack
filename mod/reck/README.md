@@ -14,27 +14,15 @@ Web uses Reck . For example:
 
 - A Web page may need to show images or diagrams, and the can be produce from Reck and used for Web.
 
-## Runtime
+## Architecture
 
-At runtime, you can use Task to drive the system. The run.dev and Task file live with the Recky files, allowing Users to have control. You can share with others via git.
+3 Editing modes:
 
-```sh
-DECK_DEEP_NAME=xxx task
-```
+1. Code, where you edit the Code in a side pane, and see it update.
 
-## dictionary
+2. Attribute, where you edit Deck Element attributes in a side pane, and see it uddate.
 
-inside util. where is it used ?
+3. Visual, where you edit Deck Elements by clicking their bounding box, to change it into Edit mode, and it updates in place.
 
-https://en.wikipedia.org/wiki/DICT
 
-https://github.com/ray1729/dict-web-simple
-
-## Colour
-
-Need palette overdies.
-
-## Locale
-
-Need language overrides and AI helpers.
 

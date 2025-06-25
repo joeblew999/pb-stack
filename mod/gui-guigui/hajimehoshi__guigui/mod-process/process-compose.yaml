@@ -1,0 +1,29 @@
+version: "0.5"
+processes:
+  # Example processes for demonstration
+  example1:
+    command: "echo 'Hello from example1' && sleep 5"
+    description: "Simple echo command that completes quickly"
+    availability:
+      restart: "no"
+  example2:
+    command: "while true; do echo 'Running example2...'; sleep 3; done"
+    description: "Long-running process that outputs every 3 seconds"
+    availability:
+      restart: "always"
+  example3:
+    command: "echo 'Example3 starting' && ls -la && echo 'Example3 done'"
+    description: "Another simple process that lists directory contents"
+    availability:
+      restart: "no"
+    depends_on:
+      example1:
+        condition: process_completed_successfully
+
+options:
+  # Enable TUI for monitoring
+  disable_tui: false
+  # Enable API server
+  api:
+    port: 8080
+    host: "localhost"

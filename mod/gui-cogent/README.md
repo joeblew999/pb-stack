@@ -47,8 +47,6 @@ rm -rf joeblew999__test02 && mkdir -p joeblew999__test02 && cd joeblew999__test0
 
 ```
 
-
-
 ## archi
 
 Content is reused. for creating content-focused sites consisting of Markdown, HTML, and Cogent Core
@@ -60,6 +58,66 @@ The Editing ability of Cogent should come in handy to do this.
 ## cool examples
 
 https://github.com/devilcove/bbolteditor
+
+## NATS and PB and Benthos
+
+Stream PB chnages to NATS and to Benthos and to DS
+
+## NATS Tower
+
+https://github.com/nats-tower/nats-tower
+
+https://github.com/nomad-ops/nomad-ops
+
+## Reck 
+
+as a benthos wasm plugin.
+
+## MCP
+
+https://github.com/mark3labs/mcphost
+
+## benthos
+
+GUI and examples.
+https://github.com/mihaitodor/benthos-playground/tree/main/wasm/blobl-editor
+
+MCP buulding in to Benthos
+
+https://github.com/redpanda-data/connect/issues/3412#issuecomment-2901964109
+
+
+## app signing
+
+https://github.com/anchore/quill signed out apple binaries from any OS.
+
+## AI
+
+gemini.google.com helps :)
+
+## process compose
+
+https://github.com/F1bonacc1/process-compose runs many binaries locally and remotely.
+
+https://f1bonacc1.github.io/process-compose/launcher/ has all the docs.
+
+We can control it via NATS, by building a simple NATS adapter.
+
+https://github.com/F1bonacc1/process-compose/tree/main/examples has config examples
+
+## Datastar
+
+https://github.com/starfederation/datastar
+
+example: https://github.com/starfederation/datastar/tree/develop/examples/go/hello-world
+
+
+
+
+
+
+
+
 
 
 

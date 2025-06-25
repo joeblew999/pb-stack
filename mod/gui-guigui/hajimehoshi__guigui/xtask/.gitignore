@@ -1,0 +1,14 @@
+# Build artifacts
+.bin/
+*.exe
+
+# Data directories
+.data/
+data/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

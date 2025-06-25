@@ -26,6 +26,7 @@ vars:
 
 tasks:
   default:
+    desc: re default print goreleaser
     cmds:
       - echo ''
       - echo '- bin'

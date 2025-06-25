@@ -1,0 +1,19 @@
+[90m25-05-24 13:57:23.017[0m [32mINF[0m [1mProcess Compose undefined[0m
+[90m25-05-24 13:57:23.017[0m [32mINF[0m [1mLoaded project from pc-config.yml[0m
+[90m25-05-24 13:57:23.017[0m [32mINF[0m [1mGlobal shell command: bash -c[0m
+[90m25-05-24 13:57:23.017[0m [32mINF[0m [1mstart http server listening :8080[0m
+[90m25-05-24 13:57:23.018[0m DBG Spinning up 3 processes. Order: ["nats" "backend" "frontend"]
+[90m25-05-24 13:57:23.018[0m [32mINF[0m [1mfrontend is waiting for nats to complete successfully[0m
+[90m25-05-24 13:57:23.018[0m [32mINF[0m [1mbackend is waiting for nats to complete successfully[0m
+[90m25-05-24 13:57:23.019[0m [32mINF[0m [1mStarted[0m [36mcommand=[0m["bash","-c","task nats:server:run"] [36mprocess=[0mnats
+[90m25-05-24 13:58:24.290[0m DBG Shutting down 3 processes. Order: ["nats" "backend" "frontend"]
+[90m25-05-24 13:58:24.290[0m DBG Stop Unix process. [36mparentOnly=[0mfalse [36mpid=[0m74074 [36msignal=[0m15
+[90m25-05-24 13:58:24.290[0m DBG process backend is in state Pending not shutting down
+[90m25-05-24 13:58:24.290[0m DBG process frontend is in state Pending not shutting down
+[90m25-05-24 13:58:24.294[0m DBG nats stdout done
+[90m25-05-24 13:58:24.294[0m DBG nats stderr done
+[90m25-05-24 13:58:24.295[0m [32mINF[0m [1mExited[0m [36mexit_code=[0m0 [36mprocess=[0mnats
+[90m25-05-24 13:58:24.295[0m [32mINF[0m [1mfrontend is waiting for backend to complete successfully[0m
+[90m25-05-24 13:58:24.295[0m [32mINF[0m [1mProject completed[0m
+[90m25-05-24 13:58:24.295[0m DBG Logs monitoring canceled
+[90m25-05-24 13:58:24.295[0m DBG Shutting down 0 processes. Order: []

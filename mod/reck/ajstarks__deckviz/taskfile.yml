@@ -12,7 +12,16 @@ includes:
     flatten: true
 
 tasks:
+
   all:
     cmds:
+      - task src
+      - task bin
+  src:
+    cmds:
+      #- task git:clone:src:check
       - task git:clone:src:del
       - task git:clone:src
+  bin:
+    cmds:
+      - echo "there is no bin"

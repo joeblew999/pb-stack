@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataStar WASM Service Worker</title>
+    <script type="module" defer src="https://cdn.jsdelivr.net/npm/@starfederation/datastar@latest"></script>
+    <script src="wasm/wasm_exec.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .mode-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+
+        .route-result {
+            background: #e7f3ff;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .sse-result {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .loading {
+            background: #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            color: #495057;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .url-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .url-list li {
+            background: #f8f9fa;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌐 DataStar WASM Service Worker</h1>
+    <div class="mode-badge">SERVICE WORKER MODE</div>
+
+    <div id="wasm-status" class="loading">
+        🔄 Loading WASM Service Worker...
+    </div>
+
+    <!-- Service Worker Status -->
+    <div class="container">
+        <h2>📡 Service Worker Status</h2>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" data-text="$isConnected ? 'CONNECTED' : 'DISCONNECTED'"></div>
+                <div class="stat-label">Connection Status</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" data-text="$messageCount"></div>
+                <div class="stat-label">SSE Messages</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" data-text="$lastUpdate"></div>
+                <div class="stat-label">Last Update</div>
+            </div>
+        </div>
+
+        <div class="result" data-class-status-connected="$isConnected" data-class-status-disconnected="!$isConnected">
+            <strong>Server URL:</strong> <span data-text="$serverUrl"></span><br>
+            <strong>Status:</strong> <span data-text="$isConnected ? '✅ Connected' : '❌ Disconnected'"></span>
+        </div>
+
+        <button data-on-click="connectToServer()" data-show="!$isConnected">
+            🔗 Connect to Server
+        </button>
+        <button data-on-click="disconnectFromServer()" data-show="$isConnected">
+            🔌 Disconnect from Server
+        </button>
+    </div>
+
+    <!-- 3 URL Routes -->
+    <div class="container">
+        <h2>🛣️ Service Worker Routes</h2>
+        <p>Test the 3 different URL endpoints handled by the WASM service worker:</p>
+
+        <ul class="url-list">
+            <li><strong>/</strong> - Home endpoint</li>
+            <li><strong>/hello</strong> - Hello World endpoint</li>
+            <li><strong>/status</strong> - Status and health check</li>
+        </ul>
+
+        <div>
+            <button data-on-click="handleRoute('/')">
+                🏠 Test / (Home)
+            </button>
+            <button data-on-click="handleRoute('/hello')">
+                👋 Test /hello
+            </button>
+            <button data-on-click="handleRoute('/status')">
+                ✅ Test /status
+            </button>
+        </div>
+
+        <div id="route-response" class="result">
+            Click a route button to test the service worker endpoints
+        </div>
+    </div>
+
+    <!-- SSE Communication -->
+    <div class="container">
+        <h2>📡 Server-Sent Events (SSE)</h2>
+        <p>Simulate SSE communication between the service worker and server:</p>
+
+        <div>
+            <button data-on-click="sendSSERequest('/events')">
+                📨 Send SSE Request to /events
+            </button>
+            <button data-on-click="sendSSERequest('/updates')">
+                🔄 Send SSE Request to /updates
+            </button>
+            <button data-on-click="sendSSERequest('/notifications')">
+                🔔 Send SSE Request to /notifications
+            </button>
+        </div>
+
+        <div id="sse-response" class="result">
+            Click an SSE button to simulate server communication
+        </div>
+    </div>
+
+    <script>
+        let wasmReady = false;
+
+        // Load and initialize WASM Service Worker
+        async function loadWasm() {
+            const statusDiv = document.getElementById('wasm-status');
+
+            try {
+                statusDiv.textContent = '🔄 Fetching WASM Service Worker...';
+
+                const go = new Go();
+                const result = await WebAssembly.instantiateStreaming(
+                    fetch('wasm/main.wasm'),
+                    go.importObject
+                );
+
+                statusDiv.textContent = '🚀 Starting WASM Service Worker...';
+                go.run(result.instance);
+
+                wasmReady = true;
+                statusDiv.className = 'success';
+                statusDiv.innerHTML = '✅ WASM Service Worker loaded and running!<br>📡 Ready for SSE communication';
+
+                console.log('✅ WASM Service Worker loaded successfully');
+
+                // Initialize the DataStar store with service worker state
+                if (typeof getServiceWorkerState === 'function') {
+                    updateDataStarStore(getServiceWorkerState());
+                }
+
+            } catch (error) {
+                console.error('❌ Failed to load WASM Service Worker:', error);
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = `❌ Failed to load WASM Service Worker:<br>${error.message}`;
+            }
+        }
+
+        // Function called by WASM to update DataStar store
+        window.updateDataStarStore = function(jsonData) {
+            if (!wasmReady) return;
+
+            try {
+                const data = JSON.parse(jsonData);
+
+                // Update DataStar store
+                window.datastar = window.datastar || {};
+                Object.assign(window.datastar, data);
+
+                console.log('📊 Updated DataStar store:', data);
+            } catch (err) {
+                console.error('Error updating DataStar store:', err);
+            }
+        };
+
+        // Initialize DataStar store
+        window.datastar = {
+            serverUrl: 'http://localhost:8081',
+            isConnected: false,
+            lastUpdate: '',
+            messageCount: 0,
+            routes: {
+                '/': 'Home - DataStar WASM Service Worker',
+                '/hello': 'Hello World endpoint',
+                '/status': 'Status and health check'
+            }
+        };
+
+        // Load WASM when page loads
+        window.addEventListener('load', loadWasm);
+    </script>
+</body>
+</html>

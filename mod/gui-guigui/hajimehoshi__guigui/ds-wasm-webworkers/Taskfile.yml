@@ -1,0 +1,142 @@
+version: '3'
+
+vars:
+  PROJECT_NAME: ds-wasm-webworkers
+  DEMO_PORT: 8085
+  # Cross-platform binary extension (.exe on Windows)
+  BIN_EXT: '{{if eq OS "windows"}}.exe{{end}}'
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - echo "DataStar WASM WebWorkers"
+      - echo "========================"
+      - echo ""
+      - echo "BUILD:"
+      - echo "  build-hello      - Build Hello World WASM worker"
+      - echo "  build-controller - Build go-wasmww Controller"
+      - echo "  build            - Build all WASM binaries"
+      - echo ""
+      - echo "RUN:"
+      - echo "  demo             - Run WebWorkers demo (port {{.DEMO_PORT}})"
+      - echo ""
+      - echo "SETUP:"
+      - echo "  init             - Initialize project dependencies"
+      - echo "  caddy-install    - Install Caddy web server"
+      - echo "  caddy-check      - Check if Caddy is installed"
+      - echo ""
+      - echo "CLEAN:"
+      - echo "  clean            - Clean build artifacts"
+
+  init:
+    desc: "Initialize project dependencies"
+    cmds:
+      - echo "🔧 Initializing DataStar WASM WebWorkers dependencies..."
+      - go mod tidy
+      - echo "✅ Dependencies initialized"
+
+  build-hello:
+    desc: "Build Hello World WASM worker"
+    cmds:
+      - echo "👋 Building Hello World WASM worker..."
+      - mkdir -p web/wasm
+      - GOOS=js GOARCH=wasm go build -o web/wasm/hello-worker.wasm ./cmd/wasm-hello/main.go
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" web/wasm/
+      - echo "✅ Hello World WASM worker built in web/wasm/hello-worker.wasm"
+
+  build-controller:
+    desc: "Build go-wasmww Controller WASM binary"
+    cmds:
+      - echo "🎮 Building go-wasmww Controller..."
+      - mkdir -p web/wasm
+      - GOOS=js GOARCH=wasm go build -o web/wasm/controller.wasm ./cmd/wasm-controller/main.go
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" web/wasm/
+      - echo "✅ go-wasmww Controller built in web/wasm/controller.wasm"
+
+  build:
+    desc: "Build all WASM binaries"
+    deps: [build-hello, build-controller]
+
+  caddy-check:
+    desc: "Check if Caddy is installed"
+    cmds:
+      - |
+        # Use go-which for cross-platform binary detection if available
+        WHICH_CMD="command -v"
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          WHICH_CMD="$GO_WHICH_PATH"
+        fi
+        
+        if $WHICH_CMD caddy >/dev/null 2>&1; then
+          echo "✅ Caddy is installed"
+        else
+          echo "❌ Caddy not found"
+          echo "💡 Run: task caddy-install"
+          exit 1
+        fi
+
+  caddy-install:
+    desc: "Install Caddy web server using go install"
+    cmds:
+      - echo "📦 Installing Caddy web server..."
+      - go install github.com/caddyserver/caddy/v2/cmd/caddy@latest
+      - echo "✅ Caddy installed successfully"
+      - echo "🌐 Caddy provides excellent WASM support with proper MIME types"
+
+  demo:
+    desc: "Run DataStar WASM WebWorkers demo with Caddy"
+    deps: [build, caddy-install]
+    cmds:
+      - echo "🎮 Starting DataStar WASM WebWorkers demo on http://localhost{{":"}}{{.DEMO_PORT}}"
+      - |
+        # Use go-which for cross-platform binary detection if available
+        WHICH_CMD="command -v"
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          WHICH_CMD="$GO_WHICH_PATH"
+        fi
+        
+        if $WHICH_CMD caddy >/dev/null 2>&1; then
+          echo "🎮 Starting Caddy web server for DataStar WASM WebWorkers demo..."
+          cd web && caddy file-server --listen :{{.DEMO_PORT}} --browse
+        else
+          echo "❌ Caddy not found. Please install Caddy first."
+          echo "💡 Run: task caddy-install"
+          echo "💡 Caddy is required for WASM development server"
+          exit 1
+        fi
+
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - echo "🧹 Cleaning build artifacts..."
+      - rm -rf web/wasm/*.wasm
+      - rm -rf web/wasm/wasm_exec.js
+      - rm -rf wasm-hello wasm-controller
+      - echo "✅ Build artifacts cleaned"
+
+  # Future deck integration tasks
+  deck-explore:
+    desc: "Explore deck project for WASM integration"
+    cmds:
+      - echo "🎨 Exploring deck project for WASM integration..."
+      - echo "📋 deck project{{":"}} https{{":"}}//github.com/ajstarks/deck"
+      - echo "📋 deck commands{{":"}} https{{":"}}//github.com/ajstarks/deck/tree/master/cmd"
+      - echo ""
+      - echo "Potential deck commands for WASM{{":"}}"
+      - echo "  - decksh{{":"}} Deck markup language processor"
+      - echo "  - pdfdeck{{":"}} PDF to deck converter"
+      - echo "  - pngdeck{{":"}} PNG to deck converter"
+      - echo ""
+      - echo "💡 These could run as WASM workers with DataStar UI updates!"
+
+  test-build:
+    desc: "Test that WASM builds work correctly"
+    cmds:
+      - echo "🧪 Testing WASM builds..."
+      - GOOS=js GOARCH=wasm go build ./cmd/wasm-hello
+      - GOOS=js GOARCH=wasm go build ./cmd/wasm-controller
+      - echo "✅ All WASM builds successful"
+      - rm -f wasm-hello wasm-controller

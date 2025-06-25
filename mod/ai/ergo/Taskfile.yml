@@ -1,0 +1,48 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - echo "{{.GREETING}}"
+    silent: true
+
+  dep:
+    cmds:
+      # https://github.com/ergo-services/tools
+
+      # https://docs.ergo.services/tools/ergo
+      - go install ergo.services/tools/ergo@latest
+
+      # https://docs.ergo.services/tools/observer
+      - go install ergo.services/tools/observer@latest
+
+      # https://docs.ergo.services/tools/saturn
+      - go install ergo.services/tools/saturn@latest
+
+  ergo:help:
+    cmds:
+      - ergo -h
+
+  observer:help:
+    cmds:
+      - observer -h
+
+  observer:run:
+    cmds:
+      # http://localhost:9911
+      - open  http://localhost:9911
+      - observer
+
+  saturn:help:
+    cmds:
+      - saturn -h
+
+  saturn:run:
+    cmds:
+      - saturn

@@ -1,0 +1,116 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+
+  ### dev ( with CLI_ARGS to the AI can use this )
+
+  dev:core:
+    cmds:
+      - cd ./process-compose && go run main.go -p 8080 -t=false -f ../process-compose.yaml
+      # Test: curl -s http://localhost:8080/live
+      # Test: curl -s http://localhost:8080/processes
+      # Test: curl -s http://localhost:8080/project
+    silent: true
+
+  dev:api:
+    cmds:
+      - cd ./process-compose-huma && go run main.go {{.CLI_ARGS}}
+      # Test: curl -s http://localhost:8888/health
+      # Test: curl -s http://localhost:8888/processes
+      # Docs: curl -s http://localhost:8888/docs (or open in browser)
+      # SSE:  curl -N -H "Accept: text/event-stream" http://localhost:8888/events/processes
+    silent: true
+
+  dev:gui:
+    cmds:
+      - cd ./process-compose-datastar && go run main.go {{.CLI_ARGS}}
+      # Test: curl -s http://localhost:3000
+      # API:  curl -s http://localhost:3000/api/processes
+      # GUI:  open http://localhost:3000 (or visit in browser)
+    silent: true
+
+  ### build
+
+  build:
+    cmds:
+      - cd ./process-compose && go build -o ./.bin/process-compose
+      - cd ./process-compose-huma && go build -o ./.bin/process-compose-huma
+      - cd ./process-compose-datastar && go build -o ./.bin/process-compose-datastar
+      
+  # pack 
+
+  pack:up:
+    cmds:
+      # copy bins and config up
+      - mkdir -p ./.bin
+      - cp -r ./process-compose/.bin/. ./.bin/
+      - cp -r ./process-compose-huma/.bin/. ./.bin/
+      - cp -r ./process-compose-datastar/.bin/. ./.bin/
+      # copy config into .bin
+      - cp -r ./process-compose.yaml ./.bin/
+  pack:del:
+      - rm -rf ./.bin/
+  pack:list:
+      - ls -al ./.bin/
+
+  ### run (compiled binaries)
+
+  run:core:
+    cmds:
+      - cd ./.bin && ./process-compose -p 8080 -t=false -f process-compose.yaml
+      # Test: curl -s http://localhost:8080/live
+
+  run:api:
+    cmds:
+      - cd ./.bin && ./process-compose-huma
+      # Test: curl -s http://localhost:8888/health
+
+  run:gui:
+    cmds:
+      - cd ./.bin && ./process-compose-datastar
+      # Test: curl -s http://localhost:3000
+
+  run:all:
+    deps: [run:core, run:api, run:gui]
+    # Note: May have issues with compiled binaries - use dev: tasks instead
+
+
+  ### test ( the running system )
+
+  test:core:
+    cmds:
+      - echo "Testing Process Compose Core API..."
+      - curl -s http://localhost:8080/live
+      - curl -s http://localhost:8080/processes | head -c 200
+      - echo ""
+
+  test:api:
+    cmds:
+      - echo "Testing Enhanced Huma API..."
+      - curl -s http://localhost:8888/health
+      - curl -s http://localhost:8888/processes | head -c 200
+      - echo ""
+
+  test:gui:
+    cmds:
+      - echo "Testing Datastar GUI..."
+      - curl -s http://localhost:3000/api/processes | head -c 200
+      - echo ""
+      - echo "GUI available at  http://localhost:3000"
+
+  test:all:
+    deps: [test:core, test:api, test:gui]
+    cmds:
+      - echo "🎉 All tests completed!"
+      - echo "Core API          http://localhost:8080"
+      - echo "Enhanced API      http://localhost:8888"
+      - echo "Datastar GUI      http://localhost:3000"

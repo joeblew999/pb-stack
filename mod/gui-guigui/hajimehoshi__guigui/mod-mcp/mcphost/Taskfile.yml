@@ -1,0 +1,48 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+
+  dep:
+    cmds:
+      # https://github.com/mark3labs/mcphost
+      - go install github.com/mark3labs/mcphost@latest
+
+      # ollama
+      - brew install ollama
+
+  ollama:serve:
+    desc: start ollama
+    cmds:
+      # http://localhost:11434
+      - ollama serve
+
+  ollama:run:
+    desc: run an ollama model
+    cmds:
+      #- ollama run openchat:7b-v3.5-fp16
+
+      # 2gb
+      - ollama run qwen2.5:3b
+
+      # 1.1GB
+      # https://ollama.com/library/deepseek-r1
+      - ollama run deepseek-r1:1.5b
+
+  run:help:
+    cmds:
+      # there is none.
+      - mcphost -h
+
+  run:
+    desc: ask the model something, specifying the model to use.
+    cmds:
+      - mcphost -m ollama:qwen2.5:3b

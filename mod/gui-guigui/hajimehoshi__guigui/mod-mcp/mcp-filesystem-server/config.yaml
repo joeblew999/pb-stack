@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "mcp-filesystem-server",
+      "args": ["/path/to/allowed/directory", "/another/allowed/directory"]
+    }
+  }
+}

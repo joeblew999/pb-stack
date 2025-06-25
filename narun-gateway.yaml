@@ -1,0 +1,27 @@
+# Narun Gateway Configuration
+nats_url: "nats://localhost:4222"
+server_addr: ":8080"
+grpc_addr: ":8081"
+metrics_addr: ":9090"
+request_timeout_seconds: 15
+
+routes:
+  # DataStar WASM WebWorkers
+  - path: "/wasm/"
+    methods: ["GET", "POST"]
+    service: "ds-wasm-webworkers"
+
+  # Web Testing Framework
+  - path: "/test/"
+    methods: ["GET", "POST"]
+    service: "web-testing"
+
+  # GUI Robot Automation
+  - path: "/gui/"
+    methods: ["GET", "POST"]
+    service: "gui-robot"
+
+  # Health check
+  - path: "/health"
+    methods: ["GET"]
+    service: "health-check"

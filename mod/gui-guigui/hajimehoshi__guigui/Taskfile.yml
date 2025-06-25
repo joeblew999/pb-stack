@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  dev: 
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+tasks:
+  this:native:
+    cmds:
+      - task go:dev:native
+  this:wasm:
+    cmds:
+      # http://localhost:8080
+      - task go:dev:wasm-serve

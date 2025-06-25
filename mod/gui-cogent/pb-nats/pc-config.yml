@@ -1,0 +1,18 @@
+processes:
+
+  frontend:
+    command: task frontend
+    depends_on:
+      nats:
+        condition: process_completed_successfully
+      backend:
+        condition: process_completed_successfully
+
+  backend:
+    command: task frontend
+    depends_on:
+      nats:
+        condition: process_completed_successfully
+
+  nats:
+    command: task nats:server:run

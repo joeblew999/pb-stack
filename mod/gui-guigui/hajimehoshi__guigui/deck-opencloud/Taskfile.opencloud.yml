@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# OpenCloud - External Binary Tasks
+# This file contains all tasks related to the external OpenCloud binary from GitHub
+
+
+
+# Variables are inherited from the main Taskfile.yml when included
+vars:
+  # GitHub repository and version for OpenCloud binary
+  OPENCLOUD_REPO: opencloud-eu/opencloud
+  # https://github.com/opencloud-eu/opencloud/releases/tag/v3.0.0
+  OPENCLOUD_VERSION: v3.0.0
+
+tasks:
+  # =============================================================================
+  # DEFAULT COMMAND
+  # =============================================================================
+
+  default:
+    desc: "Show OpenCloud binary status and available commands"
+    cmds:
+      - task --list --taskfile Taskfile.opencloud.yml --sort alphanumeric
+
+  # =============================================================================
+  # OPENCLOUD BINARY DOWNLOAD
+  # =============================================================================
+
+  dep:
+    desc: "Pull OpenCloud binary from GitHub"
+    aliases: [get-opencloud]
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - |
+        # Determine platform and architecture
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "x86_64" ]; then
+          ARCH="amd64"
+        elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+          ARCH="arm64"
+        fi
+        
+        # Create temp directory for download
+        TEMP_DIR=$(mktemp -d)
+        
+        # Download the release
+        if [ "{{.OPENCLOUD_VERSION}}" = "latest" ]; then
+          # Get the latest release info
+          RELEASE_INFO=$(curl -s https://api.github.com/repos/{{.OPENCLOUD_REPO}}/releases/latest)
+          
+          # Extract version from the latest release
+          VERSION=$(echo "$RELEASE_INFO" | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
+          
+          # Extract the download URL with the correct pattern (includes version in filename)
+          DOWNLOAD_URL=$(echo "$RELEASE_INFO" | grep -o "https://github.com/{{.OPENCLOUD_REPO}}/releases/download/[^\"]*$VERSION-$OS-$ARCH\"" | sed 's/"$//')
+          
+          if [ -z "$DOWNLOAD_URL" ]; then
+            exit 1
+          fi
+        else
+          VERSION="{{.OPENCLOUD_VERSION}}"
+          # Remove 'v' prefix if present
+          VERSION_NUM=${VERSION#v}
+          DOWNLOAD_URL="https://github.com/{{.OPENCLOUD_REPO}}/releases/download/$VERSION/opencloud-$VERSION_NUM-$OS-$ARCH"
+        fi
+        
+        # Download the binary
+        curl -L -o "$TEMP_DIR/opencloud" "$DOWNLOAD_URL"
+        if [ $? -ne 0 ]; then
+          exit 1
+        fi
+        
+        chmod +x "$TEMP_DIR/opencloud"
+        
+        # Move to bin directory
+        mv "$TEMP_DIR/opencloud" "{{.BIN_DIR}}/opencloud"
+        rm -rf "$TEMP_DIR"
+
+  dep:clean:
+    desc: "Remove downloaded OpenCloud binary"
+    cmds:
+      - rm -f {{.BIN_DIR}}/opencloud
+
+  dep:update:
+    desc: "Update OpenCloud binary to latest version"
+    cmds:
+      - task: dep:clean
+      - task: dep
+
+  # =============================================================================
+  # OPENCLOUD SERVER COMMANDS
+  # =============================================================================
+
+  run:init:
+    desc: "Initialize OpenCloud configuration"
+    cmds:
+      - |
+        if [ ! -f "{{.BIN_DIR}}/opencloud" ]; then
+          task oc:dep
+        fi
+        ./{{.BIN_DIR}}/opencloud init
+
+  run:init:diff:
+    desc: "Show diff between current config and recommended config"
+    cmds:
+      - |
+        if [ ! -f "{{.BIN_DIR}}/opencloud" ]; then
+          task oc:dep
+        fi
+        ./{{.BIN_DIR}}/opencloud init --diff
+
+  run:init:force:
+    desc: "Force overwrite existing OpenCloud configuration"
+    cmds:
+      - |
+        if [ ! -f "{{.BIN_DIR}}/opencloud" ]; then
+          task oc:dep
+        fi
+        ./{{.BIN_DIR}}/opencloud init --force-overwrite
+
+  server:
+    desc: "Run OpenCloud binary in server mode"
+    cmds:
+      - |
+        if [ ! -f "{{.BIN_DIR}}/opencloud" ]; then
+          task dep
+        fi
+        ./{{.BIN_DIR}}/opencloud server
+
+  # =============================================================================
+  # OPENCLOUD CLI RUN COMMANDS
+  # =============================================================================
+
+  run:cli:
+    desc: "Run OpenCloud CLI with provided arguments"
+    cmds:
+      - |
+        if [ ! -f "{{.BIN_DIR}}/opencloud" ]; then
+          task dep
+        fi
+        ./{{.BIN_DIR}}/opencloud {{.CLI_ARGS}}
+
+  run:search:
+    desc: "Search documents using OpenCloud CLI"
+    cmds:
+      - task: run:cli
+        vars:
+          CLI_ARGS: search --query "{{.QUERY}}" --index {{.INDEX_DIR}}
+
+  run:index:
+    desc: "Index documents using OpenCloud CLI"
+    cmds:
+      - task: run:cli
+        vars:
+          CLI_ARGS: index --data {{.DATA_DIR}} --index {{.INDEX_DIR}}
+
+  run:list:
+    desc: "List documents using OpenCloud CLI"
+    cmds:
+      - task: run:cli
+        vars:
+          CLI_ARGS: list --index {{.INDEX_DIR}}
+

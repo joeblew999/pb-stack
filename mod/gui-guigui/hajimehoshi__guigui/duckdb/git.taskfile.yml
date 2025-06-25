@@ -1,0 +1,123 @@
+version: '3'
+
+includes:
+  gh: gh.taskfile.yml
+
+vars:
+  GIT_DEFAULT_BRANCH: master
+  GIT_CONFIG_FILE: repos.json
+  GIT_SRC_DIR: .src
+  GIT_TEST_DIR: .test/git
+
+tasks:
+  default:
+    desc: List all available git tasks
+    cmds:
+      - task --list-all --sort=asc
+
+  clean:
+    desc: Clean git repositories
+    cmds:
+      - rm -rf {{.GIT_SRC_DIR}}
+      - rm -rf {{.GIT_TEST_DIR}}
+
+  clone:
+    desc: Clone repositories from config
+    vars:
+      CONFIG: '{{.GIT_CONFIG_FILE}}'
+    cmds:
+      - mkdir -p {{.GIT_SRC_DIR}}
+      - |
+        CONFIG_CONTENT=$(cat {{.CONFIG}})
+        ORG=$(echo "$CONFIG_CONTENT" | gojq -r '.organization')
+        echo "Cloning repositories for organization: $ORG"
+        
+        echo "$CONFIG_CONTENT" | gojq -c '.repositories[]' | while read -r repo; do
+          name=$(echo "$repo" | gojq -r '.name')
+          version=$(echo "$repo" | gojq -r '.version')
+          dir="{{.GIT_SRC_DIR}}/${ORG}__${name}"
+          
+          if [ ! -d "$dir" ]; then
+            echo "Cloning $name at version $version into $dir..."
+            git clone "https://github.com/$ORG/$name.git" "$dir"
+            cd "$dir"
+            git fetch --depth 1 origin tag "$version"
+            git checkout "$version"
+            cd -
+          else
+            echo "Repository $dir already exists"
+          fi
+        done
+
+  update:
+    desc: Update repositories to specified versions
+    vars:
+      CONFIG: '{{.GIT_CONFIG_FILE}}'
+    cmds:
+      - |
+        CONFIG_CONTENT=$(cat {{.CONFIG}})
+        ORG=$(echo "$CONFIG_CONTENT" | gojq -r '.organization')
+        echo "Updating repositories for organization: $ORG"
+        
+        echo "$CONFIG_CONTENT" | gojq -c '.repositories[]' | while read -r repo; do
+          name=$(echo "$repo" | gojq -r '.name')
+          version=$(echo "$repo" | gojq -r '.version')
+          dir="{{.GIT_SRC_DIR}}/${ORG}__${name}"
+          
+          if [ -d "$dir" ]; then
+            echo "Updating $dir to version $version..."
+            cd "$dir"
+            git fetch --depth 1 origin tag "$version"
+            git checkout "$version"
+            cd -
+          else
+            echo "Repository $dir not found, run clone first"
+          fi
+        done
+
+  validate:
+    desc: Validate repository versions
+    vars:
+      CONFIG: '{{.GIT_CONFIG_FILE}}'
+    cmds:
+      - |
+        CONFIG_CONTENT=$(cat {{.CONFIG}})
+        ORG=$(echo "$CONFIG_CONTENT" | gojq -r '.organization')
+        echo "Validating versions for organization: $ORG"
+        
+        echo "$CONFIG_CONTENT" | gojq -c '.repositories[]' | while read -r repo; do
+          name=$(echo "$repo" | gojq -r '.name')
+          version=$(echo "$repo" | gojq -r '.version')
+          dir="{{.GIT_SRC_DIR}}/${ORG}__${name}"
+          
+          if [ ! -d "$dir" ]; then
+            echo "Repository not found: $dir"
+            exit 1
+          fi
+          cd "$dir"
+          current=$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD)
+          if [ "$current" = "$version" ]; then
+            echo "✓ $dir is at correct version $version"
+          else
+            echo "❌ $dir is at $current, should be $version"
+            exit 1
+          fi
+          cd -
+        done
+
+  test:
+    desc: Test git infrastructure using gh CLI repository
+    cmds:
+      - task: gh:deps:install
+      - mkdir -p {{.GIT_TEST_DIR}}
+      - cp gh.repos.json {{.GIT_TEST_DIR}}/repos.json
+      - task: clone
+        vars:
+          GIT_CONFIG_FILE: '{{.GIT_TEST_DIR}}/repos.json'
+      - task: validate
+        vars:
+          GIT_CONFIG_FILE: '{{.GIT_TEST_DIR}}/repos.json'
+      - task: update
+        vars:
+          GIT_CONFIG_FILE: '{{.GIT_TEST_DIR}}/repos.json'
+      - cd {{.GIT_SRC_DIR}}/cli__cli && go run ./cmd/gh version

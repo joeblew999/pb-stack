@@ -1,0 +1,88 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['.env', 'dev.env', '{{.USER_WORKING_DIR}}/dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  cogent:
+    taskfile: ./../cogent.taskfile.yml
+    ##flatten: true
+
+vars:
+  CONFIG_PATH: '{{.PWD}}/{{.ENV_GIT_REPO_NAME}}/testdata'
+  CONFIG_NAME: envelopr.yaml
+  
+tasks:
+
+  print:
+    desc: print
+    cmds:
+      - echo 
+      - echo {{.CONFIG}}
+
+  bin:
+    desc: install
+    dir: '{{.COGENT_SRC_PATH}}'
+    cmds:
+      - go build -o {{.GOPATH}}/bin/enveloper .
+      # his file refresh thing.
+      - go install github.com/networkteam/refresh@latest
+
+  bin:del:
+    desc: install:del
+    cmds:
+      - rm -rf {{.GOPATH}}/bin/enveloper
+      - rm -rf {{.GOPATH}}/bin/refresh
+
+  refresh:help:
+    cmds:
+      # https://github.com/networkteam/refresh
+      - refresh -h
+  refresh:init:
+    cmds:
+      - refresh init ./refresh.yml
+  refresh:run:
+    cmds:
+      # points to the testdata folder
+      - refresh run --verbosity 4 --config ./refresh.yml
+
+
+
+  run:help:
+    cmds:
+      - 'enveloper -h'
+
+  run:init:help:
+    cmds:
+      # http://127.0.0.1:3600
+      - 'cd {{.COGENT_SRC_PATH}} && enveloper --verbosity 4 init -h'
+  run:init:
+    cmds:
+      # http://127.0.0.1:3600
+      - mkdir -p new
+      - 'cd new && enveloper --verbosity 4 init --yes --force'
+  run:init:wizard:
+    cmds:
+      # http://127.0.0.1:3600
+      - mkdir -p new1
+      - 'cd new1 && enveloper --verbosity 4 init'
+
+  run:watch:
+    cmds:
+      # http://127.0.0.1:3600
+      - 'cd {{.COGENT_SRC_PATH}} && enveloper --verbosity 4 watch -c={{.CONFIG_PATH}}/{{.CONFIG_NAME}}'
+
+
+  test:
+    cmds:
+      # copy test into watched folder.
+      # There is zero file watch...
+      # The Web GUi does not update.
+      # The output folder does not uddate,
+      # also after you delete it, it will no delete the outputs.
+      - cp test.mjml {{.COGENT_SRC_PATH}}/testdata/documents/test.mjml
+  test:teardown:
+    cmds:
+      - rm -f {{.COGENT_SRC_PATH}}/testdata/documents/test.mjml
+      - rm -f {{.COGENT_SRC_PATH}}/testdata/output/test.html

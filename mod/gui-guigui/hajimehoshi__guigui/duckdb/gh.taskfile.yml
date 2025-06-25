@@ -1,0 +1,221 @@
+# GitHub CLI tasks for repository management
+
+version: '3'
+
+tasks:
+  default:
+    desc: "Lists available GitHub CLI tasks"
+    cmds:
+      - task --list-all --sort alphanumeric | grep "^* gh:"
+    silent: true
+
+  deps:install:
+    desc: "Install required dependencies (GitHub CLI and gojq)"
+    cmds:
+      - task: gh:install
+      - task: gojq:install
+
+  gh:install:
+    desc: "Install GitHub CLI if not already installed"
+    cmds:
+      - |
+        if ! command -v gh &> /dev/null; then
+          echo "Installing GitHub CLI..."
+          go install github.com/cli/cli/v2/cmd/gh@latest
+        else
+          echo "GitHub CLI is already installed"
+          gh --version
+        fi
+
+  gojq:install:
+    desc: "Install gojq if not already installed"
+    cmds:
+      - |
+        if ! command -v gojq &> /dev/null; then
+          echo "Installing gojq..."
+          go install github.com/itchyny/gojq/cmd/gojq@latest
+        else
+          echo "gojq is already installed"
+          gojq --version
+        fi
+
+  auth:
+    desc: "Login to GitHub CLI"
+    cmds:
+      - gh auth login
+
+  list:tags:
+    desc: "List tags for a GitHub repository"
+    vars:
+      REPO: '{{.REPO | default ""}}'
+    cmds:
+      - |
+        if [ -z "{{.REPO}}" ]; then
+          echo "Usage: task gh:list:tags REPO=owner/repo"
+          echo "Example: task gh:list:tags REPO=carapace-sh/carapace"
+          exit 1
+        fi
+        gh api repos/{{.REPO}}/tags --paginate | gojq -r '.[].name'
+
+  list:branches:
+    desc: "List branches for a GitHub repository"
+    vars:
+      REPO: '{{.REPO | default ""}}'
+    cmds:
+      - |
+        if [ -z "{{.REPO}}" ]; then
+          echo "Usage: task gh:list:branches REPO=owner/repo"
+          echo "Example: task gh:list:branches REPO=carapace-sh/carapace"
+          exit 1
+        fi
+        gh api repos/{{.REPO}}/branches --paginate | gojq -r '.[].name'
+
+  list:all:
+    desc: "List both tags and branches for a GitHub repository"
+    vars:
+      REPO: '{{.REPO | default ""}}'
+    cmds:
+      - echo "Tags for {{.REPO}}:"
+      - task: list:tags
+      - echo "\nBranches for {{.REPO}}:"
+      - task: list:branches
+
+  repo:info:
+    desc: "Get detailed information about a GitHub repository"
+    vars:
+      REPO: '{{.REPO | default ""}}'
+    cmds:
+      - |
+        if [ -z "{{.REPO}}" ]; then
+          echo "Usage: task gh:repo:info REPO=owner/repo"
+          echo "Example: task gh:repo:info REPO=carapace-sh/carapace"
+          exit 1
+        fi
+        gh api repos/{{.REPO}} | gojq '{
+          name: .name,
+          full_name: .full_name,
+          description: .description,
+          default_branch: .default_branch,
+          created_at: .created_at,
+          updated_at: .updated_at,
+          homepage: .homepage,
+          language: .language,
+          license: .license.name,
+          forks_count: .forks_count,
+          stargazers_count: .stargazers_count,
+          watchers_count: .watchers_count,
+          open_issues_count: .open_issues_count
+        }'
+
+  releases:latest:
+    desc: "Get the latest release information for a repository"
+    vars:
+      REPO: '{{.REPO | default ""}}'
+    cmds:
+      - |
+        if [ -z "{{.REPO}}" ]; then
+          echo "Usage: task gh:releases:latest REPO=owner/repo"
+          echo "Example: task gh:releases:latest REPO=carapace-sh/carapace"
+          exit 1
+        fi
+        gh api repos/{{.REPO}}/releases/latest | gojq '{
+          tag_name: .tag_name,
+          name: .name,
+          published_at: .published_at,
+          body: .body
+        }'
+
+  releases:list:
+    desc: "List all releases for a repository"
+    vars:
+      REPO: '{{.REPO | default ""}}'
+      LIMIT: '{{.LIMIT | default "10"}}'
+    cmds:
+      - |
+        if [ -z "{{.REPO}}" ]; then
+          echo "Usage: task gh:releases:list REPO=owner/repo [LIMIT=number]"
+          echo "Example: task gh:releases:list REPO=carapace-sh/carapace LIMIT=5"
+          exit 1
+        fi
+        gh api repos/{{.REPO}}/releases --paginate | gojq "[.[]|{tag_name,name,published_at}] | .[:{{.LIMIT}}]"
+
+  check:version:
+    desc: "Check if a version exists for a repository"
+    vars:
+      REPO: '{{.REPO | default ""}}'
+      VERSION: '{{.VERSION | default ""}}'
+    cmds:
+      - |
+        if [ -z "{{.REPO}}" ] || [ -z "{{.VERSION}}" ]; then
+          echo "Usage: task gh:check:version REPO=owner/repo VERSION=v1.0.0"
+          exit 1
+        fi
+        gh api repos/{{.REPO}}/git/refs/tags/{{.VERSION}} &>/dev/null
+        if [ $? -eq 0 ]; then
+          echo "Version {{.VERSION}} exists for {{.REPO}}"
+          exit 0
+        else
+          echo "Version {{.VERSION}} does not exist for {{.REPO}}"
+          exit 1
+        fi
+
+  update:versions:
+    desc: "Update repository versions in carapace.repos.json based on latest releases"
+    vars:
+      CONFIG_FILE: '{{.CONFIG_FILE | default "carapace.repos.json"}}'
+    cmds:
+      - |
+        set -e
+        CONFIG_CONTENT=$(cat {{.CONFIG_FILE}})
+        ORG=$(echo "$CONFIG_CONTENT" | gojq -r '.organization')
+        echo "Updating versions for organization: $ORG"
+        
+        # Create JSON array of updated repositories
+        UPDATED_REPOS="["
+        first=true
+        
+        while read -r repo; do
+          name=$(echo "$repo" | gojq -r '.name')
+          desc=$(echo "$repo" | gojq -r '.description')
+          echo "Checking $name for latest version..."
+          latest_ver=$(gh api repos/$ORG/$name/releases/latest | gojq -r '.tag_name')
+          echo "Latest version for $name: $latest_ver"
+          
+          if [ "$first" = "true" ]; then
+            first=false
+          else
+            UPDATED_REPOS="$UPDATED_REPOS,"
+          fi
+          
+          UPDATED_REPOS="$UPDATED_REPOS{\"name\":\"$name\",\"version\":\"$latest_ver\",\"description\":\"$desc\"}"
+        done < <(echo "$CONFIG_CONTENT" | gojq -c '.repositories[]')
+        
+        UPDATED_REPOS="$UPDATED_REPOS]"
+        
+        # Create the final JSON
+        echo "{\"organization\":\"$ORG\",\"version\":\"1\",\"repositories\":$UPDATED_REPOS}" | gojq '.' > {{.CONFIG_FILE}}
+        
+        echo "Updated {{.CONFIG_FILE}} with latest versions:"
+        cat {{.CONFIG_FILE}}
+
+  validate:versions:
+    desc: "Validate that all versions in carapace.repos.json exist"
+    vars:
+      CONFIG_FILE: '{{.CONFIG_FILE | default "carapace.repos.json"}}'
+    cmds:
+      - |
+        set -e
+        CONFIG_CONTENT=$(cat {{.CONFIG_FILE}})
+        ORG=$(echo "$CONFIG_CONTENT" | gojq -r '.organization')
+        echo "Validating versions for organization: $ORG"
+        
+        echo "$CONFIG_CONTENT" | gojq -c '.repositories[]' | while read -r repo; do
+          name=$(echo "$repo" | gojq -r '.name')
+          version=$(echo "$repo" | gojq -r '.version')
+          echo "Checking $name at $version..."
+          gh api "repos/$ORG/$name/git/ref/tags/$version" >/dev/null || {
+            echo "❌ Version $version not found for $name"
+            exit 1
+          }
+          echo "✓ Version $version exists for $name"
+        done

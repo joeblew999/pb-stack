@@ -1,0 +1,152 @@
+# Platform Management Taskfile - Wombat (Synadia Connect)
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  LOCAL_BIN: "./.bin"
+  CONFIG_DIR: "./.config"
+  PLATFORM_LOGS: "./.logs"
+  PROCFILE: "./Procfile"
+
+  # Platform versions  
+  # https://github.com/synadia-io/connect/tags
+  CONNECT_VERSION: "latest"
+  # https://github.com/synadia-io/connect-runtime-wombat/tags
+  WOMBAT_VERSION: "v1.0.7-rc2"
+
+  NATS_SERVER_VERSION: "latest"
+  NATS_CLI_VERSION: "latest"
+  GOREMAN_VERSION: "latest"
+
+  # Cross-platform binary names
+  EXE_EXT:
+    sh: '{{if eq OS "windows"}}.exe{{else}}{{end}}'
+  CONNECT_BIN: "{{.LOCAL_BIN}}/platform-connect{{.EXE_EXT}}"
+  WOMBAT_BIN: "{{.LOCAL_BIN}}/platform-wombat{{.EXE_EXT}}"
+  NATS_SERVER_BIN: "{{.LOCAL_BIN}}/platform-nats-server{{.EXE_EXT}}"
+  NATS_CLI_BIN: "{{.LOCAL_BIN}}/platform-nats{{.EXE_EXT}}"
+  GOREMAN_BIN: "{{.LOCAL_BIN}}/platform-goreman{{.EXE_EXT}}"
+
+tasks:
+  default:
+    desc: "Show available platform tasks"
+    cmds:
+      - task --list
+
+  # Setup & Dependencies
+  deps:
+    desc: "Install platform dependencies"
+    cmds:
+      - mkdir -p {{.LOCAL_BIN}}
+      - |
+        # Install binaries
+        GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/synadia-io/connect/cmd/connect@{{.CONNECT_VERSION}}
+        GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/synadia-io/connect-runtime-wombat@{{.WOMBAT_VERSION}}
+        GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/nats-io/nats-server/v2@{{.NATS_SERVER_VERSION}}
+        GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/nats-io/natscli/nats@{{.NATS_CLI_VERSION}}
+        GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/mattn/goreman@{{.GOREMAN_VERSION}}
+        
+        # Rename with platform- prefix (cross-platform)
+        {{if eq OS "windows"}}
+        mv {{.LOCAL_BIN}}/connect.exe {{.LOCAL_BIN}}/platform-connect.exe
+        mv {{.LOCAL_BIN}}/connect-runtime-wombat.exe {{.LOCAL_BIN}}/platform-wombat.exe
+        mv {{.LOCAL_BIN}}/nats-server.exe {{.LOCAL_BIN}}/platform-nats-server.exe
+        mv {{.LOCAL_BIN}}/nats.exe {{.LOCAL_BIN}}/platform-nats.exe
+        mv {{.LOCAL_BIN}}/goreman.exe {{.LOCAL_BIN}}/platform-goreman.exe
+        {{else}}
+        mv {{.LOCAL_BIN}}/connect {{.LOCAL_BIN}}/platform-connect
+        mv {{.LOCAL_BIN}}/connect-runtime-wombat {{.LOCAL_BIN}}/platform-wombat
+        mv {{.LOCAL_BIN}}/nats-server {{.LOCAL_BIN}}/platform-nats-server
+        mv {{.LOCAL_BIN}}/nats {{.LOCAL_BIN}}/platform-nats
+        mv {{.LOCAL_BIN}}/goreman {{.LOCAL_BIN}}/platform-goreman
+        {{end}}
+
+  wombat:install:
+    desc: "Install Wombat runtime separately (experimental)"
+    cmds:
+      - |
+        echo "Installing Wombat runtime..."
+        GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/synadia-io/connect-runtime-wombat@{{.WOMBAT_VERSION}} || true
+        {{if eq OS "windows"}}
+        mv {{.LOCAL_BIN}}/connect-runtime-wombat.exe {{.LOCAL_BIN}}/platform-wombat.exe 2>/dev/null || echo "Wombat install failed"
+        {{else}}
+        mv {{.LOCAL_BIN}}/connect-runtime-wombat {{.LOCAL_BIN}}/platform-wombat 2>/dev/null || echo "Wombat install failed"
+        {{end}}
+
+  # Wombat Configuration
+  wombat:version:
+    desc: "Check Wombat version"
+    cmds:
+      - "{{.WOMBAT_BIN}} --version"
+
+  wombat:list:
+    desc: "List Wombat input/output types"
+    cmds:
+      - "{{.WOMBAT_BIN}} list inputs"
+      - "{{.WOMBAT_BIN}} list outputs"
+
+  wombat:validate:
+    desc: "Validate Wombat configuration"
+    cmds:
+      - "{{.WOMBAT_BIN}} lint {{.CONFIG_DIR}}/wombat.yaml"
+
+  # Procfile Management
+  procfile:create:
+    desc: "Create Procfile for platform services"
+    cmds:
+      - |
+        cat > {{.PROCFILE}} << 'EOF'
+        # Platform Services Procfile
+        nats: {{.NATS_SERVER_BIN}} -js -D
+        EOF
+
+  # Core Platform Operations
+  start:
+    desc: "Start platform using Goreman"
+    deps: [procfile:create]
+    cmds:
+      - mkdir -p {{.PLATFORM_LOGS}}
+      - "{{.GOREMAN_BIN}} start"
+
+  stop:
+    desc: "Stop platform services"
+    cmds:
+      - pkill -f goreman 2>/dev/null || true
+      - pkill -f nats-server 2>/dev/null || true
+      - pkill -f connect-runtime-wombat 2>/dev/null || true
+
+  restart:
+    desc: "Restart platform"
+    deps: [stop]
+    cmds:
+      - sleep 1
+      - task: start
+
+  status:
+    desc: "Check platform service status"
+    cmds:
+      - pgrep -f goreman > /dev/null && echo "Goreman Running" || echo "Goreman Stopped"
+      - pgrep -f nats-server > /dev/null && echo "NATS Running" || echo "NATS Stopped"
+      - pgrep -f connect-runtime-wombat > /dev/null && echo "Wombat Running" || echo "Wombat Stopped"
+
+  # Testing
+  test:ping:
+    desc: "Test NATS connectivity"
+    cmds:
+      - "{{.NATS_CLI_BIN}} pub test.ping 'Platform test'"
+      - "{{.NATS_CLI_BIN}} sub test.ping --count=1 --timeout=3s"
+
+  # Cleanup
+  clean:
+    desc: "Clean platform logs and temporary files"
+    cmds:
+      - rm -rf "{{.PLATFORM_LOGS}}"/*
+      - rm -f "{{.PROCFILE}}"
+      - rm -f ~/.goreman.log
+
+  reset:
+    desc: "Stop platform and clean everything"
+    deps: [stop, clean]
+    cmds:
+      - sleep 1

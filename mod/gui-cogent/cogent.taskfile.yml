@@ -2,6 +2,14 @@
 
 version: '3'
 
+# https://taskfile.dev/usage/#output-syntax
+#output:
+#  group:
+#    begin: '::group::{{.TASK}}'
+#    end: '::endgroup::'
+
+output: prefixed
+
 env:
   # ssh
   #ENV_GIT_VAR_ROOT_SIGNING_USER_NAME=joeblew999
@@ -11,7 +19,7 @@ env:
   #ENV_GIT_SIGNING_FORMAT=OpenSSH
 
   # git
-  #ENV_GIT_REPO: '{{.ENV_GIT_REPO}}'
+  #ENV_GIT_REPO_URL: '{{.ENV_GIT_REPO_URL}}'
   #ENV_GIT_REPO_NAME: 
   #ENV_GIT_REPO_VERSION: 
   # src
@@ -19,23 +27,57 @@ env:
   #COGENT_ENV_SRC_PREFIX:
 
 vars:
+  ### bins
+
+  # cogent
   COGENT_BIN_NAME: mod-cogent
   # https://github.com/cogentcore/core/releases/tag/v0.3.11
   COGENT_BIN_VERSION: v0.3.11
 
+  # github cli
   GH_BIN_NAME: mod-gh
   # https://github.com/cli/cli/releases/tag/v2.73.0
   GH_BIN_VERSION: v2.73.0
 
-  GIT_BIN_NAME: git
 
+  # benthos
+  BENTHOS_BIN_NAME: mod-benthos
+  # github.com/redpanda-data/benthos/v4/cmd/benthos
+  # https://github.com/redpanda-data/benthos/releases/tag/v4.51.0
+  BENTHOS_BIN_VERSION: v4.51.0
+
+  # nats server
+  NATS_SERVER_BIN_NAME: mod-nats-server
+  # https://github.com/nats-io/nats-server/releases/tag/v2.11.4
+  NATS_SERVER_BIN_VERSION: v2.11.4
+
+  # nats cli
+  NATS_CLI_BIN_NAME: mod-nats-cli
+  # https://github.com/nats-io/natscli/releases/tag/v0.2.3
+  NATS_CLI_BIN_VERSION: v0.2.3
+  
+  # process-compose needs to be git cloned.
+  PC_BIN_NAME: mod-process-compose
+  # github.com/f1bonacc1/process-compose
+  # https://github.com/F1bonacc1/process-compose/releases/tag/v1.64.1
+  PC_BIN_VERSION: v1.64.1
+
+
+  # env 
+  COGENT_ENV_FILE: dev.env
   COGENT_REPO_PATH: '{{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}}'
   COGENT_SRC_PATH: '{{.COGENT_REPO_PATH}}/{{.COGENT_ENV_SRC_PREFIX}}'
 
+
+
+  # .bin
   COGENT_BUILD_ROOT: '.bin'
   COGENT_BUILD_WEB: '{{.COGENT_BUILD_ROOT}}/web'
   COGENT_BUILD_DESKTOP: '{{.COGENT_BUILD_ROOT}}/desktop'
 
+
+
+  # cogent
   COGENT_VAR_VERBOSE: '-verbose'
   #COGENT_VAR_VERBOSE: ''
   # Name is the user-friendly name of the project.The default is based on the current directory name.
@@ -51,6 +93,18 @@ vars:
 
   COGENT_VAR_RELEASE: 'v0.0.0'
 
+
+
+
+  ### nats
+  NATS_URL: nats://0.0.0.0:62327
+
+  ### process compose
+  
+  PC_CONFIG_NAME: pc-config.yml
+  PC_LOG_FILE: '{{.PWD}}/pc.log'
+  
+
 tasks:
 
   
@@ -62,6 +116,8 @@ tasks:
       - echo 
     silent: true
 
+### print
+
   print:
     desc: print
     cmds:
@@ -69,6 +125,7 @@ tasks:
       - echo - task
       - echo 'TASK_DIR                {{.TASK_DIR}}'
       - echo 'USER_WORKING_DIR        {{.USER_WORKING_DIR}}'
+      - echo 'CLI_ARGS                {{.CLI_ARGS}}'
       - echo 
       - echo - go
       - echo 'GOPATH                  {{.GOPATH}}'
@@ -83,6 +140,7 @@ tasks:
     silent: true
 
   print:dep:
+    desc: print deps
     cmds:
       - echo 
       - echo - dep
@@ -101,6 +159,24 @@ tasks:
       - '{{.GIT_BIN_NAME}} --version'
       - echo 'GIT_BIN_WHICH'
       - 'which {{.GIT_BIN_NAME}}'
+      # benthos
+      - echo 
+      - echo 'BENTHOS_BIN_NAME        {{.BENTHOS_BIN_NAME}}'
+      - echo 'BENTHOS_BIN_VERSION     {{.BENTHOS_BIN_VERSION}}'
+      - echo 'BENTHOS_BIN_WHICH'
+      - 'which {{.BENTHOS_BIN_NAME}}'
+      # nats server
+      - echo 
+      - echo 'NATS_SERVER_BIN_NAME    {{.NATS_SERVER_BIN_NAME}}'
+      - echo 'NATS_SERVER_BIN_VERSION {{.NATS_SERVER_BIN_VERSION}}'
+      - echo 'NATS_SERVER_BIN_WHICH'
+      - 'which {{.NATS_SERVER_BIN_NAME}}'
+      # nats cli
+      - echo 
+      - echo 'NATS_CLI_BIN_NAME       {{.NATS_CLI_BIN_NAME}}'
+      - echo 'NATS_CLI_BIN_VERSION    {{.NATS_CLI_BIN_VERSION}}'
+      - echo 'NATS_CLI_BIN_WHICH'
+      - 'which {{.NATS_CLI_BIN_NAME}}'
       - echo 
     silent: true
 
@@ -108,9 +184,13 @@ tasks:
     cmds:
       - echo 
       - echo - env
-      - echo 'ENV_GIT_REPO         {{.ENV_GIT_REPO}}'
-      - echo 'ENV_GIT_REPO_NAME    {{.ENV_GIT_REPO_NAME}}'
-      - echo 'ENV_GIT_REPO_VERSION {{.ENV_GIT_REPO_VERSION}}'
+      - echo 'ENV_GIT_REPO_URL          {{.ENV_GIT_REPO_URL}}'
+      - echo 'ENV_GIT_REPO_NAME         {{.ENV_GIT_REPO_NAME}}'
+      - echo 'ENV_GIT_REPO_VERSION      {{.ENV_GIT_REPO_VERSION}}'
+      - echo 
+      - echo 'COGENT_ENV_FILE           {{.COGENT_ENV_FILE}}'
+      - echo 'COGENT_REPO_PATH          {{.COGENT_REPO_PATH}}'
+      - echo 'COGENT_SRC_PATH           {{.COGENT_SRC_PATH}}'
       - echo 
     silent: true
 
@@ -118,9 +198,9 @@ tasks:
     cmds:
       - echo 
       - echo - src
-      - echo 'COGENT_ENV_SRC_PREFIX   {{.COGENT_ENV_SRC_PREFIX}}'
-      - echo 'COGENT_REPO_PATH        {{.COGENT_REPO_PATH}}'
-      - echo 'COGENT_SRC_PATH         {{.COGENT_SRC_PATH}}'
+      - echo 'COGENT_ENV_SRC_PREFIX     {{.COGENT_ENV_SRC_PREFIX}}'
+      - echo 'COGENT_REPO_PATH          {{.COGENT_REPO_PATH}}'
+      - echo 'COGENT_SRC_PATH           {{.COGENT_SRC_PATH}}'
       - echo
     silent: true
 
@@ -129,11 +209,40 @@ tasks:
   dep:
     desc: "dep cogent"
     cmds:
+      # cogent cli
       - go install cogentcore.org/core/cmd/core@{{.COGENT_BIN_VERSION}}
       - mv {{.GOPATH}}/bin/core {{.GOPATH}}/bin/{{.COGENT_BIN_NAME}}
 
+      # github cli
       - go install github.com/cli/cli/v2/cmd/gh@{{.GH_BIN_VERSION}}
       - mv {{.GOPATH}}/bin/gh {{.GOPATH}}/bin/{{.GH_BIN_NAME}}
+
+      # benthos
+      - go install github.com/redpanda-data/benthos/v4/cmd/benthos@{{.BENTHOS_BIN_VERSION}}
+      - mv {{.GOPATH}}/bin/benthos {{.GOPATH}}/bin/{{.BENTHOS_BIN_NAME}}
+
+      # nats server
+      - go install github.com/nats-io/nats-server/v2@{{.NATS_SERVER_BIN_VERSION}}
+      - mv {{.GOPATH}}/bin/nats-server {{.GOPATH}}/bin/{{.NATS_SERVER_BIN_NAME}}
+
+      # nats cli
+      - go install github.com/nats-io/natscli/nats@{{.NATS_CLI_BIN_VERSION}}
+      - mv {{.GOPATH}}/bin/nats {{.GOPATH}}/bin/{{.NATS_CLI_BIN_NAME}}
+
+  dep:pc:
+    desc: "dep process-compose"
+    cmds:
+      # 
+      # process-compose needs to be git cloned.
+      - rm -rf tmp
+      - mkdir -p tmp
+      - cd tmp && git clone https://github.com/F1bonacc1/process-compose -b v1.64.1
+      - cd tmp && touch go.work && go work use process-compose
+      - cd tmp/process-compose/src && go build -o {{.GOPATH}}/bin/{{.PC_BIN_NAME}} .
+      - which {{.GOPATH}}/bin/{{.PC_BIN_NAME}}
+      - rm -rf tmp
+
+
   dep:del:
     desc: "delete cogent"
     cmds:
@@ -174,6 +283,73 @@ tasks:
   
 ### git.
 
+  git:test:
+    desc: "test task file code. uses hard coded values"
+    cmds:
+      
+      - rm -rf git_test
+      - mkdir -p git_test
+
+      # OFF FOR NOW, so we can see the files..
+      # cleanup, no matter what happens
+      #- defer: rm -rf git_test
+      
+
+      # Check task follows
+      - cd git_test && task whereami
+
+      # template from nothing
+      - cd git_test && task git:template
+
+      # template with one already there ( should exit )
+      - cd git_test && task git:template
+
+
+
+      # del github repo
+      #- cd git_test && task ENV_GIT_REPO_URL=git@github.com-joeblew999:joeblew999/test01 ENV_GIT_REPO_NAME=test01 ENV_GIT_REPO_VERSION=main git:del:github
+      
+      # make a new repo from nothing
+      #- cd git_test && task ENV_GIT_REPO_URL=git@github.com-joeblew999:joeblew999/test01 ENV_GIT_REPO_NAME=test01 ENV_GIT_REPO_VERSION=main git:create
+      # make a corresponding github repo.
+      #- cd git_test && task ENV_GIT_REPO_URL=git@github.com-joeblew999:joeblew999/test01 ENV_GIT_REPO_NAME=test01 ENV_GIT_REPO_VERSION=main git:create:github
+      # push 
+      #- cd git_test && task ENV_GIT_REPO_URL=git@github.com-joeblew999:joeblew999/test01 ENV_GIT_REPO_NAME=test01 ENV_GIT_REPO_VERSION=main git:push
+  
+  whereami:
+    desc: where am i, in terms of directories.
+    cmds:
+       - echo  .USER_WORKING_DIR   {{.USER_WORKING_DIR}}
+
+  git:template:
+    desc: "git template writes out a default git env, using the ENV's if passed in."
+    dir: '{{.USER_WORKING_DIR}}'
+    preconditions:
+      - test -f {{.USER_WORKING_DIR}}/{{.COGENT_ENV_FILE}}
+    cmds:
+      - # write out {{.COGENT_ENV_FILE}} above git repo, so we can use for other tasks.
+      - echo 
+      - echo  .USER_WORKING_DIR     {{.USER_WORKING_DIR}}
+      - echo  
+      - cd {{.USER_WORKING_DIR}} && touch {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_URL='{{.ENV_GIT_REPO_URL}}' >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_NAME='{{.ENV_GIT_REPO_NAME}}' >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_VERSION='{{.ENV_GIT_REPO_VERSION}}' >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo  >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo COGENT_ENV_SRC_PREFIX='.' >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && task git:ignore
+
+  git:ignore:
+    desc: "creates a git ignore"
+    cmds:
+      - echo 
+      - echo  .USER_WORKING_DIR   {{.USER_WORKING_DIR}}
+      - echo  
+      - cd {{.USER_WORKING_DIR}} && echo {{.ENV_GIT_REPO_NAME}} >> .gitignore
+      - cd {{.USER_WORKING_DIR}} && echo bin >> .gitignore
+
+  
+
   git:create:
     desc: "create repo"
     # https://kbroman.org/github_tutorial/pages/init.html
@@ -182,50 +358,63 @@ tasks:
     # todo name
     cmds:
       - echo
-      - echo PWD                            {{.PWD}}
+      - echo PWD                         {{.PWD}}
       - echo
-      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO}}
-      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO_NAME}}
+      - echo ENV_GIT_REPO_URL                {{.ENV_GIT_REPO_URL}}
+      - echo ENV_GIT_REPO_URL                {{.ENV_GIT_REPO_NAME}}
       - echo ENV_GIT_REPO_VERSION        {{.ENV_GIT_REPO_VERSION}}
       - echo
-      # write out dev.env above git repo, so we can use for other tasks.
-      - cd {{.USER_WORKING_DIR}} && touch dev.env
-      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO='{{.ENV_GIT_REPO}}' >> dev.env
-      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_NAME='{{.ENV_GIT_REPO_NAME}}' >> dev.env
-      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_VERSION='{{.ENV_GIT_REPO_VERSION}}' >> dev.env
-      - cd {{.USER_WORKING_DIR}} && echo COGENT_ENV_SRC_PREFIX='.' >> dev.env
+      # Skip if no args supplied.
+      - '{{if .ENV_GIT_REPO_URL | eq ""}}exit 1{{end}}'
+      # write out {{.COGENT_ENV_FILE}} above git repo, so we can use for other tasks.
+      - cd {{.USER_WORKING_DIR}} && touch {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_URL='{{.ENV_GIT_REPO_URL}}' >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_NAME='{{.ENV_GIT_REPO_NAME}}' >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo ENV_GIT_REPO_VERSION='{{.ENV_GIT_REPO_VERSION}}' >> {{.COGENT_ENV_FILE}}
+      - cd {{.USER_WORKING_DIR}} && echo COGENT_ENV_SRC_PREFIX='.' >> {{.COGENT_ENV_FILE}}
       # git init flow.
       - cd {{.USER_WORKING_DIR}} && mkdir -p {{.ENV_GIT_REPO_NAME}}
       - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && git init
-      - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && git remote add origin {{.ENV_GIT_REPO}}
+      - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && git remote add origin {{.ENV_GIT_REPO_URL}}
       - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && touch README.md && echo "# {{.ENV_GIT_REPO_NAME}}" >> README.md
       - echo
+      # git:ignore
+      - cd {{.USER_WORKING_DIR}} && task git:ignore
 
   git:create:github:
     # gh cli to make the repo on github.  
     desc: "create repo on github"
     cmds:
       - echo
-      - echo PWD                            {{.PWD}}
+      - echo PWD                              {{.PWD}}
       - echo
-      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO}}
-      - echo ENV_GIT_REPO                {{.ENV_GIT_REPO_NAME}}
-      - echo ENV_GIT_REPO_VERSION        {{.ENV_GIT_REPO_VERSION}}
+      - echo ENV_GIT_REPO_URL                 {{.ENV_GIT_REPO_URL}}
+      - echo ENV_GIT_REPO_URL                 {{.ENV_GIT_REPO_NAME}}
+      - echo ENV_GIT_REPO_VERSION             {{.ENV_GIT_REPO_VERSION}}
       - echo
+      # https://cli.github.com/manual/gh_repo_create
+      - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && {{.GH_BIN_NAME}} repo create --source . --public
 
-
+  git:del:github:
+    desc: "delete repo on github"
+    cmds:
+      - echo
+      - https://cli.github.com/manual/gh_repo_delete
+      - cd {{.USER_WORKING_DIR}}/{{.ENV_GIT_REPO_NAME}} && {{.GH_BIN_NAME}} repo delete . --yes
+      
+  
 
   git:clone:
     desc: "git clone repo"
     cmds:
       - echo PWD {{.PWD}}
       - echo
-      - cd {{.USER_WORKING_DIR}} && git clone {{.ENV_GIT_REPO}} -b {{.ENV_GIT_REPO_VERSION}}
-      - cd {{.USER_WORKING_DIR}} && echo {{.ENV_GIT_REPO_NAME}} >> .gitignore
-      - cd {{.USER_WORKING_DIR}} && echo bin >> .gitignore
+      - cd {{.USER_WORKING_DIR}} && git clone {{.ENV_GIT_REPO_URL}} -b {{.ENV_GIT_REPO_VERSION}}
+      - cd {{.USER_WORKING_DIR}} && task git:ignore
 
   git:del:
     desc: "delete repo"
+    prompt: This is a dangerous command... Do you want to continue?
     cmds:
       - cd {{.USER_WORKING_DIR}} && rm -rf {{.COGENT_REPO_PATH}}
       - cd {{.USER_WORKING_DIR}} && rm -f .gitignore
@@ -247,6 +436,7 @@ tasks:
     cmds:
       - cd {{.COGENT_REPO_PATH}} && git push
 
+### cogent
 
   help:
     desc: "help"
@@ -342,4 +532,48 @@ tasks:
     cmds:
       - 'cd {{.COGENT_SRC_PATH}} && {{.COGENT_BIN_NAME}} next-release {{.COGENT_VAR_VERBOSE}}'
 
-    
+### nats
+
+  nats:server:help:
+    desc: "nats server run"
+    cmds:
+      - '{{.NATS_SERVER_BIN_NAME}} -h'
+  nats:server:run:
+    desc: "nats server run"
+    cmds:
+      - '{{.NATS_SERVER_BIN_NAME}}'
+  nats:server:kill:
+    desc: "nats server run"
+    cmds:
+      - 'pkill -f "{{.NATS_SERVER_BIN_NAME}}" 2>/dev/null || true'
+
+  nats:cli:server:run:
+    # https://github.com/nats-io/natscli/blob/main/LOCAL_DEVELOPMENT.md
+    desc: "nats cli server run"
+    cmds:
+      - '{{.NATS_CLI_BIN_NAME}} server run --jetstream'
+
+## process-compose:
+
+  
+  
+  pc:help:
+    desc: "pc help"
+    cmds:
+      - 'cd {{.USER_WORKING_DIR}} && {{.PC_BIN_NAME}} -h'
+
+  pc:info:
+    desc: "pc info"
+    cmds:
+      - 'cd {{.USER_WORKING_DIR}} && {{.PC_BIN_NAME}} info --log-file {{.PC_LOG_FILE}}'
+
+
+  pc:run:
+    desc: "pc help"
+    cmds:
+      - 'cd {{.USER_WORKING_DIR}} && {{.PC_BIN_NAME}} run --config {{.PC_CONFIG_NAME}} --log-file {{.PC_LOG_FILE}}'
+
+  pc:up:
+    desc: "pc help"
+    cmds:
+      - 'cd {{.USER_WORKING_DIR}} && {{.PC_BIN_NAME}} up --config {{.PC_CONFIG_NAME}} --log-file {{.PC_LOG_FILE}}'

@@ -1,0 +1,20 @@
+description: Simple NATS test
+workload: connect-runtime-wombat:local
+metrics:
+  port: 4195
+  path: /metrics
+
+steps:
+  source:
+    type: nats
+    config:
+      urls:
+        - nats://localhost:4222
+      subject: "test.>"
+    
+  sink:
+    type: nats
+    config:
+      urls:
+        - nats://localhost:4222
+      subject: "test.results"

@@ -1,0 +1,160 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+includes:
+  dev:
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+
+vars:
+    # to match what datastarui uses.
+    TEMPL_BIN_VERSION: v0.3.865
+    # to match what the templ proeict server html on.
+    TEMPL_VAR_PROXY: http://localhost:4242
+
+tasks:
+
+  dep:
+    cmds:
+      # https://github.com/stephenafamo/bob/blob/main/gen/bobgen-sqlite/main.go
+      - go install github.com/stephenafamo/bob/gen/bobgen-sqlite@latest
+
+      # https://github.com/saylorsolutions/modmake
+      # https://github.com/saylorsolutions/modmake/releases/tag/v0.5.1
+      - go install github.com/saylorsolutions/modmake/cmd/modmake@v0.5.1
+
+      # diff thing that pumps html, so maybe good for DS
+      # https://github.com/drognisep/linediff
+      - go install github.com/drognisep/linediff/cmd/diffhtml@latest
+
+      # templ
+
+      # basis for Ebiten one
+      - go install github.com/a-h/templ/cmd/templ@{{.TEMPL_BIN_VERSION}}
+      # templ lsp proxy: https://github.com/a-h/templ/tree/main/cmd/templ/lspcmd
+      
+      # templ internationalisation: 
+
+  templ:help:
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && templ -h
+
+  # https://templ.guide/developer-tools/cli/#generating-go-code-from-templ-files
+
+  templ:gen:once:
+    desc: The templ generate command generates Go code from *.templ files in the current directory tree.
+    cmds:
+      # works, and is nice and simple.
+      - cd {{.USER_WORKING_DIR}} && templ generate #--source-map-visualisations
+  templ:gen:watch:
+    desc: The templ generate command generates Go code from *.templ files in the current directory tree.
+    cmds:
+      # works, and even opens browser and auto refreshes the browser.
+      # https://templ.guide/developer-tools/live-reload/
+      - cd {{.USER_WORKING_DIR}} && templ generate --watch --proxy="{{.TEMPL_VAR_PROXY}}" --cmd="go run ." -v
+      - #--open-browser=false
+
+  # https://templ.guide/developer-tools/cli/#formatting-templ-files
+
+  templ:fmt:once:
+    desc: Format all template files in the current directory and subdirectories
+    cmds:
+      # stays running
+      - cd {{.USER_WORKING_DIR}} && templ fmt .
+  templ:fmt:watch:
+    desc: Format input from stdin and output to stdout. kind of like watch
+    cmds:
+      # stays running
+      - cd {{.USER_WORKING_DIR}} && templ fmt
+
+  # https://templ.guide/developer-tools/cli/#language-server-for-ide-integration
+
+  templ:lsp:watch:
+    desc: runs the templ lsp and golsp toether. still working out how to use and access it.
+    cmds:
+      # stays running
+      # https://templ.guide/llms.md
+
+      - cd {{.USER_WORKING_DIR}} && templ lsp --goplsLog=goplsLog.txt --goplsRPCTrace
+
+
+  templ:info:
+    cmds:
+      # nice doctor like printout.
+      - templ info
+  templ:version:
+    cmds:
+      - templ version
+
+### diff
+
+  diff:help:
+    cmds:
+      - diffhtml -h
+  diff:test:
+      # grab test.csv
+      - got https://raw.githubusercontent.com/drognisep/linediff/refs/heads/main/test.csv
+  diff:run:
+    cmds:
+     
+      # works. Compares Column A and B in the csv.
+      - diffhtml --csv=test.csv --out=test.html -a 0 -b 1 --delim=' ;'. 
+      #- open test.html
+
+       # ? Compare strings
+      - diffhtml A="a simple string" B="a less simple string" --out=test-01.html
+      #- open test-01.html
+
+
+  modmake:help:
+    cmds:
+      # https://saylorsolutions.github.io/modmake/
+      - modmake -h
+  modmake:init:
+    desc: creates a "modmake" folder with a build.go.
+    cmds:
+      # make a local go mod, otherwise it climbs up the file system to the nearest one.
+      - touch go.work
+      - go work use .
+      #- go mod init main.go
+      - modmake init
+  modmake:run:
+      # build gocreate
+      #- modmake --workdir {{.ROOT_DIR}}/gocreate -e SOME_VAR=value -- --skip generate build
+      - echo {{.ROOT_DIR}}
+      - echo {{.USER_WORKING_DIR}}
+      - modmake --workdir {{.ROOT_DIR}}/gocreate
+ 
+
+  bob:run:
+    cmds:
+      # bobgen.yaml
+      - bobgen-sqlite -c ./bobgen.yaml
+
+  gocreate:git:
+    cmds:
+      - git clone https://github.com/localrivet/gocreate
+      - echo gocreate >> .gitignore
+      
+  gocreate:bin:
+    cmds:
+      - touch go.work
+      - go work use gocreate
+      - cd gocreate && go build -o {{.GOPATH}}/bin/gocreate
+  gocreate:run:
+    cmds:
+      - gocreate --verbose 
+
+  rg:dep:
+    cmds:
+      # https://github.com/localrivet/goripgrep/tree/main/examples
+      # rg for short
+      - go install github.com/localrivet/goripgrep/examples/cli-usage@latest
+      - mv {{.GOPATH}}/bin/cli-usage {{.GOPATH}}/bin/rg
+  rg:run:
+    cmds:
+      - rg -h

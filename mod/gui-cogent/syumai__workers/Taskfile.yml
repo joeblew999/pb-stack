@@ -1,0 +1,73 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  APP_NAME: hello
+  #APP_NAME: r2-image-viewer
+  
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - echo
+      - echo - vars
+      - echo 'APP_NAME       {{.APP_NAME}}'
+      - echo
+    silent: true
+
+  dep:
+    cmds:
+      # assumes bun
+
+      # wasm serve. https://github.com/hajimehoshi/wasmserve
+      - go install github.com/hajimehoshi/wasmserve@latest
+
+      # https://github.com/sqlc-dev/sqlc
+      - go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+  git:
+    cmds:
+      - git clone https://github.com/syumai/workers
+      - echo workers >> .gitignore
+  git:del:
+    cmds:
+      - rm -rf workers
+
+
+  dev:example:
+    desc:
+    cmds:
+      # http://localhost:8787
+      - cd workers/_examples/{{.APP_NAME}} && touch go.work && go work use . && go mod tidy
+      - cd workers/_examples/{{.APP_NAME}} && go run ../../cmd/workers-assets-gen -mode=go
+      - cd workers/_examples/{{.APP_NAME}} && 
+
+      - cd workers/_examples/{{.APP_NAME}} && bun install wrangler
+      - cd workers/_examples/{{.APP_NAME}} && bunx wrangler dev
+
+  dev:template:browser:
+    desc: browser run
+    cmds:
+      # only 1 to pick.
+      - cd workers/_templates/browser/browser-go && touch go.work && go work use . && go mod tidy
+      - cd workers/_templates/browser/browser-go && go run github.com/syumai/workers/cmd/workers-assets-gen -mode=go -runtime=browser -o ./public/build && GOOS=js GOARCH=wasm go build -o ./public/build/app.wasm .
+      - cd workers/_templates/browser/browser-go && bun install wrangler
+      - cd workers/_templates/browser/browser-go && bunx wrangler dev
+
+  dev:template:cloudflare:
+    desc: browser run
+    cmds:
+      # 4 to pick
+      - cd workers/_templates/cloudflare/pages-tinygo && touch go.work && go work use . && go mod tidy
+      - cd workers/_templates/cloudflare/pages-tinygo && ls -al
+
+      - cd workers/_templates/cloudflare/pages-tinygo && bun install wrangler && bunx wrangler dev
+      - cd workers/_templates/cloudflare/pages-tinygo && go run github.com/syumai/workers/cmd/workers-assets-gen
+      #- cd workers/_templates/cloudflare/pages-tinygo && tinygo build -o ./build/app.wasm -target wasm -no-debug ./...
+
+
+
+
+
+  

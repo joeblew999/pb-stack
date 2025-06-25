@@ -1,0 +1,48 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+
+  dep:
+    cmds:
+      # install fly cli.
+      - brew install flyctl
+
+  fly:init:
+    desc: init the config and adjust as needed
+    cmds:
+      # creates the config. we then add the vm size for gpu.
+      - fly launch --no-deploy
+  fly:private:
+    desc: make network private
+    cmds:
+      # command makes a unique address in your private network that you can use to access Ollama from your other services. Make sure to add the --private flag, otherwise you’ll get a globally unique IP address instead of a private one.
+      - fly ips allocate-v6 --private
+  fly:deploy:
+    desc: deploy
+    cmds:
+      # this failsing because billign does not trust me with a big gpu.
+      - fly deploy
+  fly:connect:
+    desc: connect to ollama
+    cmds:
+      # need to adjust correct http://xxx
+      - fly m run -e OLLAMA_HOST=http://fly-ollama-scale-to-0.flycast --shell ollama/ollama
+  fly:status:
+    desc: check status of vm
+    cmds:
+      - fly status
+
+
+  ollama:pull:
+    desc: setup an ollama model.
+    cmds:
+      - ollama run openchat:7b-v3.5-fp16

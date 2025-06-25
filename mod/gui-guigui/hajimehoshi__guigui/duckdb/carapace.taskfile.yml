@@ -1,0 +1,79 @@
+# https://taskfile.dev
+# https://carapace-sh.github.io/carapace-bin/
+
+version: '3'
+
+includes:
+  git: ./git.taskfile.yml
+  base: ./base.taskfile.yml
+
+vars:
+  CARAPACE_CONFIG_FILE: carapace.repos.json
+  CARAPACE_BIN: "{{.BASE_BIN_DIR}}/carapace"
+  CARAPACE_VERSION: '{{.CARAPACE_VERSION | default "v0.0.0"}}'
+  CARAPACE_SRC_DIR: "{{.BASE_SRC_DIR}}/carapace-sh__carapace-bin"
+
+env:
+  CGO_ENABLED: '0'
+  GOWORK: 'off'
+
+tasks:
+  default:
+    desc: "Lists available carapace tasks"
+    cmds:
+      - task --list-all --sort alphanumeric | grep "^* carapace:"
+    silent: true
+
+  clone:
+    desc: "Clone all carapace repositories"
+    cmds:
+      - task: git:clone
+        vars:
+          GIT_CONFIG_FILE: '{{.CARAPACE_CONFIG_FILE}}'
+          GIT_SRC_DIR: '{{.BASE_SRC_DIR}}'
+
+  update:
+    desc: "Update all carapace repositories to their specified versions"
+    cmds:
+      - task: git:update
+        vars:
+          GIT_CONFIG_FILE: '{{.CARAPACE_CONFIG_FILE}}'
+          GIT_SRC_DIR: '{{.BASE_SRC_DIR}}'
+
+  clean:repos:
+    desc: "Clean up carapace repositories"
+    cmds:
+      - task: git:clean
+        vars:
+          GIT_CONFIG_FILE: '{{.CARAPACE_CONFIG_FILE}}'
+          GIT_SRC_DIR: '{{.BASE_SRC_DIR}}'
+
+  sync:versions:
+    desc: "Update to latest versions and sync repositories"
+    cmds:
+      - task: git:update
+        vars:
+          GIT_CONFIG_FILE: '{{.CARAPACE_CONFIG_FILE}}'
+          GIT_SRC_DIR: '{{.BASE_SRC_DIR}}'
+
+  deps:
+    desc: "Install carapace dependencies and clone repositories"
+    cmds:
+      - task: clone
+
+  test:integration:
+    desc: "Run integration tests"
+    deps: [deps]
+    dir: ".src/carapace-sh__carapace-bin"
+    cmds:
+      - go test ./pkg/... -tags integration
+
+  test:
+    desc: "Run all carapace tests"
+    deps: [deps]
+    cmds:
+      - task: git:validate
+        vars:
+          GIT_CONFIG_FILE: '{{.CARAPACE_CONFIG_FILE}}'
+          GIT_SRC_DIR: '{{.BASE_SRC_DIR}}'
+      - task: test:integration

@@ -1,0 +1,55 @@
+# ds-wasm - DataStar WASM Project
+# Generated binaries and build artifacts
+
+# Server binaries
+bin/
+
+# WASM build artifacts
+web/wasm/*.wasm
+web/wasm/wasm_exec.js
+web/todo/wasm/*.wasm
+web/todo/wasm/wasm_exec.js
+web/wasmww/wasm/*.wasm
+web/wasmww/wasm/wasm_exec.js
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+tests.test
+
+# Output of the go coverage tool
+*.out
+
+# Rod test artifacts
+tests/screenshots/
+*.png
+
+# Go workspace file
+go.work
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# our local bin folder
+bin

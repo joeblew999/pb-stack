@@ -1,0 +1,3 @@
+# Platform Services Procfile
+nats: ./.bin/platform-nats-server -js -D
+orchestrator: ./.bin/orchestrator -config .config/test-workflows.yaml

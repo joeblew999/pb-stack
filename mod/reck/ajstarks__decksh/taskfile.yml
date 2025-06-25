@@ -11,26 +11,44 @@ includes:
     taskfile: ./../../../dev-taskfile.yml
     flatten: true
 
+vars:
+  DECKSH_BIN_ENTRY: './cmd/decksh'
+  DECKSH_BIN_NAME: 'decksh'
+
+  DECKFMT_BIN_ENTRY: './cmd/dshfmt'
+  DECKFMT_BIN_NAME: 'dshfmt'
+
+  DECKLINT_BIN_ENTRY: './cmd/dshlint'
+  DECKLINT_BIN_NAME: 'dshlint'
 
 tasks:
+
   all:
     cmds:
+      - task src
+      - task bin
+  src:
+    cmds:
+      #- task git:clone:src:check
       - task git:clone:src:del
       - task git:clone:src
       
   bin:
     cmds:
       - task go:mod:work
-      - task go:bin
-      # 2 more 
-      - GO_VAR_BIN_NAME=deckfmt GO_VAR_BIN_ENTRY_PATH=./cmd/deckfmt GO_VAR_BIN_MOD_PATH=. task go:bin
+      - task go:mod:tidy
+      - task go:bin:native
+
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKSH_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKSH_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKFMT_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKFMT_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKLINT_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKLINT_BIN_NAME}}' go:bin:native
+
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKSH_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKSH_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKFMT_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKFMT_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKLINT_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKLINT_BIN_NAME}}' go:bin:wasm
 
   run:
     cmds:
-      - task go:run -- -o foo.xml
-      # decksh                   # input from stdin, output to stdout
-      # decksh -o foo.xml        # input from stdin, output to foo.xml
-      # decksh foo.sh            # input from foo.sh output to stdout
-      # decksh -o foo.xml foo.sh # input from foo.sh output to foo.xml
-      # decksh -version          # show decksh version
-      # decksh -dump ...         # show decksh variables
+      - task go:run:native -- -h
+
+ 

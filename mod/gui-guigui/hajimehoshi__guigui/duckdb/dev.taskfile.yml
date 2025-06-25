@@ -1,0 +1,106 @@
+# https://taskfile.dev
+
+# Development taskfile for CLI tools and infrastructure
+# Groups all specialized helper taskfiles for development workflows
+# Can be included in any project to provide common development tooling
+
+version: '3'
+
+includes:
+  base: ./base.taskfile.yml
+  git: ./git.taskfile.yml
+  carapace: ./carapace.taskfile.yml
+  which: ./which.taskfile.yml
+  gh: ./gh.taskfile.yml
+  hatch: ./hatch.taskfile.yml
+
+# Import common directory variables from base
+vars:
+  DEV_BIN_DIR: '{{.BASE_BIN_DIR}}'
+  DEV_SRC_DIR: '{{.BASE_SRC_DIR}}'
+  DEV_TEST_DIR: '{{.BASE_TEST_DIR}}'
+  DEV_TMP_DIR: '{{.BASE_TMP_DIR}}'
+
+tasks:
+  default:
+    desc: "Lists all development tasks across all tools"
+    cmds:
+      - echo "=== Development Taskfile - Available Tools ==="
+      - echo ""
+      - echo "Use 'task --list-all' to see all available tasks"
+      - echo "Or use specific namespaces like:"
+      - echo "  task dev:base:default    - Base infrastructure tasks"
+      - echo "  task dev:git:default     - Git operation tasks"
+      - echo "  task dev:carapace:default - Carapace completion tasks"
+      - echo "  task dev:which:default   - Which command finder tasks"
+      - echo "  task dev:gh:default      - GitHub CLI tasks"
+      - echo "  task dev:hatch:default   - Hatch Python tasks"
+    silent: true
+
+  init:
+    desc: "Initialize development environment for all tools"
+    cmds:
+      - echo "🚀 Initializing development environment..."
+      - task: base:init
+      - echo "✓ Development environment ready"
+
+  test:
+    desc: "Run tests for all development tools"
+    cmds:
+      - echo "🧪 Running tests for all development tools..."
+      - echo "Testing git infrastructure..."
+      - task: git:test
+      - echo "Testing carapace tool..."
+      - task: carapace:test
+      - echo "Testing which tool..."
+      - task: which:test
+      - echo "✅ All development tool tests completed"
+
+  validate:
+    desc: "Validate all development tool configurations"
+    cmds:
+      - echo "🔍 Validating all development tool configurations..."
+      - task: git:validate
+      - task: carapace:validate
+      - task: which:validate
+      - echo "✅ All configurations validated"
+
+  update:
+    desc: "Update all development tools"
+    cmds:
+      - echo "📦 Updating all development tools..."
+      - task: git:update
+      - task: carapace:update
+      - task: which:update
+      - echo "✅ All tools updated"
+
+  status:
+    desc: "Show status of all development tools"
+    cmds:
+      - echo "📊 Development Tools Status"
+      - echo "=========================="
+      - echo ""
+      - echo "Git repositories"
+      - task git:status 2>/dev/null || echo "  No git status task available"
+      - echo ""
+      - echo "Carapace status"
+      - task carapace:status 2>/dev/null || echo "  No carapace status task available"
+      - echo ""
+      - echo "Which status"
+      - task which:status 2>/dev/null || echo "  No which status task available"
+
+  clean:
+    desc: "Clean all development tool artifacts"
+    cmds:
+      - echo "🧹 Cleaning development environment..."
+      - rm -rf {{.DEV_TMP_DIR}}/*
+      - echo "✓ Temporary files cleaned"
+      - echo "Note - Use individual tool clean tasks for specific cleanup"
+
+  deps:
+    desc: "Install dependencies for all development tools"
+    cmds:
+      - echo "📥 Installing dependencies for all tools..."
+      - task: carapace:deps
+      - task: which:deps
+      - echo "✅ All dependencies installed"

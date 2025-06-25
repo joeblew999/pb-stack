@@ -1,0 +1,435 @@
+version: '3'
+
+# ds-wasm - DataStar WASM Project
+# Runs DataStar hello-world example both as server and WASM in browser
+
+vars:
+  PROJECT_NAME: ds-wasm
+  SERVER_PORT: 8081
+  WASM_PORT: 8082
+  TODO_PORT: 8083
+  WASMWW_PORT: 8084
+  # Cross-platform binary extension (.exe on Windows)
+  BIN_EXT: '{{if eq OS "windows"}}.exe{{end}}'
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - echo "DataStar WASM - Dual Mode Example"
+      - echo "================================="
+      - echo ""
+      - echo "BUILD:"
+      - echo "  build-server        - Build server binary"
+      - echo "  build-wasm          - Build WASM service worker binary"
+      - echo "  build-wasm-todo     - Build todo WASM binary"
+      - echo "  build-wasm-hello    - Build hello world WASM worker"
+      - echo "  build-wasm-controller - Build go-wasmww controller"
+      - echo "  build               - Build all binaries"
+      - echo ""
+      - echo "RUN:"
+      - echo "  server        - Run DataStar server mode (port 8081)"
+      - echo "  wasm          - Run WASM service worker (port 8082)"
+      - echo "  wasm-todo     - Run todo WASM example (port 8083)"
+      - echo "  wasm-wasmww   - Run go-wasmww demo (port 8084)"
+      - echo "  dev           - Run both modes with process orchestration"
+      - echo "  dev-simple    - Run both modes (simple approach)"
+      - echo ""
+      - echo "TEST:"
+      - echo "  test-server   - Test server endpoints"
+      - echo "  test-wasm     - Test WASM in browser (manual)"
+      - echo "  test-rod      - Test with Rod browser automation"
+      - echo "  test-rod-headless - Test with Rod (headless mode)"
+      - echo "  test-all      - Run all automated tests"
+      - echo ""
+      - echo "SETUP:"
+      - echo "  init          - Initialize project dependencies"
+      - echo "  caddy-install - Install Caddy web server"
+      - echo "  caddy-check   - Check if Caddy is installed"
+      - echo "  tools-install - Install cross-platform tools (go-which, got)"
+      - echo "  tools-check   - Check if tools are installed"
+      - echo ""
+      - echo "PROCESS:"
+      - echo "  kill          - Kill all project processes (ds-server, caddy)"
+      - echo "  kill-server   - Kill ds-server processes"
+      - echo "  kill-wasm     - Kill caddy processes on WASM port"
+      - echo "  kill-todo     - Kill caddy processes on Todo port"
+      - echo ""
+      - echo "CLEAN:"
+      - echo "  clean         - Clean build artifacts"
+
+  # =============================================================================
+  # BUILD TASKS
+  # =============================================================================
+
+  build:
+    desc: "Build all binaries (server, WASM examples, pkill)"
+    deps: [build-server, build-wasm, build-wasm-todo, build-wasm-hello, build-wasm-controller, build-pkill]
+
+  build-server:
+    desc: "Build server binary"
+    cmds:
+      - echo "🏗️  Building DataStar server..."
+      - mkdir -p bin
+      - go build -o bin/ds-server{{.BIN_EXT}} ./cmd/server/main.go
+      - echo "✅ Server built in bin/ds-server{{.BIN_EXT}}"
+
+  build-wasm:
+    desc: "Build WASM binary"
+    cmds:
+      - echo "🌐 Building DataStar WASM..."
+      - mkdir -p web/wasm
+      - GOOS=js GOARCH=wasm go build -o web/wasm/main.wasm ./cmd/wasm/main.go
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" web/wasm/
+      - echo "✅ WASM built in web/wasm/main.wasm"
+
+  build-wasm-todo:
+    desc: "Build Todo WASM binary"
+    cmds:
+      - echo "📝 Building DataStar Todo WASM..."
+      - mkdir -p web/todo/wasm
+      - GOOS=js GOARCH=wasm go build -o web/todo/wasm/main.wasm ./cmd/wasm-todo/main.go
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" web/todo/wasm/
+      - echo "✅ Todo WASM built in web/todo/wasm/main.wasm"
+
+  build-wasm-hello:
+    desc: "Build Hello World WASM worker for go-wasmww"
+    cmds:
+      - echo "👋 Building Hello World WASM worker..."
+      - mkdir -p web/wasmww/wasm
+      - cd ../ds-wasm-wasmww && GOOS=js GOARCH=wasm go build -o ../ds-wasm/web/wasmww/wasm/hello-worker.wasm ./cmd/wasm-hello/main.go
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" web/wasmww/wasm/
+      - echo "✅ Hello World WASM worker built in web/wasmww/wasm/hello-worker.wasm"
+
+  build-wasm-controller:
+    desc: "Build go-wasmww Controller WASM binary"
+    cmds:
+      - echo "🎮 Building go-wasmww Controller..."
+      - mkdir -p web/wasmww/wasm
+      - cd ../ds-wasm-wasmww && GOOS=js GOARCH=wasm go build -o ../ds-wasm/web/wasmww/wasm/controller.wasm ./cmd/wasm-controller/main.go
+      - cp "$(go env GOROOT)/lib/wasm/wasm_exec.js" web/wasmww/wasm/
+      - echo "✅ go-wasmww Controller built in web/wasmww/wasm/controller.wasm"
+
+  build-pkill:
+    desc: "Build cross-platform process killer"
+    cmds:
+      - echo "🔪 Building cross-platform pkill..."
+      - mkdir -p bin
+      - go build -o bin/pkill{{.BIN_EXT}} ./cmd/pkill/main.go
+      - echo "✅ pkill built in bin/pkill{{.BIN_EXT}}"
+
+  # =============================================================================
+  # RUN TASKS
+  # =============================================================================
+
+  server:
+    desc: "Run DataStar in server mode"
+    deps: [build-server]
+    cmds:
+      - echo "🚀 Starting DataStar server on http://localhost/{{.SERVER_PORT}}"
+      - ./bin/ds-server{{.BIN_EXT}} -port {{.SERVER_PORT}}
+
+  wasm:
+    desc: "Run WASM development server with Caddy"
+    deps: [build-wasm]
+    cmds:
+      - echo "🌐 Starting WASM dev server with Caddy on http://localhost/{{.WASM_PORT}}"
+      - echo "📂 Serving from web/ directory"
+      - |
+        # Use go-which for cross-platform binary detection if available
+        WHICH_CMD="command -v"
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          WHICH_CMD="$GO_WHICH_PATH"
+        fi
+
+        if $WHICH_CMD caddy >/dev/null 2>&1; then
+          echo "🌐 Starting Caddy web server..."
+          cd web && caddy file-server --listen :{{.WASM_PORT}} --browse
+        else
+          echo "❌ Caddy not found. Please install Caddy first."
+          echo "💡 Run: task caddy-install"
+          echo "� Caddy is required for WASM development server"
+          exit 1
+        fi
+
+  wasm-todo:
+    desc: "Run Todo WASM example with Caddy"
+    deps: [build-wasm-todo, caddy-install]
+    cmds:
+      - echo "📝 Starting Todo WASM mode on http://localhost/{{.TODO_PORT}}"
+      - |
+        # Use go-which for cross-platform binary detection if available
+        WHICH_CMD="command -v"
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          WHICH_CMD="$GO_WHICH_PATH"
+        fi
+
+        if $WHICH_CMD caddy >/dev/null 2>&1; then
+          echo "📝 Starting Caddy web server for Todo example..."
+          cd web/todo && caddy file-server --listen :{{.TODO_PORT}} --browse
+        else
+          echo "❌ Caddy not found. Please install Caddy first."
+          echo "💡 Run: task caddy-install"
+          echo "💡 Caddy is required for WASM development server"
+          exit 1
+        fi
+
+  wasm-wasmww:
+    desc: "Run go-wasmww demo with Caddy"
+    deps: [build-wasm-hello, build-wasm-controller, caddy-install]
+    cmds:
+      - echo "🎮 Starting go-wasmww demo on http://localhost/{{.WASMWW_PORT}}"
+      - |
+        # Use go-which for cross-platform binary detection if available
+        WHICH_CMD="command -v"
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          WHICH_CMD="$GO_WHICH_PATH"
+        fi
+
+        if $WHICH_CMD caddy >/dev/null 2>&1; then
+          echo "🎮 Starting Caddy web server for go-wasmww demo..."
+          cd web/wasmww && caddy file-server --listen :{{.WASMWW_PORT}} --browse
+        else
+          echo "❌ Caddy not found. Please install Caddy first."
+          echo "💡 Run: task caddy-install"
+          echo "💡 Caddy is required for WASM development server"
+          exit 1
+        fi
+
+  dev:
+    desc: "Run both server and WASM modes with process orchestration"
+    deps: [build]
+    cmds:
+      - echo "🚀 Starting dual-mode DataStar development with process-compose..."
+      - echo "📊 Server mode at http://localhost/{{.SERVER_PORT}}"
+      - echo "🌐 WASM mode at http://localhost/{{.WASM_PORT}}"
+      - process-compose -f Processfile.yml --detached up
+
+  dev-simple:
+    desc: "Run both server and WASM modes (simple approach)"
+    cmds:
+      - echo "🚀 Starting dual-mode DataStar development..."
+      - echo "📊 Server mode at http://localhost/{{.SERVER_PORT}}"
+      - echo "🌐 WASM mode at http://localhost/{{.WASM_PORT}}"
+      - echo ""
+      - echo "Starting in background..."
+      - task: server &
+      - sleep 2
+      - task: wasm
+
+  # =============================================================================
+  # TEST TASKS
+  # =============================================================================
+
+  test-server:
+    desc: "Test server endpoints using got (cross-platform)"
+    deps: [tools-install]
+    cmds:
+      - echo "🧪 Testing DataStar server with got..."
+      - |
+        # Use go-which for cross-platform binary detection if available
+        WHICH_CMD="command -v"
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          WHICH_CMD="$GO_WHICH_PATH"
+        fi
+
+        GOT_PATH="$(go env GOPATH)/bin/got{{.BIN_EXT}}"
+        if [ -f "$GOT_PATH" ]; then
+          echo "🌐 Testing health endpoint..."
+          $GOT_PATH -o /tmp/health_test http://localhost:{{.SERVER_PORT}}/health && cat /tmp/health_test && rm -f /tmp/health_test || echo "❌ Health endpoint not responding"
+          echo ""
+          echo "🌐 Testing main page..."
+          $GOT_PATH -o /tmp/main_test http://localhost:{{.SERVER_PORT}}/ && head -5 /tmp/main_test && rm -f /tmp/main_test || echo "❌ Main page not responding"
+        else
+          echo "❌ got not found. Run: task tools-install"
+        fi
+
+  test-wasm:
+    desc: "Test WASM in browser (manual)"
+    cmds:
+      - echo "🌐 Testing WASM mode..."
+      - echo "💡 Open http://localhost/{{.WASM_PORT}} in your browser"
+      - echo "🔍 Check browser console for WASM loading status"
+
+  test-rod:
+    desc: "Test with Rod browser automation (visible browser)"
+    deps: [build]
+    cmds:
+      - echo "🤖 Running Rod browser tests..."
+      - echo "🌐 Testing DataStar applications with real browser automation"
+      - echo "📋 Make sure applications are running:"
+      - echo "   - Server{{":"}} http{{":"}}//localhost{{":"}}{{.SERVER_PORT}}"
+      - echo "   - WASM{{":"}} http{{":"}}//localhost{{":"}}{{.WASM_PORT}}"
+      - echo "   - Todo{{":"}} http{{":"}}//localhost{{":"}}{{.TODO_PORT}}"
+      - echo ""
+      - go test -v ./tests -run TestMain -args -headless=false
+      - echo "✅ Rod tests completed"
+
+  test-rod-headless:
+    desc: "Test with Rod browser automation (headless mode)"
+    deps: [build]
+    cmds:
+      - echo "🤖 Running Rod browser tests (headless)..."
+      - echo "🌐 Testing DataStar applications with headless browser"
+      - echo "📋 Make sure applications are running:"
+      - echo "   - Server{{":"}} http{{":"}}//localhost{{":"}}{{.SERVER_PORT}}"
+      - echo "   - WASM{{":"}} http{{":"}}//localhost{{":"}}{{.WASM_PORT}}"
+      - echo "   - Todo{{":"}} http{{":"}}//localhost{{":"}}{{.TODO_PORT}}"
+      - echo ""
+      - go test -v ./tests
+      - echo "✅ Rod headless tests completed"
+
+  test-all:
+    desc: "Run all automated tests"
+    deps: [build]
+    cmds:
+      - echo "🧪 Running all automated tests..."
+      - echo ""
+      - echo "📡 Testing server endpoints..."
+      - task: test-server
+      - echo ""
+      - echo "🤖 Testing with Rod browser automation..."
+      - task: test-rod-headless
+      - echo ""
+      - echo "✅ All tests completed successfully!"
+
+  # =============================================================================
+  # UTILITY TASKS
+  # =============================================================================
+
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - echo "🧹 Cleaning build artifacts..."
+      - rm -rf bin/
+      - rm -rf web/wasm/main.wasm
+      - rm -rf web/wasm/wasm_exec.js
+      - echo "✅ Clean complete"
+
+  init:
+    desc: "Initialize project dependencies"
+    cmds:
+      - echo "📦 Initializing ds-wasm project..."
+      - go mod init ds-wasm || echo "Module already initialized"
+      - go mod tidy
+      - echo "✅ Dependencies initialized"
+
+  caddy-install:
+    desc: "Install Caddy web server using go install"
+    cmds:
+      - echo "📦 Installing Caddy web server with go install..."
+      - |
+        if command -v caddy >/dev/null 2>&1; then
+          echo "✅ Caddy already installed: $(caddy version)"
+        else
+          echo "🔽 Installing Caddy using go install..."
+          go install github.com/caddyserver/caddy/v2/cmd/caddy@latest
+          echo "✅ Caddy installed successfully!"
+          echo "💡 Make sure $(go env GOPATH)/bin is in your PATH"
+          caddy version || echo "⚠️  Run 'export PATH=\$PATH:\$(go env GOPATH)/bin' to use caddy"
+        fi
+
+  caddy-check:
+    desc: "Check if Caddy is installed"
+    cmds:
+      - |
+        # Use go-which for cross-platform binary detection if available
+        WHICH_CMD="command -v"
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          WHICH_CMD="$GO_WHICH_PATH"
+        fi
+
+        if $WHICH_CMD caddy >/dev/null 2>&1; then
+          echo "✅ Caddy installed: $(caddy version)"
+        else
+          echo "❌ Caddy not found"
+          echo "💡 Run: task caddy-install"
+        fi
+
+  tools-install:
+    desc: "Install cross-platform tools (go-which, got)"
+    cmds:
+      - echo "🔧 Installing cross-platform tools..."
+      - |
+        # Install go-which
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          echo "✅ go-which already installed: $($GO_WHICH_PATH -v)"
+        else
+          echo "🔽 Installing go-which..."
+          go install github.com/hairyhenderson/go-which/cmd/which@latest
+          echo "✅ go-which installed successfully!"
+        fi
+      - |
+        # Install got (cross-platform curl/wget alternative)
+        GOT_PATH="$(go env GOPATH)/bin/got{{.BIN_EXT}}"
+        if [ -f "$GOT_PATH" ]; then
+          echo "✅ got already installed: $($GOT_PATH help | head -1)"
+        else
+          echo "🔽 Installing got..."
+          go install github.com/melbahja/got/cmd/got@latest
+          echo "✅ got installed successfully!"
+        fi
+
+  tools-check:
+    desc: "Check if cross-platform tools are installed"
+    cmds:
+      - echo "🔍 Checking cross-platform tools..."
+      - |
+        # Check go-which
+        GO_WHICH_PATH="$(go env GOPATH)/bin/which{{.BIN_EXT}}"
+        if [ -f "$GO_WHICH_PATH" ]; then
+          echo "✅ go-which installed: $($GO_WHICH_PATH -v)"
+        else
+          echo "❌ go-which not found"
+          echo "💡 Run: task tools-install"
+        fi
+      - |
+        # Check got
+        GOT_PATH="$(go env GOPATH)/bin/got{{.BIN_EXT}}"
+        if [ -f "$GOT_PATH" ]; then
+          echo "✅ got installed: $($GOT_PATH help | head -1)"
+        else
+          echo "❌ got not found"
+          echo "💡 Run: task tools-install"
+        fi
+
+  # =============================================================================
+  # PROCESS MANAGEMENT TASKS (using gopsutil v4)
+  # =============================================================================
+
+  kill:
+    desc: "Kill all project processes (ds-server, caddy)"
+    deps: [build-pkill]
+    cmds:
+      - echo "🔪 Killing all project processes..."
+      - ./bin/pkill{{.BIN_EXT}} -name ds-server || echo "No ds-server processes found"
+      - ./bin/pkill{{.BIN_EXT}} -port {{.WASM_PORT}} || echo "No processes on port {{.WASM_PORT}}"
+      - ./bin/pkill{{.BIN_EXT}} -port {{.TODO_PORT}} || echo "No processes on port {{.TODO_PORT}}"
+      - echo "✅ Process cleanup complete"
+
+  kill-server:
+    desc: "Kill ds-server processes"
+    deps: [build-pkill]
+    cmds:
+      - echo "🔪 Killing ds-server processes..."
+      - ./bin/pkill{{.BIN_EXT}} -name ds-server
+
+  kill-wasm:
+    desc: "Kill caddy processes on WASM port"
+    deps: [build-pkill]
+    cmds:
+      - echo "🔪 Killing processes on port {{.WASM_PORT}}..."
+      - ./bin/pkill{{.BIN_EXT}} -port {{.WASM_PORT}}
+
+  kill-todo:
+    desc: "Kill caddy processes on Todo port"
+    deps: [build-pkill]
+    cmds:
+      - echo "🔪 Killing processes on port {{.TODO_PORT}}..."
+      - ./bin/pkill{{.BIN_EXT}} -port {{.TODO_PORT}}

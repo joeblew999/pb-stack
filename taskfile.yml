@@ -1,74 +1,43 @@
-# yaml-language-server: $schema=https://taskfile.dev/schema.json
-
-# taskfile.yml
-
 version: '3'
 
-# MUST have this ONLY in root for env variables to work.
-dotenv: ['.env', 'all.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
-
-includes:
-  dev: 
-    taskfile: ./dev-taskfile.yml
-    flatten: true
-  #remote: 
-  #  taskfile: https://raw.githubusercontent.com/joeblew999/pb-stack/refs/heads/main/dev-taskfile.yml
-  #  flatten: true
-
-  #remote:
-  #   https://github.com/saydulaev/taskfile
-  #   taskfile: https://raw.githubusercontent.com/saydulaev/taskfile/v1.4.3/Taskfile.yml
-  #   flatten: true
-
+vars:
+  APP_NAME: gui-robot
+  BIN_DIR: .bin
+  CMD_DIR: ./cmd/gui-robot
 
 tasks:
   default:
-    desc: Welcome. 
+    desc: "Show available tasks"
     cmds:
-      - '{{.BASE_TASK_CMD}} --list-all --yes --sort none --verbose'
-    silent: false
+      - echo "GUI Robot - AI-Powered GUI Automation"
+      - echo "Available tasks:"
+      - task --list
 
-  all:
-    desc: all
+  build:
+    desc: "Build the application"
     cmds:
-      - echo ''
-      - echo ' *** Building all ...'
-      - echo ''
+      - mkdir -p {{.BIN_DIR}}
+      - go build -o {{.BIN_DIR}}/{{.APP_NAME}} {{.CMD_DIR}}
 
-      # base
-      - echo ''
-      - echo ' *** test base is working ...'
-      - '{{.BASE_TASK_CMD}} base:test'
-      - echo ''
+  test:
+    desc: "Run tests"
+    cmds:
+      - go test -v ./...
 
-      # git
-      - echo ''
-      - echo '*** test git is working ...'
-      - '{{.BASE_TASK_CMD}} git'
-      - echo ''
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - rm -rf {{.BIN_DIR}}
 
-      # go
-      - echo ''
-      - echo '*** test go is working ...'
-      - '{{.BASE_TASK_CMD}} go'
-      - echo ''
+  demo:
+    desc: "Run demo"
+    deps: [build]
+    cmds:
+      - echo "Running demo..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -command get_screen_info
 
-      # mod
-      -  echo 'Build modules, that my projects need ...'
-      - cd mod/_template/binary-local && {{.BASE_TASK_CMD}}
-      - cd mod/_template/binary-remote && {{.BASE_TASK_CMD}}
-      - cd mod/_template/source-local && {{.BASE_TASK_CMD}}
-      - cd mod/_template/source-remote && {{.BASE_TASK_CMD}}
-     
-    
-      # Operators projects
-      - echo 'Build projects, that my Operators need ...'
-      - cd proj/_template/binary-local && {{.BASE_TASK_CMD}}
-
-      # Users Projects
-      - echo 'Build projects, that my Users need ...'
-      - echo 'These are all non '
-
-
-     
-    silent: false
+  screen-info:
+    desc: "Get screen info"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -command get_screen_info

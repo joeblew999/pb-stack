@@ -21,28 +21,13 @@ Livekit seems to use it at https://github.com/livekit/livekit-cli/blob/main/pkg/
 The task files that is ues are here https://github.com/livekit-examples/index?tab=readme-ov-file
 
 
+### WASM
 
-Get all tasks:
+https://github.com/magodo/go-wasmww can run golang as wasm workers, to allow the GUI and the workers to be decoupled.
 
-```sh
-task --json --list-all
-```
-
-Run a task:
-
-```sh
-task git:status:src --verbose
-
-task: [git:status:src] echo ''
-
-task: [git:status:src] cd /Users/apple/workspace/go/src/github.com/joeblew999/pb-stack/mod/gui-guigui/guigui && git status
-On branch main
-Your branch is up to date with 'origin/main'.
-
-nothing to commit, working tree clean
-task: [git:status:src] echo ''
-
-```
+"
+At its basic, it abstracts the exec.Cmd structure, to allow the main thread (the parent process) to create a web worker (the child process), by specifying the WASM URL, together with any arguments or environment variables, if any.
+"
 
 
 

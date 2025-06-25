@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>gui-robot</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.guirobot.automation</string>
+    <key>CFBundleName</key>
+    <string>GUI Robot</string>
+    <key>CFBundleDisplayName</key>
+    <string>GUI Robot</string>
+    <key>CFBundleVersion</key>
+    <string>1.0.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleSignature</key>
+    <string>GRBT</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.15</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.developer-tools</string>
+    <key>LSUIElement</key>
+    <true/>
+    
+    <!-- Privacy Usage Descriptions -->
+    <key>NSAppleEventsUsageDescription</key>
+    <string>GUI Robot needs to send Apple Events to control applications for automation purposes.</string>
+    <key>NSSystemAdministrationUsageDescription</key>
+    <string>GUI Robot needs system administration access to control GUI applications.</string>
+    
+    <!-- Accessibility and Screen Recording -->
+    <key>NSAccessibilityUsageDescription</key>
+    <string>GUI Robot needs accessibility access to control mouse and keyboard for GUI automation.</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>GUI Robot needs screen recording access to take screenshots for visual feedback during automation.</string>
+    
+    <!-- Input Monitoring -->
+    <key>NSInputMonitoringUsageDescription</key>
+    <string>GUI Robot needs input monitoring to provide precise mouse and keyboard control.</string>
+    
+    <!-- Camera (if needed for advanced features) -->
+    <key>NSCameraUsageDescription</key>
+    <string>GUI Robot may use camera for advanced visual automation features.</string>
+    
+    <!-- Microphone (if needed for voice control) -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>GUI Robot may use microphone for voice-controlled automation features.</string>
+    
+    <!-- Network (for remote control features) -->
+    <key>NSNetworkUsageDescription</key>
+    <string>GUI Robot may use network access for remote control and AI integration features.</string>
+    
+    <!-- File Access -->
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>GUI Robot needs access to Documents folder to save automation scripts and screenshots.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>GUI Robot needs access to Downloads folder to save automation results.</string>
+    
+    <!-- Background Execution -->
+    <key>LSBackgroundOnly</key>
+    <false/>
+    <key>NSSupportsAutomaticTermination</key>
+    <false/>
+    <key>NSSupportsSuddenTermination</key>
+    <false/>
+    
+    <!-- High Resolution Support -->
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSRequiresAquaSystemAppearance</key>
+    <false/>
+    
+    <!-- URL Schemes (for integration) -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>GUI Robot Automation</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>guirobot</string>
+            </array>
+        </dict>
+    </array>
+    
+    <!-- Document Types -->
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>GUI Robot Script</string>
+            <key>CFBundleTypeExtensions</key>
+            <array>
+                <string>grscript</string>
+            </array>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+        </dict>
+    </array>
+</dict>
+</plist>

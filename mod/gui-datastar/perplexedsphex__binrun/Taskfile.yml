@@ -1,4 +1,8 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
 # https://taskfile.dev
+
+
 
 version: '3'
 
@@ -8,6 +12,124 @@ includes:
   dev:
     taskfile: ./../../../dev-taskfile.yml
     flatten: true
+  tools:
+    taskfile: ./tools.taskfile.yml
+    flatten: false
+
+tasks:
+  default:
+    cmds:
+      - task --list-all 
+
+
+### git
+
+  this:git:clone:
+    cmds:
+      - task git:clone:src
+
+  this:git:clone:del:
+    cmds:
+      - task git:clone:src:del
+     
+  this:git:sign:
+    cmds:
+      # set signing
+      - task git:sign:set:src
+
+  this:git:push:
+    cmds:
+      # set signing
+      - task git:push:src
+
+
+### task inject
+
+  this:task:inject: 
+    cmds:
+       # manually copy in the task file that i PRed.
+      - cp Taskfile-template.yml ./binrun/Taskfile.yml
+
+### tools
+
+  this:tools:init:
+    cmds:
+      - task MODULE=example.com tools:init
+
+  this:tools:install:
+    cmds:
+      - task tools:list
+      # install latest by default
+      - task PACKAGE=github.com/a-h/templ/cmd/templ tools:install 
+      # install a specific version
+      - task PACKAGE=github.com/a-h/templ/cmd/templ VERSION=v0.3.894 tools:install
+  
+  this:tools:run:
+    cmds:
+      #- task tools:run PACKAGE=github.com/a-h/templ/cmd/templ
+      # run templ version
+      - task tools:run PACKAGE=github.com/a-h/templ/cmd/templ -- version
+      - # run templ gen
+      - task tools:run PACKAGE=github.com/a-h/templ/cmd/templ -- generate ./...
+
+  this:tools:remove:
+    cmds:
+      - task tools:remove PACKAGE=github.com/a-h/templ/cmd/templ
+
+
+
+### calling the taskfile in binrun
+
+
+  this:certs:
+    cmds:
+      # create certs for nats and web
+      - cd binrun && task certs
+
+  this:gen:
+    cmds:
+      # run templ
+      - cd binrun && task templ
+
+  this:bin:
+    cmds:
+      # build bin
+      - cd binrun && HEADLESS=false SIM=true task build
+  this:bin:watch:
+    cmds:
+      # build bin and watch
+      - cd binrun && HEADLESS=false SIM=true task --watch hot
+  this:bin:del:
+    cmds:
+      - rm -rf ./binrun/bin
+
+
+  this:run:
+    cmds:
+      # http://127.0.0.1:8080
+      # https://127.0.0.1:8080
+      - cd binrun/bin && HEADLESS=false SIM=false ./binrun
+  this:run:real:
+    cmds:
+      # http://127.0.0.1:8080
+      - cd binrun/bin && HEADLESS=true SIM=false ./binrun
+  this:run:sim:
+    cmds:
+      # http://127.0.0.1:8080
+      - cd binrun/bin && HEADLESS=false SIM=true ./binrun
+
+
+  this:nats:server:
+    cmds:
+      # uses the nasts cli to inject values.
+      - cd binrun && task nats:server:test
+  this:nats:cli:
+    cmds:
+      # uses the nasts cli to inject values.
+      - cd binrun && task nats:cli:test
+
+
+
 
 
 

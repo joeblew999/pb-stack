@@ -1,0 +1,46 @@
+version: "0.5"
+
+# ds-wasm - processFile.yaml  
+# Process orchestration for running DataStar in dual modes (matches Taskfile.yml naming)
+
+log_level: info
+log_length: 1000
+
+processes:
+  # =============================================================================
+  # DATASTAR SERVER MODE
+  # =============================================================================
+  
+  ds-server:
+    command: "bin/ds-server -port 8081"
+    description: "DataStar Hello World - Server Mode"
+    working_dir: "."
+    readiness_probe:
+      http_get:
+        host: localhost
+        port: 8081
+        path: "/health"
+      initial_delay_seconds: 2
+      period_seconds: 1
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+
+  # =============================================================================
+  # WASM DEVELOPMENT SERVER (using Caddy)
+  # =============================================================================
+
+  wasm-server:
+    command: "caddy file-server --listen :8082 --browse"
+    description: "WASM Development Server (Caddy)"
+    working_dir: "web"
+    readiness_probe:
+      http_get:
+        host: localhost
+        port: 8082
+        path: "/"
+      initial_delay_seconds: 1
+      period_seconds: 1
+      timeout_seconds: 3
+      success_threshold: 1
+      failure_threshold: 3

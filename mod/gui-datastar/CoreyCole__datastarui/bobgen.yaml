@@ -1,0 +1,5 @@
+psql:
+  dsn: "postgres://postgres:@localhost:5432/postgres?sslmode=disable"
+
+  schemas: ["application","core"]
+  shared_schema: "public"

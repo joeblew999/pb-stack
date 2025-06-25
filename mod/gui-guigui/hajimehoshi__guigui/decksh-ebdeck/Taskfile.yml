@@ -1,0 +1,276 @@
+version: '3'
+
+vars:
+  APP_NAME: decksh-ebdeck
+  BIN_DIR: bin
+  CMD_DIR: ./cmd/decksh-ebdeck
+  EXAMPLES_DIR: examples
+  
+env:
+  CGO_ENABLED: 1
+
+tasks:
+  default:
+    desc: "Show available tasks and project variables"
+    cmds:
+      - echo "Decksh-Ebdeck Integration Project"
+      - echo ""
+      - echo "Project Variables:"
+      - echo "  APP_NAME={{.APP_NAME}}"
+      - echo "  BIN_DIR={{.BIN_DIR}}"
+      - echo "  CMD_DIR={{.CMD_DIR}}"
+      - echo "  EXAMPLES_DIR={{.EXAMPLES_DIR}}"
+      - echo "  CGO_ENABLED={{.CGO_ENABLED}}"
+      - echo ""
+      - echo "Available tasks:"
+      - task --list
+
+  # Build tasks
+  build:
+    desc: "Build the decksh-ebdeck application"
+    sources:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+    generates:
+      - "{{.BIN_DIR}}/{{.APP_NAME}}"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -o {{.BIN_DIR}}/{{.APP_NAME}} {{.CMD_DIR}}
+    silent: false
+
+  build-verbose:
+    desc: "Build with verbose output"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -v -o {{.BIN_DIR}}/{{.APP_NAME}} {{.CMD_DIR}}
+
+  # Clean tasks
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - rm -rf {{.BIN_DIR}}/
+      - go clean
+      - rm -f *.png *.jpg *.jpeg
+
+  clean-all:
+    desc: "Clean everything including go cache"
+    cmds:
+      - task: clean
+      - go clean -cache
+      - go clean -modcache
+
+  # Dependencies
+  deps:
+    desc: "Install dependencies"
+    cmds:
+      - echo "Installing decksh..."
+      - go install github.com/ajstarks/decksh/cmd/decksh@latest
+      - echo "Downloading Go modules..."
+      - go mod tidy
+      - echo "Verifying decksh installation..."
+      - which decksh
+
+  deps-check:
+    desc: "Check if dependencies are installed"
+    cmds:
+      - echo "Checking Go version..."
+      - go version
+      - echo "Checking decksh..."
+      - which decksh
+      - echo "Checking Go modules..."
+      - go mod verify
+
+  # Testing
+  test:
+    desc: "Run tests"
+    cmds:
+      - go test ./...
+
+  test-verbose:
+    desc: "Run tests with verbose output"
+    cmds:
+      - go test -v ./...
+
+  test-coverage:
+    desc: "Run tests with coverage"
+    cmds:
+      - go test -cover ./...
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "Coverage report generated in coverage.html"
+
+  # Validation
+  validate:
+    desc: "Validate decksh example files"
+    deps: [check-decksh]
+    cmds:
+      - echo "Validating hello.dsh..."
+      - decksh < {{.EXAMPLES_DIR}}/hello.dsh
+      - echo "Validating demo.dsh..."
+      - decksh < {{.EXAMPLES_DIR}}/demo.dsh
+
+  check-decksh:
+    desc: "Check if decksh is available"
+    cmds:
+      - which decksh
+    silent: true
+
+  # Example runs
+  run-hello:
+    desc: "Run hello world example"
+    deps: [build]
+    cmds:
+      - echo "Running hello world example..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -input {{.EXAMPLES_DIR}}/hello.dsh -verbose
+
+  run-demo:
+    desc: "Run demo example"
+    deps: [build]
+    cmds:
+      - echo "Running demo example..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -input {{.EXAMPLES_DIR}}/demo.dsh -verbose
+
+  run-hello-gui:
+    desc: "Run hello world example with GUI (when available)"
+    deps: [build]
+    cmds:
+      - echo "Running hello world with GUI..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -input {{.EXAMPLES_DIR}}/hello.dsh -gui -verbose
+
+  run-demo-gui:
+    desc: "Run demo example with GUI (when available)"
+    deps: [build]
+    cmds:
+      - echo "Running demo with GUI..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -input {{.EXAMPLES_DIR}}/demo.dsh -gui -verbose
+
+  # Rendering
+  render-hello:
+    desc: "Render hello world to PNG"
+    deps: [build]
+    cmds:
+      - echo "Rendering hello world to PNG..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -input {{.EXAMPLES_DIR}}/hello.dsh -output hello.png -verbose
+      - echo "Rendered to hello.png"
+
+  render-demo:
+    desc: "Render demo to PNG"
+    deps: [build]
+    cmds:
+      - echo "Rendering demo to PNG..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -input {{.EXAMPLES_DIR}}/demo.dsh -output demo.png -verbose
+      - echo "Rendered to demo.png"
+
+  render-all:
+    desc: "Render all examples to PNG"
+    cmds:
+      - task: render-hello
+      - task: render-demo
+
+  # Debug tasks
+  debug-hello:
+    desc: "Show decksh XML output for hello.dsh"
+    deps: [check-decksh]
+    cmds:
+      - echo "Decksh XML output for hello.dsh"
+      - decksh < {{.EXAMPLES_DIR}}/hello.dsh
+
+  debug-demo:
+    desc: "Show decksh XML output for demo.dsh"
+    deps: [check-decksh]
+    cmds:
+      - echo "Decksh XML output for demo.dsh"
+      - decksh < {{.EXAMPLES_DIR}}/demo.dsh
+
+  # Development
+  dev-setup:
+    desc: "Complete development setup"
+    cmds:
+      - task: deps
+      - task: build
+      - task: validate
+      - echo "Development setup complete!"
+      - echo "Try task run-hello"
+
+  dev-test:
+    desc: "Run development tests"
+    cmds:
+      - task: test
+      - task: validate
+      - task: run-hello
+
+  # Linting and formatting
+  fmt:
+    desc: "Format Go code"
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: "Run go vet"
+    cmds:
+      - go vet ./...
+
+  lint:
+    desc: "Run linting (requires golangci-lint)"
+    cmds:
+      - golangci-lint run
+    ignore_error: true
+
+  # Installation
+  install:
+    desc: "Install binary to GOPATH/bin"
+    deps: [build]
+    cmds:
+      - sh -c 'cp {{.BIN_DIR}}/{{.APP_NAME}} $(go env GOPATH)/bin/'
+      - echo "Installed {{.APP_NAME}} to GOPATH/bin/"
+
+  # Information
+  info:
+    desc: "Show project information"
+    cmds:
+      - echo "Project{{":"}} {{.APP_NAME}}"
+      - sh -c 'echo "Go version:" && go version'
+      - sh -c 'echo "Module:" && head -1 go.mod'
+      - echo "Binary{{":"}} {{.BIN_DIR}}/{{.APP_NAME}}"
+      - echo "Examples{{":"}} {{.EXAMPLES_DIR}}/"
+      - task: deps-check
+
+  help:
+    desc: "Show detailed help and usage information"
+    cmds:
+      - echo "Decksh-Ebdeck Integration Project"
+      - echo "================================="
+      - echo ""
+      - echo "This project integrates decksh (presentation DSL) with ebdeck (Ebitengine renderer)"
+      - echo ""
+      - echo "Quick Start:"
+      - echo "  task dev-setup    - Complete development setup"
+      - echo "  task run-hello    - Run hello world example"
+      - echo "  task run-demo     - Run demo presentation"
+      - echo "  task render-hello - Render hello world to PNG"
+      - echo ""
+      - echo "Development:"
+      - echo "  task build        - Build the application"
+      - echo "  task test         - Run tests"
+      - echo "  task validate     - Validate decksh examples"
+      - echo "  task clean        - Clean build artifacts"
+      - echo ""
+      - echo "Debugging:"
+      - echo "  task debug-hello  - Show decksh XML for hello.dsh"
+      - echo "  task deps-check   - Check dependencies"
+      - echo "  task info         - Show project information"
+      - echo ""
+      - echo "All Available Tasks:"
+      - task --list
+
+  # Watch for changes (requires task watch support)
+  watch:
+    desc: "Watch for changes and rebuild"
+    watch: true
+    sources:
+      - "**/*.go"
+    cmds:
+      - echo "Watching for changes... (Ctrl+C to stop)"
+      - task: build
+      - sh -c 'echo "Rebuilt at" && date'

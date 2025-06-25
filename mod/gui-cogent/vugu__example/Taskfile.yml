@@ -1,0 +1,133 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  APP_NAME: myexample
+  
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - echo
+      - echo - vars
+      - echo 'APP_NAME       {{.APP_NAME}}'
+      - echo
+    silent: true
+
+  dep:
+    cmds:
+      # https://github.com/vugu/vgrun
+      - go install github.com/vugu/vgrun@latest
+      # vgrun -install-tools installs the next 2
+      - go install github.com/vugu/vgrouter/cmd/vgrgen@latest
+      - go install github.com/vugu/vugu/cmd/vugugen@latest
+      # fmt helper that vgrun does not currently install. See: https://github.com/vugu/vgrun/pull/10
+      - go install github.com/vugu/vugu/cmd/vugufmt@latest
+
+      # wasm serve. https://github.com/hajimehoshi/wasmserve
+      - go install github.com/hajimehoshi/wasmserve@latest
+
+      # https://github.com/sqlc-dev/sqlc
+      - go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+### vugugen
+
+  gen:help:
+    desc: gen help.
+    cmds:
+      - vugugen -h
+      # Usage of vugugen:
+      # -r	Run recursively on specified path and subdirectories.
+      # -s	Merge generated code for a package into a single file.
+      # -skip-go-mod
+      #  Do not try to create go.mod as needed
+      # -skip-main
+      # 	Do not try to create main.go as needed
+      # -tinygo
+      # 	Generate code intended for compilation under Tinygo
+  gen:run:
+    desc: gen run
+    cmds:
+      - cd {{.APP_NAME}} && vugugen --tinygo
+
+
+### vugufmt
+
+  fmt:help:
+    desc: gen help.
+    cmds:
+      - vugufmt -h
+      # usage: vugufmt [flags] [path ...]
+      # -d	display diffs instead of rewriting files
+      # -i	run goimports instead of gofmt
+      #  -l	list files whose formatting differs from vugufmt's
+      #  -s	simplify code
+      #  -w	write result to (source) file instead of stdout
+  fmt:run:
+    desc: fmt run
+    cmds:
+      # stdout for now.
+      - cd {{.APP_NAME}} && vugufmt -l -s
+
+
+
+### vgrun
+
+  run:help:
+    desc: run help
+    cmds:
+      - vgrun -h
+
+  run:new:simple:
+    desc: new - Initialize a new project from example.  Will git clone from github.com/vugu-examples/[value] or if value contains a slash it will be treated as a full URL sent to git clone.  Must be followed by empty or non existent target directory.
+    cmds:
+      # pulls from their repo. https://github.com/vugu-examples/simple
+      - vgrun -new-from-example=simple {{.APP_NAME}}
+
+  run:new:tinygo:
+    desc: new - Initialize a new project from example.  Will git clone from github.com/vugu-examples/[value] or if value contains a slash it will be treated as a full URL sent to git clone.  Must be followed by empty or non existent target directory.
+    cmds:
+      # pulls from their repo. https://github.com/vugu-examples/simple
+      - vgrun -new-from-example=tinygo {{.APP_NAME}}
+      - touch go.work && go work use {{.APP_NAME}}
+
+  run:new:del:
+    desc: deletes the new project
+    cmds:
+      - rm -rf {{.APP_NAME}}
+
+  # Now gen for how we want !
+  run:tools:
+    desc:
+    cmds:
+      - cd {{.APP_NAME}} && vgrun -install-tools
+
+  run:run:
+    desc: run does continous compilation.
+    cmds:
+      #  http://localhost:8844/
+      # if not tinygo, then it uses the golang. It fails with go 1.24, easy fix.
+      # if tinygo, then it uses docker to do tinygo compile at runtime. vugugen -s -tinygo
+      - cd {{.APP_NAME}} && vgrun devserver.go
+
+
+
+  wasm:serve:help:
+    desc: wasm serve
+    cmds:
+      -  wasmserve -h
+
+  wasm:serve:
+    desc: wasm serve. https://github.com/hajimehoshi/wasmserve
+    cmds:
+      # http://localhost:8080/
+      - cd {{.APP_NAME}} && wasmserve .
+
+  bin:
+    desc: wasm build does the obvious wasm build.
+    cmds:
+      - cd {{.APP_NAME}} && GOOS=js GOARCH=wasm go build -o main.wasm .
+
+  

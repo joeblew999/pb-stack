@@ -1,0 +1,18 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  run:
+    cmds:
+      - go get github.com/starfederation/datastar/sdk/go
+      - go mod tidy
+      - go run .

@@ -1,0 +1,286 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  CARD_WIDTH: 120
+  CARD_HEIGHT: 168
+  ASSETS_DIR: "./.assets"
+  FONTS_DIR: "./.assets/fonts"
+  FONTS_CONFIG: "./fonts.json"
+  LOCAL_BIN: "./.bin"
+  CONFIG_DIR: "./.config"
+
+includes:
+  platform: ./Taskfile-platform.yml
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # Font Generation Tasks
+
+  fonts:gen:
+    desc: Download Google Fonts locally for decksh/deck usage
+    cmds:
+      - echo "🔤 Running font downloader..."
+      - go run ./cmd/fontdownloader {{.FONTS_DIR}} {{.FONTS_CONFIG}}
+    silent: true
+  
+  fonts:clean:
+    desc: delete fonts
+    cmds:
+      - echo "Removing font assets."
+      - rm -rf {{.ASSETS_DIR}}/fonts
+
+  # Enhanced Font Management Tasks
+
+  fonts:search:
+    desc: Search Google Fonts (requires API key)
+    cmds:
+      - echo "🔍 Searching Google Fonts..."
+      - echo "Note Add GOOGLE_FONTS_API_KEY environment variable for full functionality"
+      - go run ./cmd/fontdownloader --search "{{.CLI_ARGS}}"
+
+  fonts:list:
+    desc: List Google Fonts by category (requires API key)
+    cmds:
+      - echo "📋 Listing Google Fonts..."
+      - echo "Note Add GOOGLE_FONTS_API_KEY environment variable for full functionality"
+      - go run ./cmd/fontdownloader --list {{if .CATEGORY}}--category {{.CATEGORY}}{{end}}
+
+  fonts:add:
+    desc: Add a font family to fonts.json (requires API key)
+    cmds:
+      - echo "➕ Adding font to configuration..."
+      - echo "Note Add GOOGLE_FONTS_API_KEY environment variable for full functionality"
+      - go run ./cmd/fontdownloader --add "{{.CLI_ARGS}}"
+
+  fonts:update:
+    desc: Update fonts.json with latest URLs (requires API key)
+    cmds:
+      - echo "🔄 Updating font URLs..."
+      - echo "Note Add GOOGLE_FONTS_API_KEY environment variable for full functionality"
+      - go run ./cmd/fontdownloader --update
+
+  # Card Generation Tasks
+
+  cards:decksh:
+    desc: Generate both SVG and PNG cards using decksh/deck (professional quality)
+    deps: [dev:install-deck-tools, fonts:gen]
+    cmds:
+      - mkdir -p {{.ASSETS_DIR}}/{xml,svg,png}
+      - go run ./cmd/cardgen {{.ASSETS_DIR}}/xml
+      - echo "Converting XML to SVG using local tools..."
+      - |
+        for xml in {{.ASSETS_DIR}}/xml/*.xml; do 
+          base=$(basename "$xml" .xml)
+          echo "Converting $base to SVG..."
+          {{.LOCAL_BIN}}/svgdeck "$xml" 2>/dev/null || echo "  Error converting $xml"
+          # Move the generated SVG to the assets directory
+          if [ -f "${base}-00001.svg" ]; then
+            mv "${base}-00001.svg" "{{.ASSETS_DIR}}/svg/${base}.svg"
+          fi
+        done
+      - echo "Converting XML to PNG with explicit font mappings..."
+      - |
+        for xml in {{.ASSETS_DIR}}/xml/*.xml; do 
+          base=$(basename "$xml" .xml)
+          echo "Converting $base to PNG..."
+          {{.LOCAL_BIN}}/pngdeck -fontdir {{.FONTS_DIR}} -sans FiraSans-Regular -serif LibreBaskerville-Regular -mono FiraMono-Regular "$xml" 2>/dev/null || echo "  Error converting $xml"
+          # Move the generated PNG to the assets directory
+          if [ -f "${base}-00001.png" ]; then
+            mv "${base}-00001.png" "{{.ASSETS_DIR}}/png/${base}.png"
+          fi
+        done
+      - echo "Generated files"
+      - ls -1 {{.ASSETS_DIR}}/svg/*.svg 2>/dev/null | wc -l | xargs echo "  SVG Count"
+      - ls -1 {{.ASSETS_DIR}}/png/*.png 2>/dev/null | wc -l | xargs echo "  PNG Count"
+    sources:
+      - "cmd/cardgen/*.go"
+    generates:
+      - "{{.ASSETS_DIR}}/xml/*.xml"
+      - "{{.ASSETS_DIR}}/svg/*.svg"
+      - "{{.ASSETS_DIR}}/png/*.png"
+
+  cards:decksh-svg:
+    desc: Generate SVG cards only using decksh/deck
+    deps: [dev:install-deck-tools]
+    cmds:
+      - mkdir -p {{.ASSETS_DIR}}/{xml,svg}
+      - go run ./cmd/cardgen {{.ASSETS_DIR}}/xml
+      - echo "Converting XML to SVG using local tools..."
+      - |
+        for xml in {{.ASSETS_DIR}}/xml/*.xml; do 
+          base=$(basename "$xml" .xml)
+          echo "Converting $base to SVG..."
+          {{.LOCAL_BIN}}/svgdeck "$xml" 2>/dev/null || echo "  Error converting $xml"
+          # Move the generated SVG to the assets directory
+          if [ -f "${base}-00001.svg" ]; then
+            mv "${base}-00001.svg" "{{.ASSETS_DIR}}/svg/${base}.svg"
+          fi
+        done
+      - echo "Generated SVG files"
+      - ls -1 {{.ASSETS_DIR}}/svg/*.svg 2>/dev/null | wc -l | xargs echo "  Count"
+    sources:
+      - "cmd/cardgen/*.go"
+    generates:
+      - "{{.ASSETS_DIR}}/xml/*.xml"
+      - "{{.ASSETS_DIR}}/svg/*.svg"
+
+  cards:decksh-png:
+    desc: Generate PNG cards using decksh/deck with explicit font mappings
+    deps: [dev:install-deck-tools, fonts:gen]
+    cmds:
+      - mkdir -p {{.ASSETS_DIR}}/{xml,svg,png}
+      - go run ./cmd/cardgen {{.ASSETS_DIR}}/xml
+      - echo "Converting XML to PNG with explicit font mappings..."
+      - |
+        for xml in {{.ASSETS_DIR}}/xml/*.xml; do 
+          base=$(basename "$xml" .xml)
+          echo "Converting $base to PNG..."
+          {{.LOCAL_BIN}}/pngdeck -fontdir {{.FONTS_DIR}} -sans FiraSans-Regular -serif LibreBaskerville-Regular -mono FiraMono-Regular "$xml" 2>/dev/null || echo "  Error converting $xml"
+          # Move the generated PNG to the assets directory
+          if [ -f "${base}-00001.png" ]; then
+            mv "${base}-00001.png" "{{.ASSETS_DIR}}/png/${base}.png"
+          fi
+        done
+      - echo "Generated PNG files"
+      - ls -1 {{.ASSETS_DIR}}/png/*.png 2>/dev/null | wc -l | xargs echo "  Count"
+
+  cards:clean:
+    desc: Clean generated card images and local tools (preserves source code)
+    cmds:
+      - rm -rf {{.ASSETS_DIR}}
+      - rm -rf {{.LOCAL_BIN}}
+      - rm -f {{.FONTS_DIR}}/*.ttf {{.FONTS_DIR}}/*.otf {{.FONTS_DIR}}/*.woff {{.FONTS_DIR}}/*.woff2 {{.FONTS_DIR}}/FONTS.md
+      - echo "Cleaned card assets, local tools, and font files (source code preserved)"
+
+  # Game Tasks
+  game:run:
+    desc: Run the Ebiten card game (generates both SVG and PNG)
+    deps: [cards:decksh]
+    cmds:
+      - go run ./cmd/game
+
+  game:build:
+    desc: Build the Ebiten game executable
+    cmds:
+      - go build -o {{.LOCAL_BIN}}/cardgame ./cmd/game
+    generates:
+      - "{{.LOCAL_BIN}}/cardgame"
+
+  # Development Tasks
+  dev:deps:
+    desc: Download and tidy Go dependencies
+    cmds:
+      - go mod tidy
+
+  dev:install-deck-tools:
+    desc: Install decksh/deck tools locally to .bin/
+    cmds:
+      - echo "🔧 Installing decksh/deck tools locally..."
+      - mkdir -p {{.LOCAL_BIN}}
+      - echo "Installing svgdeck..."
+      - GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/ajstarks/deck/cmd/svgdeck@latest
+      - echo "Installing pngdeck..."
+      - GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/ajstarks/deck/cmd/pngdeck@latest
+      - echo "Installing pdfdeck..."
+      - GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/ajstarks/deck/cmd/pdfdeck@latest
+      - echo "✅ Tools installed in {{.LOCAL_BIN}}/"
+      - ls -la {{.LOCAL_BIN}}/ | awk 'NR>1{print "  " $9 " (" $5 " bytes)"}'
+
+  dev:install-benthos:
+    desc: Install Benthos (Redpanda Connect) locally to .bin/
+    cmds:
+      - echo "🔧 Installing Benthos (Redpanda Connect) locally..."
+      - mkdir -p {{.LOCAL_BIN}}
+      - echo "Installing benthos..."
+      - GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/redpanda-data/benthos/v4/cmd/benthos@latest
+      - echo "✅ Benthos installed in {{.LOCAL_BIN}}/"
+      - ls -la {{.LOCAL_BIN}}/benthos | awk '{print "  benthos (" $5 " bytes)"}'
+
+  dev:install-nats:
+    desc: Install NATS server locally to .bin/
+    cmds:
+      - echo "🔧 Installing NATS server locally..."
+      - mkdir -p {{.LOCAL_BIN}}
+      - echo "Installing nats-server..."
+      - GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/nats-io/nats-server/v2@latest
+      - echo "✅ NATS server installed in {{.LOCAL_BIN}}/"
+      - ls -la {{.LOCAL_BIN}}/nats-server | awk '{print "  nats-server (" $5 " bytes)"}'
+
+  dev:install-nats-cli:
+    desc: Install NATS CLI tools locally to .bin/
+    cmds:
+      - echo "🔧 Installing NATS CLI tools locally..."
+      - mkdir -p {{.LOCAL_BIN}}
+      - echo "Installing nats CLI..."
+      - GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/nats-io/natscli/nats@latest
+      - echo "✅ NATS CLI installed in {{.LOCAL_BIN}}/"
+      - ls -la {{.LOCAL_BIN}}/nats | awk '{print "  nats (" $5 " bytes)"}'
+
+  # Clean Tasks  
+  clean:all:
+    desc: Clean everything except source code
+    cmds:
+      - rm -rf {{.ASSETS_DIR}}
+      - rm -rf {{.LOCAL_BIN}}
+      - rm -f fonts/*.ttf fonts/*.otf fonts/*.woff fonts/*.woff2 fonts/FONTS.md
+      - echo "Cleaned all generated files (source code preserved)"
+
+  # Information Tasks
+  info:
+    desc: Show project information
+    cmds:
+      - echo "Card Game Project"
+      - echo "================"
+      - echo "Card dimensions {{.CARD_WIDTH}} {{.CARD_HEIGHT}}"
+      - echo "Assets directory {{.ASSETS_DIR}}"
+      - echo ""
+      - echo "Available commands"
+      - ls -la cmd/*/main.go | awk '{print "  " $9}' | sed 's|cmd/||' | sed 's|/main.go||'
+      - echo ""
+      - echo "Generated cards"
+      - ls -1 {{.ASSETS_DIR}}/svg/*.svg 2>/dev/null | wc -l | xargs echo "  SVG Count"
+      - ls -1 {{.ASSETS_DIR}}/png/*.png 2>/dev/null | wc -l | xargs echo "  PNG Count"
+    silent: true
+
+  # Test Tasks
+  test:fonts:
+    desc: Test fontdownloader with fonts_test.json
+    cmds:
+      - echo "🧪 Testing fontdownloader with test configuration..."
+      - go run ./cmd/fontdownloader ./.assets/fonts_test fonts_test.json
+      - echo "✅ Test fonts downloaded to .assets/fonts_test/"
+      - ls -la ./.assets/fonts_test/
+
+  test:fonts:clean:
+    desc: Clean test fonts
+    cmds:
+      - echo "🧹 Cleaning test fonts..."
+      - rm -rf ./.assets/fonts_test
+      - echo "✅ Test fonts cleaned"
+
+  # Reactive Card Generation
+  cards:reactive:
+    desc: Generate cards via reactive NATS/Benthos pipeline
+    deps: [cards:decksh]
+    cmds:
+      - echo "🎯 Triggering reactive card generation..."
+      - |
+        count=0
+        for xml_file in ./.assets/xml/*.xml; do
+          if [ -f "$xml_file" ]; then
+            echo "Queuing $(basename "$xml_file") for SVG generation..."
+            echo "{\"input_file\": \"$xml_file\"}" | ./.bin/nats pub deck.generate.svg --stdin
+            echo "Queuing $(basename "$xml_file") for PNG generation..."
+            echo "{\"input_file\": \"$xml_file\"}" | ./.bin/nats pub deck.generate.png --stdin
+            count=$((count + 1))
+          fi
+        done
+      - echo "✅ Queued $count cards for reactive processing"
+      - echo "  Monitor results with 'task platform:monitor'"
+      - echo "  Check status with 'task platform:status'"

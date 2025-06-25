@@ -1,0 +1,25 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+
+  dep:
+    cmds:
+      # https://github.com/mark3labs/mcp-filesystem-server
+      - go install github.com/mark3labs/mcp-filesystem-server@latest
+
+  run:help:
+    cmds:
+      # there is none.
+      - mcp-filesystem-server -h
+  serve:
+    cmds:
+      - mcp-filesystem-server .

@@ -8,6 +8,7 @@ version: '3'
 
 # https://taskfile.dev/reference/templating/
 
+
 vars:
 
   # Simple wrapper to apply defaults. TODO: Can check version and Upgrade in place ?
@@ -168,7 +169,7 @@ env:
   
 tasks:
   default:
-    desc: base print
+    desc: base default print
     cmds:
       - echo ''
       

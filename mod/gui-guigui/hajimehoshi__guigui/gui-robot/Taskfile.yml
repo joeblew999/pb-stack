@@ -1,0 +1,239 @@
+version: '3'
+
+vars:
+  APP_NAME: gui-robot
+  BIN_DIR: bin
+  CMD_DIR: ./cmd/gui-robot
+  EXAMPLES_DIR: examples
+  BUILD_DIR: build
+
+tasks:
+  # =============================================================================
+  # DEFAULT & HELP
+  # =============================================================================
+
+  default:
+    desc: "Show available tasks and project info"
+    cmds:
+      - echo "🤖 GUI Robot - AI-Powered GUI Automation"
+      - echo "=========================================="
+      - echo ""
+      - echo "📋 Quick Commands:"
+      - echo "  task build       - Build the application"
+      - echo "  task demo        - Run automation demo"
+      - echo "  task gui-demo    - Control real GUI applications"
+      - echo "  task test        - Run tests"
+      - echo ""
+      - echo "📱 macOS App:"
+      - echo "  task build-macos-app  - Create macOS app bundle"
+      - echo "  task install-macos-app - Install to Applications"
+      - echo ""
+      - echo "📊 All available tasks:"
+      - task --list
+
+  help:
+    desc: "Show detailed help information"
+    cmds:
+      - echo "🤖 GUI Robot - AI-Powered GUI Automation"
+      - echo "=========================================="
+      - echo ""
+      - echo "This project enables AI assistants to control GUI applications"
+      - echo "through screen capture, mouse control, and keyboard input."
+      - echo ""
+      - echo "🏗️  BUILD COMMANDS:"
+      - echo "  build              - Build the CLI application"
+      - echo "  build-all          - Build for all platforms"
+      - echo "  build-linux        - Build for Linux"
+      - echo "  build-windows      - Build for Windows"
+      - echo "  build-darwin       - Build for macOS"
+      - echo "  build-macos-app    - Create macOS app bundle with entitlements"
+      - echo ""
+      - echo "🧪 TESTING & DEVELOPMENT:"
+      - echo "  test               - Run all tests"
+      - echo "  test-coverage      - Run tests with coverage report"
+      - echo "  deps               - Install/update dependencies"
+      - echo "  clean              - Clean build artifacts"
+      - echo ""
+      - echo "🎮 DEMO & EXAMPLES:"
+      - echo "  examples           - Interactive examples menu"
+      - echo "  demo               - Basic automation demo"
+      - echo "  gui-demo           - Real GUI application control"
+      - echo "  screen-info        - Get screen information"
+      - echo "  example-basic      - Run basic usage example"
+      - echo ""
+      - echo "📱 macOS INSTALLATION:"
+      - echo "  install-macos-app  - Install GUI Robot to Applications"
+      - echo ""
+      - echo "🔧 RUNTIME:"
+      - echo "  run                - Run with custom arguments"
+      - echo "  run-interactive    - Start interactive mode"
+
+  # =============================================================================
+  # BUILD COMMANDS
+  # =============================================================================
+
+  build:
+    desc: "Build the GUI Robot application"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -o {{.BIN_DIR}}/{{.APP_NAME}} {{.CMD_DIR}}
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BIN_DIR}}/{{.APP_NAME}}"
+
+  build-all:
+    desc: "Build for all platforms"
+    cmds:
+      - task: build-linux
+      - task: build-windows
+      - task: build-darwin
+
+  build-linux:
+    desc: "Build for Linux"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - GOOS=linux GOARCH=amd64 go build -o {{.BIN_DIR}}/{{.APP_NAME}}-linux-amd64 {{.CMD_DIR}}
+
+  build-windows:
+    desc: "Build for Windows"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - GOOS=windows GOARCH=amd64 go build -o {{.BIN_DIR}}/{{.APP_NAME}}-windows-amd64.exe {{.CMD_DIR}}
+
+  build-darwin:
+    desc: "Build for macOS"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - GOOS=darwin GOARCH=amd64 go build -o {{.BIN_DIR}}/{{.APP_NAME}}-darwin-amd64 {{.CMD_DIR}}
+      - GOOS=darwin GOARCH=arm64 go build -o {{.BIN_DIR}}/{{.APP_NAME}}-darwin-arm64 {{.CMD_DIR}}
+
+  # =============================================================================
+  # TESTING & DEVELOPMENT
+  # =============================================================================
+
+  test:
+    desc: "Run all tests"
+    cmds:
+      - go test -v ./...
+
+  test-coverage:
+    desc: "Run tests with coverage report"
+    cmds:
+      - go test -v -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+      - echo "✅ Coverage report generated at coverage.html"
+
+  deps:
+    desc: "Install and update dependencies"
+    cmds:
+      - go mod download
+      - go mod tidy
+      - echo "✅ Dependencies updated"
+
+  clean:
+    desc: "Clean build artifacts and temporary files"
+    cmds:
+      - rm -rf {{.BIN_DIR}}
+      - rm -rf {{.BUILD_DIR}}/macos/*.app
+      - rm -f coverage.out coverage.html
+      - rm -f *.png
+      - rm -f /tmp/gui_robot_*.png
+      - echo "✅ Cleaned build artifacts"
+
+  # =============================================================================
+  # RUNTIME & EXECUTION
+  # =============================================================================
+
+  run:
+    desc: "Run the application with custom arguments"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} {{.CLI_ARGS}}
+
+  run-interactive:
+    desc: "Start interactive mode"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -interactive
+
+  screen-info:
+    desc: "Get screen information"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -command get_screen_info
+
+  # =============================================================================
+  # DEMOS & EXAMPLES
+  # =============================================================================
+
+  demo:
+    desc: "Run basic automation demo"
+    deps: [build]
+    cmds:
+      - echo "🎮 Running Basic GUI Robot Demo..."
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -command get_screen_info
+      - echo "✓ Screen info retrieved"
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -command move_mouse -params '{"x":100,"y":100}'
+      - echo "✓ Mouse moved to (100,100)"
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -command type -params '{"text":"Hello from GUI Robot!"}'
+      - echo "✓ Text typed"
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -command wait -params '{"duration":1}'
+      - echo "✅ Basic demo completed!"
+
+  gui-demo:
+    desc: "Run real GUI application control demonstration"
+    cmds:
+      - echo "🎯 Running Advanced GUI Control Demo..."
+      - echo "⚠️  This will actually control GUI applications!"
+      - echo "📝 Make sure you have TextEdit or similar app available"
+      - go run {{.EXAMPLES_DIR}}/gui_control_demo.go
+
+  examples:
+    desc: "Run interactive examples menu"
+    cmds:
+      - echo "🤖 Starting GUI Robot Examples..."
+      - go run {{.EXAMPLES_DIR}}/main.go
+
+  example-basic:
+    desc: "Run basic usage example directly"
+    cmds:
+      - echo "📚 Running basic usage example..."
+      - go run {{.EXAMPLES_DIR}}/basic_usage.go
+
+  # =============================================================================
+  # macOS APP BUNDLE & INSTALLATION
+  # =============================================================================
+
+  build-macos-app:
+    desc: "Build macOS app bundle with proper entitlements"
+    cmds:
+      - chmod +x {{.BUILD_DIR}}/macos/build_app.sh
+      - ./{{.BUILD_DIR}}/macos/build_app.sh
+      - echo "🎉 macOS app bundle created!"
+      - echo "📍 Location - {{.BUILD_DIR}}/macos/GUI Robot.app"
+      - echo "💡 Install to /Applications/ for proper permissions"
+
+  install-macos-app:
+    desc: "Install GUI Robot to /Applications directory"
+    deps: [build-macos-app]
+    cmds:
+      - sudo cp -R "{{.BUILD_DIR}}/macos/GUI Robot.app" /Applications/
+      - echo "✅ GUI Robot installed to /Applications/"
+      - echo "🚀 Launch from Launchpad or Spotlight"
+      - echo "💡 Grant permissions when prompted for full functionality"
+
+  launch-macos-app:
+    desc: "Launch the installed macOS app"
+    cmds:
+      - open "/Applications/GUI Robot.app"
+
+  uninstall-macos-app:
+    desc: "Remove GUI Robot from /Applications"
+    cmds:
+      - sudo rm -rf "/Applications/GUI Robot.app"
+      - echo "🗑️  GUI Robot removed from /Applications/"
+
+

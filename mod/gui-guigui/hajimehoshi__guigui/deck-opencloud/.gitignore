@@ -1,0 +1,145 @@
+# OpenCloud - Git Ignore File
+
+# =============================================================================
+# BUILD ARTIFACTS
+# =============================================================================
+
+# Binary output directory
+.bin/
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# =============================================================================
+# OPENCLOUD SPECIFIC
+# =============================================================================
+
+# Bleve search indexes
+index/
+*.bleve/
+
+# Data directories (may contain sensitive documents)
+data/
+documents/
+uploads/
+
+# Configuration files with secrets
+config.json
+config.yaml
+*.env
+.env.*
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# =============================================================================
+# DEVELOPMENT
+# =============================================================================
+
+# Go workspace file (handled at parent level)
+# go.work
+# go.work.sum
+
+# Dependency directories
+vendor/
+
+# Go module download cache
+go.sum.backup
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =============================================================================
+# COLLABORATION & SEARCH
+# =============================================================================
+
+# Apache Tika temporary files
+tika-temp/
+*.tika
+
+# Search result caches
+search-cache/
+*.cache
+
+# Document processing temporary files
+processing/
+*.processing
+
+# Backup files
+*.bak
+*.backup
+
+# =============================================================================
+# TESTING & DEVELOPMENT
+# =============================================================================
+
+# Test data (except sample data)
+test-data/
+testdata/
+fixtures/
+
+# Benchmark results
+*.bench
+
+# Profile files
+*.prof
+*.pprof
+
+# Debug files
+debug
+*.debug
+
+# =============================================================================
+# DEPLOYMENT
+# =============================================================================
+
+# Docker files (if added later)
+.dockerignore
+
+# Kubernetes configs with secrets
+k8s-secrets/
+*.secret.yaml
+
+# Deployment artifacts
+dist/
+release/
+
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
+
+# Generated documentation
+docs/build/
+site/
+
+# Temporary markdown files
+*.tmp.md
+*.draft.md

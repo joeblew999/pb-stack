@@ -1,0 +1,44 @@
+version: "0.5"
+
+# OpenCloud - processFile.yaml
+# Process orchestration for running built binaries (matches Taskfile.yml naming)
+
+log_level: info
+log_length: 1000
+
+processes:
+    
+  # =============================================================================
+  # CORE SERVICES - Running Built Binaries
+  # =============================================================================
+
+  opencloud-server:
+    command: ".bin/opencloud-server -debug"
+    description: "OpenCloud collaboration server"
+    readiness_probe:
+      http_get:
+        host: localhost
+        port: 8080
+        path: "/health"
+      initial_delay_seconds: 2
+      period_seconds: 1
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+
+    
+  # =============================================================================
+  # GUI APPLICATION (Optional)
+  # =============================================================================
+  
+  opencloud-gui:
+    command: ".bin/opencloud-gui"
+    description: "OpenCloud GUI application"
+    depends_on:
+      opencloud-server:
+        condition: process_healthy
+    disabled: true  # Enable manually when needed
+    
+
+    
+

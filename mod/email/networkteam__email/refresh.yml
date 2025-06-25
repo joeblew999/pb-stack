@@ -1,0 +1,23 @@
+app_root: ./envelope
+binary_name: refresh-build
+build_delay: 100ms
+build_flags: []
+build_path: /var/folders/pj/n3sth0z55md7lydld97r8mmh0000gn/T/
+build_target_path: ""
+command_env: []
+command_flags: []
+enable_colors: true
+ignored_folders:
+- vendor
+- log
+- logs
+- tmp
+- node_modules
+- bin
+- templates
+included_extensions:
+- .go
+- .yml
+live_reload: false
+readyness_url: ""
+log_name: ""

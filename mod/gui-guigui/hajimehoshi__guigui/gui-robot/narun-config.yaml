@@ -1,0 +1,128 @@
+# Narun Configuration for GUI Robot Automation
+apiVersion: narun/v1
+kind: ServiceSpec
+metadata:
+  name: gui-robot
+  version: v1.0.0
+  description: "GUI automation system for mouse/keyboard control and screen capture"
+
+spec:
+  # Binary configuration
+  binary_object: gui-robot-v1.0.0
+  binary_path: "./.bin/gui-robot"
+  
+  # Target deployment (GUI automation needs specific nodes with displays)
+  target_nodes: ["gui-automation-*", "desktop-*"]
+  replicas: 1  # Usually one per display
+  
+  # Service configuration
+  service:
+    name: "gui-robot"
+    type: "http"
+    port: 8080
+    health_check: "/health"
+  
+  # Runtime configuration
+  runtime:
+    security_mode: "landlock"
+    user: "automation"
+    working_dir: "/app"
+    command: ["gui-robot", "server"]
+    args: ["--port", "8080", "--display", ":0"]
+    
+  # Resource limits
+  resources:
+    memory: "512Mi"
+    cpu: "1.0"
+    disk: "1Gi"  # For screenshots and recordings
+  
+  # Environment variables
+  environment:
+    - name: "DISPLAY"
+      value: ":0"
+    - name: "GUI_MODE"
+      value: "server"
+    - name: "SCREENSHOT_DIR"
+      value: "/app/screenshots"
+    - name: "RECORDING_DIR"
+      value: "/app/recordings"
+    - name: "LOG_LEVEL"
+      value: "info"
+    - name: "AUTOMATION_TIMEOUT"
+      value: "30s"
+  
+  # File system access (GUI automation needs broader access)
+  filesystem:
+    read_only:
+      - "/app/scripts"
+      - "/app/templates"
+      - "/usr/lib"
+      - "/usr/share/fonts"
+    read_write:
+      - "/tmp"
+      - "/app/screenshots"
+      - "/app/recordings"
+      - "/app/logs"
+      - "/app/workspace"
+    execute:
+      - "/usr/bin/xdotool"
+      - "/usr/bin/scrot"
+      - "/usr/bin/ffmpeg"
+  
+  # Special permissions for GUI automation
+  permissions:
+    x11: true
+    input_devices: true
+    screen_capture: true
+  
+  # NATS Micro service registration
+  nats:
+    service_name: "gui-robot"
+    description: "GUI Robot Automation service"
+    version: "1.0.0"
+    queue_group: "automation"
+  
+  # Dependencies
+  dependencies:
+    - name: "xdotool"
+      source: "tools/xdotool-latest"
+      target: "/app/bin/xdotool"
+    - name: "automation-scripts"
+      source: "scripts/gui-automation"
+      target: "/app/scripts"
+  
+  # Secrets
+  secrets:
+    - name: "automation-credentials"
+      mount_path: "/app/secrets/credentials"
+    - name: "vnc-password"
+      mount_path: "/app/secrets/vnc"
+  
+  # Monitoring
+  monitoring:
+    metrics_port: 9090
+    log_level: "info"
+    tracing: true
+  
+  # GUI-specific configuration
+  gui:
+    display: ":0"
+    resolution: "1920x1080"
+    color_depth: 24
+    vnc_enabled: true
+    vnc_port: 5900
+    screenshot_interval: "5s"
+    recording_enabled: false
+  
+  # Automation configuration
+  automation:
+    timeout: "60s"
+    retry_count: 3
+    screenshot_on_action: true
+    action_delay: "100ms"
+    error_recovery: true
+  
+  # No auto-scaling for GUI automation (tied to physical displays)
+  scaling:
+    min_replicas: 1
+    max_replicas: 1

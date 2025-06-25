@@ -11,12 +11,45 @@ includes:
     taskfile: ./../../../dev-taskfile.yml
     flatten: true
 
+vars:
+  EBDECK_BIN_ENTRY: './ebdeck'
+  EBDECK_BIN_NAME: 'ebdeck'
+
+  ECHART_BIN_ENTRY: './echart'
+  ECHART_BIN_NAME: 'echart'
+
 tasks:
   all:
     cmds:
+      - task this:src:clone
+      - task this:bin
+
+  this:src:clone:
+    cmds:
+      #- task git:clone:src:check
       - task git:clone:src:del
       - task git:clone:src
+
+  this:src:pull:
+    cmds:
+      - task git:reset:src
+      - task git:pull:src
+
+  this:bin:
+    cmds:
       - task go:mod:work
-      - task go:bin:darwin
-      - task go:bin:windows
-      - task go:bin:wasm
+      - task go:mod:tidy
+
+      - task GO_VAR_BIN_ENTRY_PATH='{{.EBDECK_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.EBDECK_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.ECHART_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.ECHART_BIN_NAME}}' go:bin:native
+
+      - task GO_VAR_BIN_ENTRY_PATH='{{.EBDECK_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.EBDECK_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.ECHART_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.ECHART_BIN_NAME}}' go:bin:wasm
+
+  this:run:ebdeck:
+    cmds:
+      - task GO_VAR_BIN_ENTRY_PATH='{{.EBDECK_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.EBDECK_BIN_NAME}}' go:run:native -- -h
+     
+  this:run:echart:
+    cmds:
+      - task GO_VAR_BIN_ENTRY_PATH='{{.ECHART_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.ECHART_BIN_NAME}}' go:run:native -- -h

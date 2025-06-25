@@ -1,0 +1,146 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# https://taskfile.dev
+
+# tools.taskfile.yml 
+
+# This Taskfile is used to manage development tools and dependencies
+# in a Go project using the new `go tool -modfile` feature of go 1.24.
+
+# It allows you to create a separate module for tools, which can be
+# useful for managing tool dependencies without cluttering your main `go.mod` file.
+
+# It allows you to add, run, list, verify, upgrade, and remove tools
+# without affecting the main `go.mod` file of your project.
+
+# This is particularly useful for managing tools that are not part of the main application,
+# such as linters, formatters, or other development utilities.
+
+# Defaults to using a `go.tool.mod` file for managing tools.
+
+
+# To use this Taskfile, you can include it in your main Taskfile or run it directly.
+# Remote Taskfile usage is recommended for better maintainability.
+# You can also use it in conjunction with other Taskfiles, such as a development Taskfile
+# or a tools Taskfile, to manage your development environment more effectively.
+
+# Include this is any Taskfile as:
+
+#includes:
+#  dev:
+#    taskfile: ./../../../dev-taskfile.yml
+#    flatten: true
+#  tools:
+#    taskfile: ./tools.taskfile.yml
+#    flatten: false
+
+#
+#tasks:
+#  default:
+#    cmds:
+#      - task --list-all 
+#
+#  this:tools:init:
+#    cmds:
+#      - task MODULE=example.com tools:init
+#
+#  this:tools:install:
+#    cmds:
+#      - task tools:list
+#      - task PACKAGE=github.com/a-h/templ/cmd/templ tools:install 
+#      # install a specific version
+#      - task PACKAGE=github.com/a-h/templ/cmd/templ VERSION=v0.3.894 tools:install
+# 
+#  this:tools:run:
+#    cmds:
+#      # run templ version
+#      - task tools:run PACKAGE=github.com/a-h/templ/cmd/templ -- version
+#
+#  this:tools:remove:
+#    cmds:
+#      - task tools:remove PACKAGE=github.com/a-h/templ/cmd/templ
+
+
+# Call from your golang code generators as: 
+#//go:generate go tool templ generate ./...
+
+
+# Reference:
+# - https://tip.golang.org/doc/go1.24#tools
+# - https://www.alexedwards.net/blog/how-to-manage-tool-dependencies-in-go-1.24-plus
+
+
+
+version: '3'
+
+tasks:
+  default:
+    desc: tools print
+    cmds:
+      - echo ''
+      - echo '- tools'
+      - echo ''
+      - task tools:list
+      - echo ''
+
+  init:
+    desc: "Initialize a go.tool.mod modfile"
+    vars:
+      MODULE: '{{.MODULE | default "example.com"}}'
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && go mod init -modfile=go.tool.mod {{.MODULE}}
+      - cd {{.USER_WORKING_DIR}} && go mod tidy -modfile=go.tool.mod
+
+  init:del:
+    desc: "Delete the go.tool.mod modfile"
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && rm -f go.tool.mod
+      - cd {{.USER_WORKING_DIR}} && rm -f go.tool.sum
+
+  install:
+    desc: "Install a tool to the module"
+    vars:
+      PACKAGE: '{{.PACKAGE | default "golang.org/x/vuln/cmd/govulncheck"}}'
+      VERSION: '{{.VERSION | default "none"}}'
+    cmds:
+      - echo "Adding tool {{.PACKAGE}}"
+      - cd {{.USER_WORKING_DIR}} && go get -tool -modfile=go.tool.mod {{.PACKAGE}}@{{.VERSION}}
+      
+  run:
+    desc: "Run the tool from the command line with optional CLI arguments. Ex `task tools:run -- -v`"
+    vars:
+      PACKAGE: '{{.PACKAGE | default "golang.org/x/vuln/cmd/govulncheck"}}'
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && go tool -modfile=go.tool.mod {{.PACKAGE}} {{.CLI_ARGS | default ""}}
+
+  list:
+    desc: "List all tools added to the module"
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && go list -modfile=go.tool.mod tool
+
+  verify:
+    desc: "Verify the integrity of the tool dependencies"
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && go mod verify -modfile=go.tool.mod 
+
+  upgrade:one:
+    desc: "Upgrade or downgrade a tool to a specific version"
+    vars:
+      PACKAGE: '{{.PACKAGE | default "golang.org/x/vuln/cmd/govulncheck"}}'
+      VERSION: '{{.VERSION | default "v1.1.2"}}'
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && go get -tool -modfile=go.tool.mod {{.PACKAGE}}@{{.VERSION}}
+
+  upgrade:all:
+    desc: "Upgrade all tools to their latest version"
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && go get -modfile=go.tool.mod tool 
+
+  remove:
+    desc: "Remove a tool from the module"
+    vars:
+      PACKAGE: '{{.PACKAGE | default "golang.org/x/vuln/cmd/govulncheck"}}'
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && go get -tool -modfile=go.tool.mod {{.PACKAGE}}@none
+
+

@@ -1,0 +1,63 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  
+  # https://github.com/progrium/vscode-web
+  VSCODE_ARTIFACT_URL: "https://github.com/progrium/vscode-web/releases/download/v1/vscode-web-1.92.1-patched.zip"
+
+  BIN_ROOT: '{{.PWD}}/.bin'
+  BIN_NAME: 'vscode-web'
+
+tasks:
+  
+  default:
+    desc: print 
+    cmds:
+      - echo
+      - task --list-all
+      - echo
+      - echo "VSCODE_ARTIFACT_URL   {{.VSCODE_ARTIFACT_URL}}"
+      - echo
+    silent: true
+
+  git:
+    desc: git clone repo
+    cmds:
+      - git clone https://github.com/progrium/go-vscode
+      - echo go-vscode >> .gitignore
+
+  dep:
+    desc: download dependencies. vscode zip and place in correct folder
+    cmds:
+      # https://github.com/pokeguys/got
+      - go install github.com/melbahja/got/cmd/got@latest
+      - got {{.VSCODE_ARTIFACT_URL}}
+      - mv vscode-web-1.92.1-patched.zip go-vscode/assets/vscode-web.zip
+      # https://github.com/titpetric/task-ui
+      - go install github.com/titpetric/task-ui@latest
+
+  task-ui:
+    desc: sexy task runner
+    cmds:
+      - open http://localhost:3000
+      - task-ui
+
+  dev:
+    desc: run
+    cmds:
+      - echo
+      - open http://localhost:8080
+      - cd go-vscode/_example && go run .
+
+  bin:
+    desc: build 
+    cmds:
+      - cd go-vscode/_example && go build -o {{.BIN_ROOT}}/{{.BIN_NAME}} .
+
+  run:
+    desc: run the binary
+    cmds:
+      - open http://localhost:8080
+      - '{{.BIN_ROOT}}/{{.BIN_NAME}}'

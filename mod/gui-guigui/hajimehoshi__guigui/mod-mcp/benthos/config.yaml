@@ -1,0 +1,17 @@
+input:
+  gcp_pubsub:
+    project: foo
+    subscription: bar
+
+pipeline:
+  processors:
+    - mapping: |
+        root.message = this
+        root.meta.link_count = this.links.length()
+        root.user.age = this.user.age.number()
+
+output:
+  redis_streams:
+    url: tcp://TODO:6379
+    stream: baz
+    max_in_flight: 20

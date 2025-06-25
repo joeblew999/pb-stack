@@ -1,0 +1,34 @@
+# Benthos configuration for cardgen service
+input:
+  nats_jetstream:
+    urls: ["${NATS_URL:nats://localhost:4222}"]
+    subject: "services.cardgen.requests"
+    durable: "cardgen_processor"
+
+pipeline:
+  processors:
+    # Validate input
+    - mapping: |
+        root = this
+        if !this.output_dir.exists() {
+          throw("output_dir is required")
+        }
+        
+    # Execute cardgen binary
+    - subprocess:
+        name: "cardgen"
+        args: ["${BIN_DIR}/.bin/cardgen", "${! json(\"output_dir\") }"]
+        codec: "lines"
+        max_buffer: 65536
+        
+    # Add service metadata to response
+    - mapping: |
+        root = this
+        root.service = "cardgen"
+        root.processed_at = now()
+        root.instance_id = "${INSTANCE_ID:cardgen-default}"
+
+output:
+  nats_jetstream:
+    urls: ["${NATS_URL:nats://localhost:4222}"]
+    subject: "services.cardgen.results"

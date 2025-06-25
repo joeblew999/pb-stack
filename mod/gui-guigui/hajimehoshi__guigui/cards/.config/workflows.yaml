@@ -1,0 +1,69 @@
+workflows:
+  generate-cards:
+    name: "Generate Card Images"
+    binary: "cardgen"
+    args:
+      - "-deck"
+      - "${deck_id}"
+      - "-output"
+      - "${output_dir}"
+    timeout: "30s"
+    on_success:
+      subject: "jobs.svg-deck"
+      data:
+        deck_id: "${deck_id}"
+        card_dir: "${output_dir}"
+        output_svg: "${output_dir}/deck.svg"
+
+  svg-deck:
+    name: "Generate SVG Deck"
+    binary: "svgdeck"
+    args:
+      - "-input"
+      - "${card_dir}"
+      - "-output"
+      - "${output_svg}"
+    timeout: "15s"
+    on_success:
+      subject: "jobs.png-deck"
+      data:
+        input_svg: "${output_svg}"
+        output_png: "${output_dir}/deck.png"
+
+  png-deck:
+    name: "Generate PNG Deck"
+    binary: "pngdeck"
+    args:
+      - "-input"
+      - "${input_svg}"
+      - "-output"
+      - "${output_png}"
+    timeout: "20s"
+
+  # Example of a simple card generation workflow
+  simple-card:
+    name: "Simple Card Generation"
+    binary: "cardgen"
+    args:
+      - "-simple"
+      - "-card"
+      - "${card_name}"
+      - "-output"
+      - "${output_file}"
+    timeout: "10s"
+    env:
+      CARD_THEME: "${theme}"
+      CARD_STYLE: "${style}"
+
+  # Example of error handling
+  test-command:
+    name: "Test Command"
+    binary: "echo"
+    args:
+      - "Hello ${name}!"
+    timeout: "5s"
+    on_error:
+      subject: "jobs.error-handler"
+      data:
+        original_job: "${job_id}"
+        error_message: "Test command failed"

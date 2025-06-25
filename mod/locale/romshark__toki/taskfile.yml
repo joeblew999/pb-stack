@@ -5,6 +5,7 @@ version: '3'
 # MUST have this ONLY in root for env variables to work.
 dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
 
+interval: 1000ms
 
 includes:
   dev: 
@@ -12,35 +13,102 @@ includes:
     flatten: true
 
 tasks:
-  all:
+  default:
     cmds:
-      - task git:clone:src:del
-      - task git:clone:src
-      - task go:mod:work
-      - task go:bin
+      - task --list-all
 
-### Shows break downs for granular control...
+### install
 
-  src:
+  install:
+    desc: install the toki cli.
     cmds:
-      - task git:clone:src
-  src:del:
-    cmds:
-      - task git:clone:src:del
+      # just install it to get going.
+      # https://github.com/romshark/toki
+      - go install -v github.com/romshark/toki@latest
 
-  dep:
-    cmds:
-    - #go install -v github.com/wailsapp/wails/v3/cmd/wails3@latest
+      # tailwind installer.
+      - go install -v github.com/hookenz/gotailwind/v4@latest
+      - tailwindcss -h
 
-  mod:
+      #- go get -tool github.com/hookenz/gotailwind/v4@latest
+
+### help
+
+  run:help:
+    desc: help cli.
     cmds:
-      - task go:mod:work
-  dev:
+      - toki -h
+
+### init 
+
+  run:init:new:
+    desc: create new toki project. Example " TOKI_NAME=tokiexample TOKI_TEMPLATE=main-template.go task run:init:new "
+    requires:
+      vars: [TOKI_NAME, TOKI_TEMPLATE]
     cmds:
-      - task go:dev
-  bin:
+      # create golang stuff
+      - cd {{.USER_WORKING_DIR}} && mkdir -p {{.TOKI_NAME}} && cd {{.TOKI_NAME}}
+      
+      - cd {{.USER_WORKING_DIR}}/{{.TOKI_NAME}} && go mod init {{.TOKI_NAME}}
+      - cd {{.USER_WORKING_DIR}}/{{.TOKI_NAME}} && go mod tidy
+
+      # in case your in a mono repo.
+      - cd {{.USER_WORKING_DIR}}/{{.TOKI_NAME}} && touch go.work && go work use .
+      - cd {{.USER_WORKING_DIR}}/{{.TOKI_NAME}} && go work use .
+
+      # injects a main.go template. Assumes on disk. Can easily pull from repo using got also.
+      - cd {{.USER_WORKING_DIR}} && cp {{.TOKI_TEMPLATE}} {{.USER_WORKING_DIR}}/{{.TOKI_NAME}}/main.go
+      # in main.go change the module import name to match the {{.TOKI_NAME}}
+      - go install github.com/webdevops/go-replace@latest
+      - go-replace --mode=replace -s 'TOKI_NAME' -r '{{.TOKI_NAME}}' {{.USER_WORKING_DIR}}/{{.TOKI_NAME}}/main.go
+
+  run:init:del:
+    desc: delete toki project.
     cmds:
-      - task go:bin
-  run:
+      - cd {{.USER_WORKING_DIR}} && rm -rf {{.TOKI_NAME}}
+
+### gen
+
+  run:gen:help:
+    desc: gen help
     cmds:
-      - task go:run
+      - cd {{.USER_WORKING_DIR}} && toki generate -h
+
+  run:gen:default:
+    desc: gen default language bundle
+    cmds:
+      # Our default locale is en.
+      - cd {{.USER_WORKING_DIR}} && toki generate -l en
+      - cd {{.USER_WORKING_DIR}} && go mod tidy
+    verbose: true
+
+  run:gen:watch:
+    desc: gen default language bundle in watch mode.
+    watch: true
+    sources: 
+      - '**/*main.go'
+    generates:
+      - 'tokibundle/**/*'
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && task run:gen:default
+    verbose: true
+
+  run:gen:all:
+    desc: gen other language bundles
+    cmds:
+      # generate the other langs we use.
+      # NOT possible yet with TOKI ? 
+      - cd {{.USER_WORKING_DIR}} && toki generate de
+      - cd {{.USER_WORKING_DIR}} && go mod tidy
+
+### lint 
+
+  run:lint:help:
+    desc: lint default language bundle
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && toki lint -h
+
+  run:lint:default:
+    desc: lint default language bundle
+    cmds:
+      - cd {{.USER_WORKING_DIR}} && toki lint -v -l en

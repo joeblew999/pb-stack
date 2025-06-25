@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataStar WASM WebWorkers Demo</title>
+    <script type="module" defer src="https://cdn.jsdelivr.net/npm/@starfederation/datastar@latest"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .worker-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+        .info { background: rgba(33, 150, 243, 0.3); }
+        .file-list {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .file-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 DataStar WASM WebWorkers Demo</h1>
+        <p>This demo showcases <strong>late-bound WASM loading</strong> with <strong>DataStar reactive UI</strong> and <strong>Web Workers</strong>.</p>
+        
+        <div data-store='{"status": "Ready", "workerStatus": "Not loaded", "messages": []}'>
+            
+            <!-- Status Display -->
+            <div class="worker-section">
+                <h2>📊 System Status</h2>
+                <div class="status info" data-text="'Status: ' + $status"></div>
+                <div class="status" data-class="$workerStatus.includes('Error') ? 'error' : ($workerStatus.includes('Ready') ? 'success' : 'info')" 
+                     data-text="'Worker: ' + $workerStatus"></div>
+            </div>
+
+            <!-- WASM Files Available -->
+            <div class="worker-section">
+                <h2>📦 Available WASM Workers</h2>
+                <div class="file-list">
+                    <div class="file-item">✅ hello-worker.wasm - Hello World WASM worker</div>
+                    <div class="file-item">✅ controller.wasm - go-wasmww Controller</div>
+                    <div class="file-item">✅ wasm_exec.js - Go WASM runtime</div>
+                </div>
+            </div>
+
+            <!-- Worker Controls -->
+            <div class="worker-section">
+                <h2>🎮 Worker Controls</h2>
+                <button data-on-click="$status = 'Loading Hello Worker...'; loadHelloWorker()">
+                    Load Hello Worker
+                </button>
+                <button data-on-click="$status = 'Loading Controller...'; loadController()">
+                    Load Controller
+                </button>
+                <button data-on-click="$status = 'Testing WASM Support...'; testWASMSupport()">
+                    Test WASM Support
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div class="worker-section" data-show="$messages.length > 0">
+                <h2>📝 Messages</h2>
+                <div data-for="message in $messages">
+                    <div class="status info" data-text="message"></div>
+                </div>
+                <button data-on-click="$messages = []">Clear Messages</button>
+            </div>
+
+            <!-- Architecture Info -->
+            <div class="worker-section">
+                <h2>🏗️ Architecture</h2>
+                <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; overflow-x: auto;">
+DataStar UI ↔ go-wasmww Controller ↔ Late-Loaded WASM Workers
+     ↓                ↓                        ↓
+Reactive UI      Worker Management      Go Business Logic</pre>
+            </div>
+
+            <!-- Technology Stack -->
+            <div class="worker-section">
+                <h2>🔧 Technology Stack</h2>
+                <ul>
+                    <li><strong>DataStar</strong> - Reactive web framework</li>
+                    <li><strong>go-wasmww</strong> - WASM Web Worker abstraction</li>
+                    <li><strong>Go WASM</strong> - Business logic in Go</li>
+                    <li><strong>Web Workers</strong> - Non-blocking background processing</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WASM Support Detection
+        function testWASMSupport() {
+            if (typeof WebAssembly !== 'undefined') {
+                window.datastar.status = 'WASM Support: ✅ Available';
+                window.datastar.messages = [...(window.datastar.messages || []), 'WebAssembly is supported in this browser'];
+            } else {
+                window.datastar.status = 'WASM Support: ❌ Not Available';
+                window.datastar.messages = [...(window.datastar.messages || []), 'WebAssembly is not supported in this browser'];
+            }
+        }
+
+        // Load Hello Worker (placeholder)
+        function loadHelloWorker() {
+            window.datastar.status = 'Hello Worker loading...';
+            window.datastar.workerStatus = 'Initializing Hello Worker';
+            
+            // Simulate worker loading
+            setTimeout(() => {
+                window.datastar.status = 'Hello Worker loaded successfully!';
+                window.datastar.workerStatus = 'Hello Worker Ready';
+                window.datastar.messages = [...(window.datastar.messages || []), 'Hello Worker WASM module loaded'];
+            }, 1000);
+        }
+
+        // Load Controller (placeholder)
+        function loadController() {
+            window.datastar.status = 'Controller loading...';
+            window.datastar.workerStatus = 'Initializing go-wasmww Controller';
+            
+            // Simulate controller loading
+            setTimeout(() => {
+                window.datastar.status = 'Controller loaded successfully!';
+                window.datastar.workerStatus = 'Controller Ready';
+                window.datastar.messages = [...(window.datastar.messages || []), 'go-wasmww Controller WASM module loaded'];
+            }, 1500);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 DataStar WASM WebWorkers Demo initialized');
+            console.log('📦 Available WASM files:', ['hello-worker.wasm', 'controller.wasm']);
+            
+            // Test WASM support on load
+            testWASMSupport();
+        });
+    </script>
+</body>
+</html>

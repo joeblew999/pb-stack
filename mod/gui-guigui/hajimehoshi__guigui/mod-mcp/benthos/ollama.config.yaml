@@ -1,0 +1,16 @@
+# Common configuration fields, showing default values
+label: ""
+ollama_chat:
+  model: llama3.1 # No default (required)
+  prompt: "" # No default (optional)
+  image: 'root = this.image.decode("base64")' # Decode base64 encoded image. No default (optional)
+  response_format: text
+  max_tokens: 0 # No default (optional)
+  temperature: 0 # No default (optional)
+  save_prompt_metadata: false
+  history: "" # No default (optional)
+  tools: [] # No default (required)
+  runner:
+    context_size: 0 # No default (optional)
+    batch_size: 0 # No default (optional)
+  server_address: http://127.0.0.1:11434 # No default (optional)

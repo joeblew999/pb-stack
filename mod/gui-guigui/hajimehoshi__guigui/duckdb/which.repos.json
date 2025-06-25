@@ -1,0 +1,11 @@
+{
+  "organization": "hairyhenderson",
+  "repositories": [
+    {
+      "description": "A simple Go implementation of Unix which",
+      "name": "go-which",
+      "version": "v0.2.2"
+    }
+  ],
+  "version": "1"
+}

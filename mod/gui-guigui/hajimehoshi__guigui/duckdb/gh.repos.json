@@ -1,0 +1,11 @@
+{
+  "organization": "cli",
+  "repositories": [
+    {
+      "description": "GitHub's official command line tool",
+      "name": "cli",
+      "version": "v2.32.1"
+    }
+  ],
+  "version": "1"
+}

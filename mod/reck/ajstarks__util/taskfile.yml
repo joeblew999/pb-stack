@@ -23,7 +23,8 @@ tasks:
   bin:
     cmds:
       - task go:mod:work
-      - task go:bin
+      - task go:bin:native
+      # others
       - task go:bin:darwin
       - task go:bin:windows
       - task go:bin:wasm

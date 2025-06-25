@@ -1,0 +1,70 @@
+// Demo presentation showing various decksh features
+deck
+    slide "black" "white"
+        ctext "Decksh Demo" 50 85 10
+        ctext "Demonstrating various elements" 50 70 4
+        
+        // Some shapes
+        rect 20 50 15 8 "red"
+        circle 50 50 6 "green"
+        rect 80 50 15 8 "blue"
+        
+        // Labels
+        ctext "Rectangle" 20 40 2
+        ctext "Circle" 50 40 2
+        ctext "Rectangle" 80 40 2
+        
+        ctext "Navigate with arrow keys" 50 20 3
+    eslide
+    
+    slide "white" "black"
+        ctext "Text Alignment Demo" 50 90 6
+        
+        text "Left aligned text" 10 70 3
+        ctext "Center aligned text" 50 70 3
+        etext "Right aligned text" 90 70 3
+        
+        // Divider line
+        line 10 60 90 60 0.5 "gray"
+        
+        ctext "Different sizes:" 50 50 4
+        ctext "Small text" 30 35 2
+        ctext "Medium text" 50 35 3
+        ctext "Large text" 70 35 5
+        
+        ctext "Colors and styles" 50 15 3
+    eslide
+    
+    slide "lightgray" "darkblue"
+        ctext "Shapes and Lines" 50 90 6
+        
+        // Various shapes
+        circle 20 70 5 "red"
+        rect 40 70 10 8 "green"
+        circle 60 70 4 "blue"
+        rect 80 70 8 12 "orange"
+        
+        // Lines
+        line 10 50 90 50 1 "black"
+        line 10 45 90 45 2 "red"
+        line 10 40 90 40 3 "blue"
+        
+        ctext "Various line widths" 50 30 3
+        ctext "And different shapes" 50 20 3
+    eslide
+    
+    slide "navy" "white"
+        ctext "Final Slide" 50 80 8
+        ctext "Thank you for viewing!" 50 60 4
+        
+        // Decorative elements
+        circle 25 40 3 "gold"
+        circle 35 35 3 "gold"
+        circle 45 40 3 "gold"
+        circle 55 40 3 "gold"
+        circle 65 35 3 "gold"
+        circle 75 40 3 "gold"
+        
+        ctext "Press ESC to exit" 50 20 3
+    eslide
+edeck

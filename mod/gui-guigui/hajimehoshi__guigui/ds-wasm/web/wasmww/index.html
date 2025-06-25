@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataStar + go-wasmww Demo</title>
+    <script type="module" defer src="https://cdn.jsdelivr.net/npm/@starfederation/datastar@latest"></script>
+    <script src="wasm/wasm_exec.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .status-loaded {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .status-error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .worker-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h2 {
+            color: #495057;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .message-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .worker-select {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            margin: 8px;
+            font-size: 14px;
+        }
+        
+        .loading {
+            background: #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 DataStar + go-wasmww</h1>
+    <div class="mode-badge">LATE-BOUND WASM WORKERS</div>
+
+    <div id="controller-status" class="loading">
+        🔄 Loading go-wasmww Controller...
+    </div>
+
+    <!-- Controller Management -->
+    <div class="container">
+        <h2>🎮 Worker Controller</h2>
+        
+        <div class="status-card" 
+             data-class-status-loaded="$isWorkerLoaded" 
+             data-class-status-error="$workerStatus && $workerStatus.includes('Failed')">
+            <strong>Status:</strong> <span data-text="$workerStatus"></span><br>
+            <strong>Messages:</strong> <span data-text="$messageCount"></span><br>
+            <strong>Last Message:</strong> <span data-text="$lastMessage"></span>
+        </div>
+
+        <div>
+            <select class="worker-select" id="workerSelect">
+                <option value="wasm/hello-worker.wasm">Hello World Worker</option>
+                <option value="wasm/todo-worker.wasm">Todo Worker (Future)</option>
+                <option value="wasm/sse-worker.wasm">SSE Worker (Future)</option>
+            </select>
+            
+            <button data-on-click="loadSelectedWorker()" data-show="!$isWorkerLoaded">
+                📦 Load Worker
+            </button>
+            
+            <button data-on-click="unloadWorker()" data-show="$isWorkerLoaded">
+                🛑 Unload Worker
+            </button>
+        </div>
+    </div>
+
+    <!-- Worker Communication -->
+    <div class="container" data-show="$isWorkerLoaded">
+        <h2>📡 Worker Communication</h2>
+        
+        <div>
+            <button data-on-click="pingWorker()">
+                🏓 Ping Worker
+            </button>
+            
+            <button data-on-click="incrementWorker()">
+                ➕ Increment Counter
+            </button>
+            
+            <button data-on-click="resetWorker()">
+                🔄 Reset Counter
+            </button>
+            
+            <button data-on-click="sendCustomMessage()">
+                💬 Send Custom Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Worker State Display -->
+    <div class="container" data-show="$isWorkerLoaded && $workerState">
+        <h2>📊 Worker State</h2>
+        
+        <div class="worker-info">
+            <div class="info-card">
+                <div class="info-value" data-text="$workerState.counter || 0"></div>
+                <div class="info-label">Counter</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-value" data-text="$workerState.lastUpdate || 'N/A'"></div>
+                <div class="info-label">Last Update</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-value" data-text="$workerState.workerName || 'Unknown'"></div>
+                <div class="info-label">Worker Name</div>
+            </div>
+        </div>
+        
+        <div class="status-card">
+            <strong>Message:</strong> <span data-text="$workerState.message"></span><br>
+            <strong>Arguments:</strong> <span data-text="JSON.stringify($workerState.arguments || [])"></span><br>
+            <strong>Environment:</strong> <span data-text="($workerState.environment || []).length + ' variables'"></span>
+        </div>
+    </div>
+
+    <!-- Available Workers -->
+    <div class="container">
+        <h2>🔧 Available Workers</h2>
+        <p>This demo shows late-bound WASM loading with go-wasmww:</p>
+        
+        <ul>
+            <li><strong>Hello World Worker</strong> - Simple counter and messaging demo</li>
+            <li><strong>Todo Worker</strong> - Complex state management (future)</li>
+            <li><strong>SSE Worker</strong> - Server-sent events handling (future)</li>
+        </ul>
+        
+        <div class="status-card">
+            <strong>Architecture:</strong> DataStar UI ↔ go-wasmww Controller ↔ Late-Loaded WASM Workers<br>
+            <strong>Benefits:</strong> Dynamic loading, worker isolation, production-ready communication
+        </div>
+    </div>
+
+    <script>
+        let controllerReady = false;
+        
+        // Load and initialize go-wasmww Controller
+        async function loadController() {
+            const statusDiv = document.getElementById('controller-status');
+            
+            try {
+                statusDiv.textContent = '🔄 Fetching go-wasmww Controller...';
+                
+                const go = new Go();
+                const result = await WebAssembly.instantiateStreaming(
+                    fetch('wasm/controller.wasm'), 
+                    go.importObject
+                );
+                
+                statusDiv.textContent = '🚀 Starting go-wasmww Controller...';
+                go.run(result.instance);
+                
+                controllerReady = true;
+                statusDiv.className = 'success';
+                statusDiv.innerHTML = '✅ go-wasmww Controller loaded and ready!<br>📦 Ready to load WASM workers dynamically';
+                
+                console.log('✅ go-wasmww Controller loaded successfully');
+                
+                // Initialize DataStar store
+                if (typeof getControllerState === 'function') {
+                    updateDataStarStore(getControllerState());
+                }
+                
+            } catch (error) {
+                console.error('❌ Failed to load go-wasmww Controller:', error);
+                statusDiv.className = 'error';
+                statusDiv.innerHTML = `❌ Failed to load Controller:<br>${error.message}`;
+            }
+        }
+
+        // Function called by Controller to update DataStar store
+        window.updateDataStarStore = function(jsonData) {
+            if (!controllerReady) return;
+            
+            try {
+                const data = JSON.parse(jsonData);
+                
+                // Update DataStar store
+                window.datastar = window.datastar || {};
+                Object.assign(window.datastar, data);
+                
+                console.log('📊 Updated DataStar store:', data);
+            } catch (err) {
+                console.error('Error updating DataStar store:', err);
+            }
+        };
+
+        // Helper functions for UI
+        window.loadSelectedWorker = function() {
+            const select = document.getElementById('workerSelect');
+            const workerPath = select.value;
+            if (typeof loadWorker === 'function') {
+                loadWorker(workerPath);
+            }
+        };
+
+        window.sendCustomMessage = function() {
+            const message = prompt('Enter message to send to worker:');
+            if (message && typeof sendToWorker === 'function') {
+                sendToWorker(message);
+            }
+        };
+
+        // Initialize DataStar store
+        window.datastar = {
+            isWorkerLoaded: false,
+            workerStatus: 'Not loaded',
+            lastMessage: '',
+            messageCount: 0,
+            workerState: {},
+            availableWorkers: []
+        };
+
+        // Load controller when page loads
+        window.addEventListener('load', loadController);
+    </script>
+</body>
+</html>

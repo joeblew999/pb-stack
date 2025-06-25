@@ -1,0 +1,78 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  APP_NAME: xtask
+  BIN_DIR: .bin
+  CMD_DIR: ./cmd/xtask
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list-all
+    silent: true
+
+  build:
+    desc: "Build xtask binary"
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -o {{.BIN_DIR}}/{{.APP_NAME}} {{.CMD_DIR}}
+
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - rm -rf {{.BIN_DIR}}
+
+  clean:data:
+    desc: "Clean server data"
+    cmds:
+      - rm -rf .data
+
+  run:help:
+    desc: "Show xtask help"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} -h
+
+  run:server:
+    desc: "Start xtask server"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} server --verbose
+
+  run:server:bg:
+    desc: "Start xtask server in background"
+    deps: [build]
+    cmds:
+      - nohup ./{{.BIN_DIR}}/{{.APP_NAME}} server --port 8080 --nats-port 4223 --data-dir ./.data > xtask.log 2>&1 &
+
+  run:server:stop:
+    desc: "Stop background xtask server"
+    cmds:
+      - pkill -f 'xtask server' || true
+
+  run:tree:
+    desc: "Show directory tree"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} tree .
+
+  run:which:
+    desc: "Find binary location"
+    deps: [build]
+    cmds:
+      - ./{{.BIN_DIR}}/{{.APP_NAME}} which {{.CLI_ARGS | default "go"}}
+
+  test:
+    desc: "Run tests"
+    cmds:
+      - go test -v ./...
+
+  kill:server:
+    desc: "Kill xtask server processes"
+    cmds:
+      - pkill -f 'xtask server' || true
+  
+

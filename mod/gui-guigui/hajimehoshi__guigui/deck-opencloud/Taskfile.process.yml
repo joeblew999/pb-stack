@@ -1,0 +1,314 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# OpenCloud - Process Compose Tasks
+# This file contains all process-compose related tasks for process orchestration
+
+# Variables are inherited from the main Taskfile.yml when included
+vars:
+  PROCESS_FILE: processFile.yaml
+  # Tool binary names and paths
+  BIN_DIR: .bin
+  EXE_EXT: '{{if eq OS "windows"}}.exe{{end}}'
+  ARC_BIN: "{{.BIN_DIR}}/mod-arc{{.EXE_EXT}}"
+  WHICH_BIN: "{{.BIN_DIR}}/mod-which{{.EXE_EXT}}"
+  GOT_BIN: "{{.BIN_DIR}}/mod-got{{.EXE_EXT}}"
+  PROCESS_COMPOSE_BIN: "{{.BIN_DIR}}/process-compose{{.EXE_EXT}}"
+
+tasks:
+  # =============================================================================
+  # DEFAULT COMMAND
+  # =============================================================================
+
+  default:
+    desc: "Show process-compose status and available commands"
+    cmds:
+      - |
+        echo "=== Process-compose Variables ==="
+        echo "BIN_DIR: {{.BIN_DIR}}"
+        echo "EXE_EXT: {{.EXE_EXT}}"
+        echo "PROCESS_COMPOSE_BIN: {{.PROCESS_COMPOSE_BIN}}"
+        echo "PROCESS_FILE: {{.PROCESS_FILE}}"
+        echo "ARC_BIN: {{.ARC_BIN}}"
+        echo "WHICH_BIN: {{.WHICH_BIN}}"
+        echo "GOT_BIN: {{.GOT_BIN}}"
+        echo "=== End Variables ==="
+      - task --list --taskfile Taskfile.process.yml --sort alphanumeric
+
+  # =============================================================================
+  # PROCESS-COMPOSE INSTALLATION
+  # =============================================================================
+
+  dep:init:
+    desc: "Install required Go tools for dependency management"
+    #internal: true
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - |
+        echo "Installing required Go tools into {{.BIN_DIR}}..."
+        
+        # Detect OS
+        OS="{{OS}}"
+        EXE_EXT="{{.EXE_EXT}}"
+        
+        # Install arc for archive extraction
+        if [ ! -f "{{.ARC_BIN}}" ]; then
+          echo "Installing arc archive tool..."
+          GOBIN=$(pwd)/{{.BIN_DIR}} go install github.com/jm33-m0/arc/v2/cmd/arc@latest
+          if [ "$OS" = "windows" ]; then
+            mv {{.BIN_DIR}}/arc.exe {{.ARC_BIN}}
+          else
+            mv {{.BIN_DIR}}/arc {{.ARC_BIN}}
+          fi
+        fi
+        
+        # Install go-which for finding Go binaries
+        if [ ! -f "{{.WHICH_BIN}}" ]; then
+          echo "Installing go-which tool..."
+          GOBIN=$(pwd)/{{.BIN_DIR}} go install github.com/hairyhenderson/go-which/cmd/which@latest
+          if [ "$OS" = "windows" ]; then
+            mv {{.BIN_DIR}}/which.exe {{.WHICH_BIN}}
+          else
+            mv {{.BIN_DIR}}/which {{.WHICH_BIN}}
+          fi
+        fi
+        
+        # Install got tool
+        if [ ! -f "{{.GOT_BIN}}" ]; then
+          echo "Installing got tool..."
+          GOBIN=$(pwd)/{{.BIN_DIR}} go install github.com/melbahja/got/cmd/got@latest
+          if [ "$OS" = "windows" ]; then
+            mv {{.BIN_DIR}}/got.exe {{.GOT_BIN}}
+          else
+            mv {{.BIN_DIR}}/got {{.GOT_BIN}}
+          fi
+        fi
+        
+        echo "✅ Required Go tools installed successfully"
+
+  dep:
+    desc: "Install process-compose into local bin directory"
+    aliases: [install-process-compose]
+    deps: [dep:init]
+    cmds:
+      - |
+        # Check if already installed
+        if [ -f "{{.PROCESS_COMPOSE_BIN}}" ]; then
+          {{.PROCESS_COMPOSE_BIN}} version
+          exit 0
+        fi
+        
+        # Use Taskfile's built-in OS and ARCH variables
+        OS="{{OS}}"
+        ARCH="{{ARCH}}"
+        
+        # Map Taskfile's architecture names to process-compose's expected format
+        case $ARCH in
+          amd64|x86_64) ARCH="amd64" ;;
+          arm64|aarch64) ARCH="arm64" ;;
+          *) 
+            echo "Unsupported architecture: $ARCH"
+            exit 1 
+            ;;
+        esac
+        
+        # Convert OS to lowercase and check if supported
+        OS=$(echo "$OS" | tr '[:upper:]' '[:lower:]')
+        case $OS in
+          linux|darwin) 
+            echo "Detected OS: $OS, Architecture: $ARCH"
+            ;;
+          windows)
+            echo "Windows detected, using WSL compatibility mode"
+            ;;
+          *) 
+            echo "Unsupported OS: $OS"
+            exit 1 
+            ;;
+        esac
+        
+        # Create local temp directory
+        mkdir -p .tmp
+        
+        # Check GitHub API for latest release and correct download URL
+        echo "Checking latest release..."
+        RELEASE_INFO=$(curl -s https://api.github.com/repos/F1bonacc1/process-compose/releases/latest)
+        VERSION=$(echo "$RELEASE_INFO" | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
+        
+        # Find the correct asset URL for our platform
+        ASSET_PATTERN="process-compose.*$OS.*$ARCH"
+        DOWNLOAD_URL=$(echo "$RELEASE_INFO" | grep -o "https://github.com/F1bonacc1/process-compose/releases/download/$VERSION/[^\"]*$ASSET_PATTERN[^\"]*" | head -1)
+        
+        if [ -z "$DOWNLOAD_URL" ]; then
+          echo "❌ Could not find download URL for $OS-$ARCH"
+          echo "Available assets:"
+          echo "$RELEASE_INFO" | grep -o "https://github.com/F1bonacc1/process-compose/releases/download/$VERSION/[^\"]*" | sort
+          exit 1
+        fi
+        
+        echo "Found release: $VERSION"
+        echo "Downloading from: $DOWNLOAD_URL"
+        
+        # Download with better error handling using correct got flags
+        {{.GOT_BIN}} -o ".tmp/process-compose.tar.gz" "$DOWNLOAD_URL"
+        if [ $? -ne 0 ]; then
+          echo "Download failed"
+          rm -rf .tmp
+          exit 1
+        fi
+        
+        # Extract using tar (simpler and more reliable)
+        echo "Extracting archive..."
+        tar -xzf .tmp/process-compose.tar.gz -C .tmp
+        if [ $? -ne 0 ]; then
+          echo "Extraction failed"
+          rm -rf .tmp
+          exit 1
+        fi
+        
+        # Check if process-compose binary exists
+        if [ ! -f ".tmp/process-compose" ]; then
+          echo "Binary not found after extraction. Contents of temp directory:"
+          ls -la .tmp
+          echo "Extraction failed"
+          rm -rf .tmp
+          exit 1
+        fi
+        
+        # Make executable
+        chmod +x .tmp/process-compose
+        
+        # Move to our bin directory
+        mkdir -p {{.BIN_DIR}}
+        mv .tmp/process-compose "{{.BIN_DIR}}/process-compose{{.EXE_EXT}}"
+        
+        # Cleanup
+        rm -rf .tmp
+        
+        # Verify installation
+        if [ -f "{{.PROCESS_COMPOSE_BIN}}" ]; then
+          {{.PROCESS_COMPOSE_BIN}} version
+          echo "✅ process-compose installed successfully"
+        else
+          echo "❌ Installation failed"
+          exit 1
+        fi
+
+  dep:clean:
+    desc: "Remove installed process-compose binary"
+    deps: [dep:init]
+    cmds:
+      - |
+        if command -v process-compose >/dev/null 2>&1; then
+          BINARY_PATH=$(which process-compose)
+          if [ -n "$BINARY_PATH" ]; then
+            if [ -w "$BINARY_PATH" ]; then
+              rm -f "$BINARY_PATH"
+              echo "Removed $BINARY_PATH"
+            else
+              sudo rm -f "$BINARY_PATH"
+              echo "Removed $BINARY_PATH (with sudo)"
+            fi
+          fi
+        else
+          echo "process-compose not found in PATH"
+        fi
+
+  dep:update:
+    desc: "Update process-compose to latest version"
+    deps: [dep:init]
+    cmds:
+      - task: dep:clean
+      - task: dep
+
+
+  # =============================================================================
+  # PROCESS MANAGEMENT
+  # =============================================================================
+
+  kill:
+    desc: "Kill running OpenCloud server processes (alias for server-kill)"
+    cmds:
+      - task: server-kill
+
+  # =============================================================================
+  # PROCESS-COMPOSE CLI COMMANDS (pc:run:<CMD> pattern)
+  # =============================================================================
+
+  run:up:
+    desc: "Start all processes with process-compose"
+    aliases: [start]
+    cmds:
+      - ./.bin/process-compose --config {{.PROCESS_FILE}} up
+
+  run:up-detached:
+    desc: "Start all processes in detached mode"
+    aliases: [start-detached]
+    cmds:
+      - ./.bin/process-compose --detached --config {{.PROCESS_FILE}} up
+
+  run:down:
+    desc: "Stop all running processes"
+    aliases: [stop]
+    cmds:
+      - ./.bin/process-compose --config {{.PROCESS_FILE}} down
+
+  run:restart:
+    desc: "Restart all processes"
+    aliases: [restart]
+    cmds:
+      - task: run:down
+      - sleep 2
+      - task: run:up-detached
+
+  run:status:
+    desc: "Show status of all running processes"
+    aliases: [status]
+    cmds:
+      - ./.bin/process-compose process list
+
+  run:logs:
+    desc: "Show logs for all processes"
+    aliases: [logs]
+    cmds:
+      - ./.bin/process-compose process logs opencloud-server,opencloud-gui
+
+  run:logs-server:
+    desc: "Show logs for opencloud-server"
+    aliases: [logs-server]
+    cmds:
+      - ./.bin/process-compose process logs opencloud-server
+
+  run:logs-gui:
+    desc: "Show logs for opencloud-gui"
+    aliases: [logs-gui]
+    cmds:
+      - ./.bin/process-compose process logs opencloud-gui
+
+  run:attach:
+    desc: "Attach to running process-compose TUI"
+    cmds:
+      - ./.bin/process-compose --config {{.PROCESS_FILE}} attach
+
+  run:info:
+    desc: "Show process-compose configuration info"
+    cmds:
+      - ./.bin/process-compose --config {{.PROCESS_FILE}} info
+
+  run:list:
+    desc: "List available processes in config"
+    cmds:
+      - |
+        if [ -f "{{.PROCESS_FILE}}" ]; then
+          grep -E "^  [a-zA-Z].*:" {{.PROCESS_FILE}} | sed 's/://g' | sed 's/^  /- /'
+        else
+          echo "❌ Process file not found: {{.PROCESS_FILE}}"
+          exit 1
+        fi
+
+  run:version:
+    desc: "Check if process-compose is installed and show version"
+    aliases: [check-process-compose]
+    cmds:
+      - ./.bin/process-compose version

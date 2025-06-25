@@ -1,0 +1,8 @@
+workflows:
+  test-echo:
+    name: "Test Echo Command"
+    binary: "echo"
+    args: ["Hello", "from", "system", "binary!", "${message}"]
+    timeout: "5s"
+    env:
+      TEST_VAR: "test_value"

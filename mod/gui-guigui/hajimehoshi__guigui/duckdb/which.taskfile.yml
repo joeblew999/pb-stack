@@ -1,0 +1,97 @@
+# https://github.com/hairyhenderson/go-which
+
+version: '3'
+
+vars:
+  # https://github.com/hairyhenderson/go-which/releases/tag/v0.2.2
+  WHICH_VERSION: v0.2.2
+  WHICH_BIN: "{{.BASE_BIN_DIR}}/go-which"
+  WHICH_SRC_DIR: "{{.BASE_SRC_DIR}}/go-which"
+
+tasks:
+  default:
+    desc: "Lists available which tasks"
+    cmds:
+      - task --list-all --sort alphanumeric | grep "^* which:"
+    silent: true
+
+  dep:
+    desc: "Build and install go-which locally"
+    cmds:
+      - |
+        sh -c '
+          set -e
+          mkdir -p {{.LOCAL_BIN_DIR}} {{.LOCAL_BUILD_DIR}}
+          cd {{.LOCAL_BUILD_DIR}}
+          
+          # Force clean and clone
+          rm -rf {{.WHICH_SRC_DIR}}
+          git clone --depth 1 --branch {{.WHICH_VERSION}} --template= https://github.com/hairyhenderson/go-which.git go-which
+          cd go-which
+          
+          # Force clean module state
+          rm -f go.mod go.sum
+          go mod init github.com/hairyhenderson/go-which
+          go mod tidy
+          
+          # Build
+          cd cmd/which
+          GOWORK=off CGO_ENABLED=0 go build -o {{.WHICH_BIN}} .
+          
+          echo "Built which {{.WHICH_VERSION}} to {{.WHICH_BIN}}"
+        '
+
+  clean:
+    desc: "Clean which build artifacts"
+    cmds:
+      - rm -rf {{.WHICH_SRC_DIR}}
+      - rm -f {{.WHICH_BIN}}
+      - echo "Cleaned {{.WHICH_SRC_DIR}} and {{.WHICH_BIN}}"
+
+  which:
+    desc: "Find the location of a binary in PATH"
+    vars:
+      BIN: '{{default "" .BIN}}'
+    cmds:
+      - |
+        if [ -z "{{.BIN}}" ]; then
+          echo "Usage: task which:which BIN=<binary-name>"
+          echo "Example: task which:which BIN=go"
+          exit 1
+        fi
+        {{.WHICH_BIN}} {{.BIN}}
+    silent: true
+
+  test:
+    desc: "Run tests for go-which installation and functionality"
+    deps: [dep]
+    cmds:
+      - |
+        echo "Testing go-which installation and functionality:"
+        echo "--------------------------------------------"
+        
+        # Test binary exists and is executable
+        test -x {{.WHICH_BIN}} || { echo "❌ go-which binary not found or not executable"; exit 1; }
+        echo "✓ go-which binary exists and is executable"
+        
+        # Test version output
+        {{.WHICH_BIN}} -v 2>&1 | grep -q "go-which.*version" || { echo "❌ go-which version check failed"; exit 1; }
+        echo "✓ go-which reports version correctly"
+        
+        # Test finding system binaries
+        {{.WHICH_BIN}} go >/dev/null || { echo "❌ Failed to find go binary"; exit 1; }
+        echo "✓ Can find system binary (go)"
+        
+        # Test error on non-existent binary
+        if {{.WHICH_BIN}} nonexistentbinary123xyz >/dev/null 2>&1; then
+          echo "❌ Should fail on non-existent binary"
+          exit 1
+        fi
+        echo "✓ Correctly handles non-existent binaries"
+        
+        # Test finding our own binary
+        {{.WHICH_BIN}} go-which | grep -q "go-which" || { echo "❌ Cannot find itself"; exit 1; }
+        echo "✓ Can find local binaries"
+        
+        echo "--------------------------------------------"
+        echo "✓ All tests passed!"

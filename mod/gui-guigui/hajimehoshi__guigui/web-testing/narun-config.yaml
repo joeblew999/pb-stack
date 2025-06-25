@@ -1,0 +1,109 @@
+# Narun Configuration for Web Testing Framework
+apiVersion: narun/v1
+kind: ServiceSpec
+metadata:
+  name: web-testing
+  version: v1.0.0
+  description: "Rod-based web testing framework for browser automation"
+
+spec:
+  # Binary configuration
+  binary_object: web-testing-v1.0.0
+  binary_path: "./.bin/web-testing"
+  
+  # Target deployment
+  target_nodes: ["test-runner-*", "ci-*"]
+  replicas: 3
+  
+  # Service configuration
+  service:
+    name: "web-testing"
+    type: "http"
+    port: 8080
+    health_check: "/health"
+  
+  # Runtime configuration
+  runtime:
+    security_mode: "landlock"
+    user: "testing"
+    working_dir: "/app"
+    command: ["web-testing", "server"]
+    args: ["--port", "8080", "--headless"]
+    
+  # Resource limits (testing needs more resources)
+  resources:
+    memory: "1Gi"
+    cpu: "2.0"
+    disk: "500Mi"
+  
+  # Environment variables
+  environment:
+    - name: "TESTING_MODE"
+      value: "server"
+    - name: "BROWSER_HEADLESS"
+      value: "true"
+    - name: "SCREENSHOT_DIR"
+      value: "/app/screenshots"
+    - name: "PARALLEL_TESTS"
+      value: "4"
+    - name: "LOG_LEVEL"
+      value: "debug"
+  
+  # File system access
+  filesystem:
+    read_only:
+      - "/app/tests"
+      - "/app/frameworks"
+      - "/usr/lib"
+      - "/usr/bin/chromium"
+    read_write:
+      - "/tmp"
+      - "/app/screenshots"
+      - "/app/test-results"
+      - "/app/logs"
+    execute:
+      - "/usr/bin/chromium"
+      - "/usr/bin/chrome"
+  
+  # NATS Micro service registration
+  nats:
+    service_name: "web-testing"
+    description: "Web Testing Framework service"
+    version: "1.0.0"
+    queue_group: "testing"
+  
+  # Dependencies
+  dependencies:
+    - name: "chromium"
+      source: "browsers/chromium-latest"
+      target: "/app/bin/chromium"
+    - name: "test-data"
+      source: "test-data/common"
+      target: "/app/test-data"
+  
+  # Secrets
+  secrets:
+    - name: "test-credentials"
+      mount_path: "/app/secrets/credentials"
+  
+  # Monitoring
+  monitoring:
+    metrics_port: 9090
+    log_level: "debug"
+    tracing: true
+  
+  # Testing-specific configuration
+  testing:
+    timeout: "300s"
+    retry_count: 3
+    parallel_jobs: 4
+    screenshot_on_failure: true
+    video_recording: false
+  
+  # Auto-scaling for CI/CD
+  scaling:
+    min_replicas: 1
+    max_replicas: 10
+    target_cpu: 60
+    target_memory: 70
+    scale_down_delay: "5m"

@@ -1,0 +1,90 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  BINARY_NAME_BASE: hatch-server
+  BINARY_EXT: "{{if eq OS \"windows\"}}.exe{{else}}{{end}}"
+  BINARY_NAME: "{{.BINARY_NAME_BASE}}{{.BINARY_EXT}}"
+  LOCAL_BIN_DIR: "{{.USER_WORKING_DIR}}/.bin"
+  LOCAL_BIN_PATH: "{{.LOCAL_BIN_DIR}}/{{.BINARY_NAME}}"
+
+tasks:
+  default:
+    desc: "Lists all available hatch tasks"
+    cmds:
+      - task --list-all --sort alphanumeric | grep "^* hatch:"
+    silent: true
+
+  dep:
+    desc: "Install and configure the {{.BINARY_NAME_BASE}} binary in .bin directory"
+    cmds:
+      - mkdir -p {{.LOCAL_BIN_DIR}}
+      - GOBIN={{.LOCAL_BIN_DIR}} go install github.com/TFMV/hatch/cmd/server@latest
+      - mv {{.LOCAL_BIN_DIR}}/server {{.LOCAL_BIN_PATH}}
+      - echo "Installed {{.BINARY_NAME}} to {{.LOCAL_BIN_PATH}}"
+
+  dep:which:
+    desc: "Show the location and info of the {{.BINARY_NAME_BASE}} binary"
+    cmds:
+      - |
+        if [ -f "{{.LOCAL_BIN_PATH}}" ]; then
+          echo "Binary location: {{.LOCAL_BIN_PATH}}"
+          ls -lh {{.LOCAL_BIN_PATH}}
+          file {{.LOCAL_BIN_PATH}}
+        else
+          echo "{{.BINARY_NAME}} not found in {{.LOCAL_BIN_DIR}}"
+        fi
+
+  serve:
+    desc: "Start the {{.BINARY_NAME_BASE}} Flight SQL Server with config"
+    cmds:
+      - '{{.LOCAL_BIN_PATH}} serve --config ./config.yaml'
+
+  run:help:
+    desc: "Show help information for {{.BINARY_NAME_BASE}}"
+    cmds:
+      - '{{.LOCAL_BIN_PATH}} --help'
+
+  run:version:
+    desc: "Print version information for {{.BINARY_NAME_BASE}}"
+    cmds:
+      - '{{.LOCAL_BIN_PATH}} version'
+
+  run:completion:
+    desc: "Generate shell autocompletion scripts in ./completions directory"
+    cmds:
+      - mkdir -p ./completions
+      - '{{.LOCAL_BIN_PATH}} completion bash > ./completions/{{.BINARY_NAME_BASE}}.bash'
+      - '{{.LOCAL_BIN_PATH}} completion zsh > ./completions/{{.BINARY_NAME_BASE}}.zsh'
+      - '{{.LOCAL_BIN_PATH}} completion fish > ./completions/{{.BINARY_NAME_BASE}}.fish'
+      - echo "Completion scripts generated in ./completions/"
+      - echo "To use temporarily, run 'source ./completions/{{.BINARY_NAME_BASE}}.bash' for bash"
+      - echo "                    or 'source ./completions/{{.BINARY_NAME_BASE}}.zsh' for zsh"
+      - echo "                    or 'source ./completions/{{.BINARY_NAME_BASE}}.fish' for fish"
+
+  run:completion:enable:
+    desc: "Enable completions for current shell session (temporary)"
+    cmds:
+      - |
+        echo "# Source this file to enable completions"
+        echo "# Usage: source <(task hatch:run:completion:enable)"
+        if echo $SHELL | grep -q "bash"; then
+          cat ./completions/{{.BINARY_NAME_BASE}}.bash
+        elif echo $SHELL | grep -q "zsh"; then
+          cat ./completions/{{.BINARY_NAME_BASE}}.zsh
+        elif echo $SHELL | grep -q "fish"; then
+          cat ./completions/{{.BINARY_NAME_BASE}}.fish
+        else
+          echo "echo 'Unsupported shell ($SHELL). Completions available for: bash, zsh, fish'"
+        fi
+
+  run:serve:
+    desc: "Start the {{.BINARY_NAME_BASE}} Flight SQL Server"
+    cmds:
+      - '{{.LOCAL_BIN_PATH}} serve'
+
+  run:kill:
+    desc: "Kill any running {{.BINARY_NAME_BASE}} processes"
+    cmds:
+      - pkill -f {{.BINARY_NAME_BASE}} || true

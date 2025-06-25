@@ -1,0 +1,83 @@
+
+# https://taskfile.dev
+
+# Base taskfile for common infrastructure and utilities
+# Designed to be included in any taskfile to provide common functionality
+# Contains shared directory structure and base utilities
+
+version: '3'
+
+vars:
+  BASE_BIN_DIR: '{{.USER_WORKING_DIR}}/.bin'
+  BASE_SRC_DIR: '{{.USER_WORKING_DIR}}/.src'
+  BASE_TEST_DIR: '{{.USER_WORKING_DIR}}/.test'
+  BASE_TMP_DIR: '{{.USER_WORKING_DIR}}/.tmp'
+
+tasks:
+  default:
+    desc: "Lists tasks for base infrastructure"
+    cmds:
+      - task --list-all --sort alphanumeric | grep "^* base:"
+    silent: true
+
+  init:
+    desc: "Initialize workspace directories"
+    cmds:
+      - mkdir -p {{.BASE_BIN_DIR}}
+      - mkdir -p {{.BASE_SRC_DIR}}
+      - mkdir -p {{.BASE_TEST_DIR}}
+      - mkdir -p {{.BASE_TMP_DIR}}
+      - echo "✓ Created workspace directories"
+    silent: true
+
+  
+  completion:create:
+    desc: "Build and install the task completion helper"
+    dir: cmd/completion
+    cmds:
+      - go build -o ../../{{.BASE_BIN_DIR}}/task-completion
+      - ../../{{.BASE_BIN_DIR}}/task-completion install
+      - echo "Task completion has been installed globally"
+
+  completion:enable:
+    desc: "Run this to test completion in current shell"
+    cmds:
+      - |
+        echo "Completion is now provided by the task-completion binary."
+        echo "It was installed by running 'task base:completion:create'."
+        echo "You can test it by typing 'task ' and pressing TAB."
+        
+
+  file:list:
+    desc: base file listing to help AI.
+    cmds:
+      - ls -al
+
+  process:list:
+    desc: lists processes with details (PID, CPU, Memory, Command)
+    cmds:
+      - ps -eo pid,pcpu,pmem,command | head -1
+      - ps -eo pid,pcpu,pmem,command | grep -v "ps -eo" | sort -k2 -r | head -10
+
+  process:list:all:
+    desc: lists all processes with full details
+    cmds:
+      - ps -ef
+
+  process:kill:
+    desc: kill a process by name or PID (usage - task process:kill -- <name|pid>)
+    cmds:
+      - |
+        if [[ "{{.CLI_ARGS}}" =~ ^[0-9]+$ ]]; then
+          kill {{.CLI_ARGS}} || echo "Failed to kill process with PID {{.CLI_ARGS}}"
+        else
+          pkill -f "{{.CLI_ARGS}}" || echo "Failed to kill processes matching '{{.CLI_ARGS}}'"
+        fi
+
+  process:search:
+    desc: search for specific processes (usage - task process:search -- <name>)
+    cmds:
+      - echo "Searching for processes matching '{{.CLI_ARGS}}'"
+      - echo "USER               PID  %CPU %MEM      VSZ    RSS   TT  STAT STARTED      TIME COMMAND"
+      - ps aux | grep -i "{{.CLI_ARGS}}" | grep -v "grep" || echo "No matching processes found"
+  

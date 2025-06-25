@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+# MUST have this ONLY in root for env variables to work.
+dotenv: ['dev.env', '{{.ENV}}/.env', '{{.HOME}}/.env']
+
+
+includes:
+  dev: 
+    taskfile: ./../../../dev-taskfile.yml
+    flatten: true
+
+tasks:
+  default:
+    desc: root default 
+    cmds:
+      - echo
+
+  make:
+    cmds:
+      - cd go-wasmww/examples/shared/serve && make
+
+
+  dev:
+    desc: root dev 
+    cmds:
+      - task go:bin:wasm:del
+
+      - task GO_VAR_BIN_NAME=hello  GO_VAR_BIN_ENTRY_PATH=examples/shared/worker go:bin:wasm
+
+      - task GO_VAR_BIN_NAME=shared_control  GO_VAR_BIN_ENTRY_PATH=examples/shared/control go:dev:wasm:chrome
+
+      #- task GO_VAR_BIN_NAME=shared_control  GO_VAR_BIN_ENTRY_PATH=examples/shared/control go:bin:wasm
+      #- task GO_VAR_BIN_NAME=shared_serve  GO_VAR_BIN_ENTRY_PATH=examples/shared/serve go:dev
+
+
+
+

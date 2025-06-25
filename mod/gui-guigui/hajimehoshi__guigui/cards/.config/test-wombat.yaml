@@ -1,0 +1,7 @@
+input:
+  generate:
+    interval: 5s
+    mapping: 'root = {"message": "hello"}'
+
+output:
+  stdout:

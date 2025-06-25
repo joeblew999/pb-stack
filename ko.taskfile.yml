@@ -23,13 +23,14 @@ vars:
 
 tasks:
   default:
+    desc: ko default print
     cmds:
       - echo ''
       - echo '- bin'
       - echo 'KO_BIN_NAME:'                 {{.KO_BIN_NAME}}
       - echo 'KO_BIN_VERSION:'              {{.KO_BIN_VERSION}}
       - echo 'KO_BIN_WHICH:'                
-      - task re:dep:which
+      #- task re:dep:which
       - echo 'KO_BIN_WHICH_VERSION:'        {{.KO_BIN_WHICH_VERSION}}
       - echo ''
     silent: true

@@ -11,27 +11,164 @@ includes:
     taskfile: ./../../../dev-taskfile.yml
     flatten: true
 
+vars:
+  # not used
+  OS_VAR: ["windows", "linux", "darwin"]
+  ARCH_VAR: ["amd64", "arm64"]
+
+
+  CODEPIC_BIN_ENTRY: './cmd/codepicdeck'
+  CODEPIC_BIN_NAME: 'codepicdeck'
+
+  DECKD_BIN_ENTRY: './cmd/deckd'
+  DECKD_BIN_NAME: 'deckd'
+
+  DECKINFO_BIN_ENTRY: './cmd/deckinfo'
+  DECKINFO_BIN_NAME: 'deckinfo'
+
+  DECKWEB_BIN_ENTRY: './cmd/deckweb'
+  DECKWEB_BIN_NAME: 'deckweb'
+
+  PDF_BIN_ENTRY: './cmd/pdfdeck'
+  PDF_BIN_NAME: 'pdfdeck'
+
+  PNG_BIN_ENTRY: './cmd/pngdeck'
+  PNG_BIN_NAME: 'pngdeck'
+
+  SVG_BIN_ENTRY: './cmd/svgdeck'
+  SVG_BIN_NAME: 'svgdeck'
+
+
+
+  SVG_BIN_VAR: ['./cmd/svgdeck', 'svgdeck']
+
+  SRC_PATH_VAR: ['./cmd/codepicdeck', './cmd/deckd']
+  BIN_NAME_VAR: ["codepicdeck", "deckd"]
+
+  # I need a simple list for each so i have fully control.
+  BIN_VARS: ['darwin', 'arm64', './cmd/codepicdeck', './cmd/deckd']
+  BIN_VARS: ['linux', 'amd64', './cmd/codepicdeck', './cmd/deckd']
+  BIN_VARS: ['linux', 'arm64', './cmd/codepicdeck', './cmd/deckd']
+  BIN_VARS: ['windows', 'amd64', './cmd/codepicdeck', './cmd/deckd']
+  BIN_VARS: ['windows', 'arm64', './cmd/codepicdeck', './cmd/deckd']
 
 tasks:
   all:
     cmds:
+      - task src
+      - task bin
+  src:
+    cmds:
       #- task git:clone:src:check
       - task git:clone:src:del
       - task git:clone:src
+  bin:
+    desc: explicitly call the OS and ARCH for each cmd in the src code.
+    cmds:
       - task go:mod:work
-      - task go:bin
+      - task go:mod:tidy
+      # native
+      #- for:
+      #    var: SRC_PATH_VAR
+      #  cmd: task GO_VAR_BIN_ENTRY_PATH='{{.ITEM}}' GO_VAR_BIN_NAME='{{.BIN_NAME_VAR}}' go:bin:native 
+      - task GO_VAR_BIN_ENTRY_PATH='{{.CODEPIC_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.CODEPIC_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKD_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKD_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKINFO_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKINFO_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKWEB_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKWEB_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.PNG_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.PNG_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.PDF_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.PDF_BIN_NAME}}' go:bin:native
+      - task GO_VAR_BIN_ENTRY_PATH='{{.SVG_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.SVG_BIN_NAME}}' go:bin:native
+      
+      # wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.CODEPIC_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.CODEPIC_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKD_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKD_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKINFO_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKINFO_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKWEB_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKWEB_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.PNG_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.PNG_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.PDF_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.PDF_BIN_NAME}}' go:bin:wasm
+      - task GO_VAR_BIN_ENTRY_PATH='{{.SVG_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.SVG_BIN_NAME}}' go:bin:wasm
+      
+      # windows
+      - task GO_VAR_BIN_ENTRY_PATH='{{.CODEPIC_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.CODEPIC_BIN_NAME}}' go:bin:windows
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKD_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKD_BIN_NAME}}' go:bin:windows
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKINFO_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKINFO_BIN_NAME}}' go:bin:windows
+      - task GO_VAR_BIN_ENTRY_PATH='{{.DECKWEB_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.DECKWEB_BIN_NAME}}' go:bin:windows
+      - task GO_VAR_BIN_ENTRY_PATH='{{.PNG_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.PNG_BIN_NAME}}' go:bin:windows
+      - task GO_VAR_BIN_ENTRY_PATH='{{.PDF_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.PDF_BIN_NAME}}' go:bin:windows
+      - task GO_VAR_BIN_ENTRY_PATH='{{.SVG_BIN_ENTRY}}' GO_VAR_BIN_NAME='{{.SVG_BIN_NAME}}' go:bin:windows
+      
 
-  multi:
-    vars:
+# others
+      #- task go:bin:darwin
+      #- task go:bin:windows
+      # works
+      #- task go:bin:wasm
+
+  run:
+    cmds:
+      - task go:run:native -- -h
+
+
+
+
+
+# works, but needs BIN name passed in too.
+# .ITEM and matrix seems to work.
+# https://github.com/go-task/task/blob/main/website/docs/usage.mdx
+
+  bins:
+    #vars:
       # https://taskfile.dev/blog/any-variables/
-      LIST: ['./cmd/codepicdeck', './cmd/deckd']
-    
-    #cmds:
-    #  - GO_VAR_BIN_ENTRY_PATH='./cmd/codepicdeck' task go:bin
+    #  LIST: ['./cmd/codepicdeck', './cmd/deckd']
     cmds:
       - for:
-          var: LIST
-        #cmd: echo {{.ITEM}}
-        cmd: GO_VAR_SRC_MAIN_PATH='{{.ITEM}}' task go:bin
+          var: SRC_PATH_VAR
+        cmd: echo {{.ITEM}} 
+        #cmd: GO_VAR_SRC_MAIN_PATH='{{.ITEM}}' task go:bin:native
 
-  
+  bins2:
+    cmds:
+      - for:
+          matrix:
+            PATH:
+              ref: .SRC_PATH_VAR
+            BIN:
+              ref: .BIN_NAME_VAR
+
+        cmd: echo "{{.ITEM.PATH}}   {{.ITEM.BIN}}"
+        
+
+  bins1:
+    cmds:
+      - for:
+          matrix:
+            OS:
+              ref: .OS_VAR
+            ARCH:
+              ref: .ARCH_VAR
+            PATH:
+              ref: .SRC_PATH_VAR
+            BIN:
+              ref: .BIN_NAME_VAR
+
+        cmd: echo "{{.ITEM.OS}}  {{.ITEM.ARCH}}   {{.ITEM.PATH}}   {{.ITEM.BIN}}"
+        
+
+  matrix:
+    silent: true
+    cmds:
+      - for:
+          matrix:
+            OS: ["windows", "linux", "darwin"]
+            ARCH: ["amd64", "arm64"]
+        cmd: echo "{{.ITEM.OS}}/{{.ITEM.ARCH}}"
+
+  matrix1:
+    cmds:
+      - for:
+          matrix:
+            OS:
+              ref: .OS_VAR
+            ARCH:
+              ref: .ARCH_VAR
+        cmd: echo "{{.ITEM.OS}}/{{.ITEM.ARCH}}"

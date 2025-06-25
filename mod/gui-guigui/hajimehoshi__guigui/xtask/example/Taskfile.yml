@@ -1,0 +1,175 @@
+version: '3'
+
+vars:
+  XTASK: '../xtask{{.TASK_EXE_EXT}}'
+  APP_NAME: 'hello-world'
+  BUILD_DIR: '.build'
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - echo "xtask Example Project"
+      - echo "===================="
+      - echo ""
+      - echo "SETUP:"
+      - echo "  build-xtask     - Build the xtask binary"
+      - echo "  server-start    - Start xtask server"
+      - echo "  server-stop     - Stop xtask server"
+      - echo "  server-status   - Check server status"
+      - echo ""
+      - echo "DEVELOPMENT:"
+      - echo "  build           - Build example application"
+      - echo "  run             - Run example application"
+      - echo "  test            - Run tests"
+      - echo "  clean           - Clean build artifacts"
+      - echo ""
+      - echo "XTASK TOOLS:"
+      - echo "  which           - Test xtask which command"
+      - echo "  download        - Test xtask download"
+      - echo "  health-check    - Test xtask health check"
+      - echo "  tree            - Show directory tree"
+      - echo "  port-test       - Test port management"
+
+  # xtask setup
+  build-xtask:
+    desc: "Build the xtask binary"
+    dir: '..'
+    cmds:
+      - go build -o xtask{{.TASK_EXE_EXT}} ./cmd/xtask
+      - echo "✅ xtask binary built"
+
+  server-start:
+    desc: "Start xtask server"
+    deps: [build-xtask]
+    cmds:
+      - echo "🚀 Starting xtask server..."
+      - '{{.XTASK}} server --port 8080 --nats-port 4222 --data-dir ./.data &'
+      - '{{.XTASK}} wait-for-port 8080 30s'
+      - echo "✅ xtask server is ready"
+      - echo "🌐 Web UI: http://localhost:8080/web"
+      - echo "📡 NATS: nats://localhost:4222"
+
+  server-stop:
+    desc: "Stop xtask server"
+    cmds:
+      - echo "🛑 Stopping xtask server..."
+      - '{{.XTASK}} kill-port 8080'
+      - '{{.XTASK}} kill-port 4222'
+      - echo "✅ xtask server stopped"
+
+  server-status:
+    desc: "Check server status"
+    cmds:
+      - echo "📊 xtask server status:"
+      - '{{.XTASK}} health-check http://localhost:8080/health'
+
+  # Development tasks
+  build:
+    desc: "Build example application"
+    deps: [build-xtask]
+    cmds:
+      - echo "🔨 Building {{.APP_NAME}}..."
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.APP_NAME}}{{.TASK_EXE_EXT}} ./main.go
+      - echo "✅ Built {{.APP_NAME}}"
+
+  run:
+    desc: "Run example application"
+    deps: [build]
+    cmds:
+      - echo "🚀 Running {{.APP_NAME}}..."
+      - ./{{.BUILD_DIR}}/{{.APP_NAME}}{{.TASK_EXE_EXT}}
+
+  test:
+    desc: "Run tests"
+    deps: [build-xtask]
+    cmds:
+      - echo "🧪 Running tests..."
+      - go test ./...
+      - echo "✅ Tests passed"
+
+  clean:
+    desc: "Clean build artifacts"
+    cmds:
+      - echo "🧹 Cleaning build artifacts..."
+      - '{{.XTASK}} silent rm -rf {{.BUILD_DIR}}'
+      - '{{.XTASK}} silent rm -rf .data'
+      - echo "✅ Cleaned"
+
+  # xtask tool demonstrations
+  which:
+    desc: "Test xtask which command"
+    deps: [build-xtask]
+    cmds:
+      - echo "🔍 Testing xtask which command:"
+      - '{{.XTASK}} which go'
+      - '{{.XTASK}} which task'
+      - '{{.XTASK}} which nonexistent || echo "❌ nonexistent binary not found (expected)"'
+
+  download:
+    desc: "Test xtask download"
+    deps: [build-xtask]
+    cmds:
+      - echo "📥 Testing xtask download:"
+      - mkdir -p downloads
+      - '{{.XTASK}} got https://httpbin.org/json -o downloads/test.json'
+      - echo "✅ Downloaded test file"
+      - '{{.XTASK}} tree downloads'
+
+  health-check:
+    desc: "Test xtask health check"
+    deps: [build-xtask]
+    cmds:
+      - echo "🏥 Testing xtask health check:"
+      - '{{.XTASK}} health-check https://httpbin.org/status/200'
+      - '{{.XTASK}} health-check https://httpbin.org/status/404 || echo "❌ 404 status (expected)"'
+
+  tree:
+    desc: "Show directory tree"
+    deps: [build-xtask]
+    cmds:
+      - echo "📁 Directory tree:"
+      - '{{.XTASK}} tree .'
+
+  port-test:
+    desc: "Test port management"
+    deps: [build-xtask]
+    cmds:
+      - echo "🔌 Testing port management:"
+      - echo "Starting test server on port 9999..."
+      - '{{.XTASK}} silent python3 -m http.server 9999 &'
+      - '{{.XTASK}} wait-for-port 9999 10s'
+      - echo "✅ Port 9999 is ready"
+      - '{{.XTASK}} health-check http://localhost:9999'
+      - echo "🛑 Stopping test server..."
+      - '{{.XTASK}} kill-port 9999'
+      - echo "✅ Port management test complete"
+
+  # Distributed examples (requires server)
+  distributed-test:
+    desc: "Test distributed xtask features"
+    deps: [server-start]
+    cmds:
+      - echo "🌐 Testing distributed features:"
+      - echo "Using server for command execution..."
+      - '{{.XTASK}} --server-url http://localhost:8080 which go'
+      - '{{.XTASK}} --server-url http://localhost:8080 health-check https://httpbin.org/status/200'
+      - echo "✅ Distributed test complete"
+
+  # Full demo
+  demo:
+    desc: "Run full xtask demonstration"
+    cmds:
+      - task: clean
+      - task: build-xtask
+      - task: which
+      - task: download
+      - task: health-check
+      - task: tree
+      - task: build
+      - task: run
+      - task: test
+      - echo ""
+      - echo "🎉 xtask demonstration complete!"
+      - echo "💡 Try 'task server-start' to test server features"

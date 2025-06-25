@@ -26,6 +26,8 @@ includes:
   #  flatten: true
   ko:         
     taskfile: ./ko.taskfile.yml
-  re:         
+  re:
     taskfile: ./re.taskfile.yml
+  narun:
+    taskfile: ./narun.taskfile.yml
 

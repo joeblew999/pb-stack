@@ -1,0 +1,52 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+    silent: true
+
+  # https://docs.redpanda.com/redpanda-connect/configuration/about/
+
+  dep:
+    cmds:
+      # https://github.com/redpanda-data/connect
+      - brew install redpanda-data/tap/redpanda
+
+
+  run:help:
+    desc: help
+    cmds:
+      - rpk -h
+  
+  run:gen:
+    cmds:
+      - rpk generate app
+
+  run:plugin:
+    cmds:
+      - rpk plugin list
+      - rpk plugin install
+      - rpk plugin uninstall
+
+  run:connect:help:
+    desc: run 
+    cmds:
+      - rpk connect -h
+      #- rpk connect list
+
+  run:connect:
+    desc: run 
+    cmds:
+      - rpk connect run ./config.yaml
+
+  run:connect:ollama:
+    desc: runs ollama
+    cmds:
+      - rpk connect run ./ollama.config.yaml
+    

@@ -1,0 +1,88 @@
+# Narun Configuration for DataStar WASM WebWorkers
+apiVersion: narun/v1
+kind: ServiceSpec
+metadata:
+  name: ds-wasm-webworkers
+  version: v1.0.0
+  description: "DataStar WASM WebWorkers with late-bound loading"
+
+spec:
+  # Binary configuration
+  binary_object: ds-wasm-webworkers-v1.0.0
+  binary_path: "./web/wasm/hello-worker.wasm"
+  
+  # Target deployment
+  target_nodes: ["dev-node-1", "edge-device-*"]
+  replicas: 2
+  
+  # Service configuration
+  service:
+    name: "ds-wasm-webworkers"
+    type: "http"
+    port: 8080
+    health_check: "/health"
+  
+  # Runtime configuration
+  runtime:
+    security_mode: "landlock"
+    user: "narun"
+    working_dir: "/app"
+    
+  # Resource limits
+  resources:
+    memory: "256Mi"
+    cpu: "0.5"
+    disk: "100Mi"
+  
+  # Environment variables
+  environment:
+    - name: "DATASTAR_MODE"
+      value: "webworkers"
+    - name: "WASM_WORKERS_COUNT"
+      value: "4"
+    - name: "LOG_LEVEL"
+      value: "info"
+  
+  # File system access (Landlock rules)
+  filesystem:
+    read_only:
+      - "/app/web"
+      - "/app/wasm"
+      - "/usr/lib"
+    read_write:
+      - "/tmp"
+      - "/app/logs"
+  
+  # NATS Micro service registration
+  nats:
+    service_name: "ds-wasm-webworkers"
+    description: "DataStar WASM WebWorkers service"
+    version: "1.0.0"
+    queue_group: "webworkers"
+  
+  # Dependencies
+  dependencies:
+    - name: "wasm_exec.js"
+      source: "go-runtime/wasm_exec.js"
+      target: "/app/wasm/wasm_exec.js"
+    - name: "datastar"
+      source: "datastar/v1.0.0-beta.11/datastar.js"
+      target: "/app/web/datastar.js"
+  
+  # Secrets (if needed)
+  secrets:
+    - name: "api-key"
+      mount_path: "/app/secrets/api-key"
+  
+  # Monitoring
+  monitoring:
+    metrics_port: 9090
+    log_level: "info"
+    tracing: true
+  
+  # Auto-scaling (future)
+  scaling:
+    min_replicas: 1
+    max_replicas: 5
+    target_cpu: 70
+    target_memory: 80

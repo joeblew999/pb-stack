@@ -58,7 +58,7 @@ vars:
   GO_VAR_BIN_ENTRY_PATH: '{{ .GO_VAR_BIN_ENTRY_PATH | default "." }}'
   GO_VAR_BIN_MOD_PATH: '{{ .GO_VAR_BIN_ENTRY_PATH | default "." }}'
   # EX: "CGO_ENABLED=1"
-  GO_VAR_BIN_FLAG_PRE: '{{ .GO_VAR_BIN_FLAG_PRE | default "" }}'
+  GO_VAR_BIN_FLAG_PRE: '{{ .GO_VAR_BIN_FLAG_PRE | default "CGO_ENABLED=0" }}'
   # -X flag requires argument of the form importpath.name=value
   # ex: -tags main -ldflags=-X
   GO_VAR_BIN_FLAG_POST: '{{ .GO_VAR_BIN_FLAG_POST | default "" }}'
@@ -244,14 +244,6 @@ tasks:
 
 ### dev
 
-  dev:
-    desc: go dev
-    cmds:
-      - echo ''
-      - echo 'dev'
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} run .
-      - echo ''
-    silent: false
   dev:help:
     desc: go dev help
     cmds:
@@ -260,13 +252,23 @@ tasks:
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} run . -h
       - echo ''
     silent: false
+
+  dev:native:
+    desc: go dev
+    cmds:
+      - echo ''
+      - echo 'dev'
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_BIN_NAME}} run .
+      - echo ''
+    silent: false
+  
   dev:wasm:
     desc: go dev wasm
     cmds:
       - echo ''
       - echo 'dev wasm'
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} run .
-  dev:wasm:serve:
+  dev:wasm-serve:
     desc: go dev wasm server with with CLI_ARGS support.
     cmds:
       # see: 
@@ -274,7 +276,7 @@ tasks:
       - go install github.com/hajimehoshi/wasmserve@latest
       - echo ' http://localhost:8080/ '
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && wasmserve {{.CLI_ARGS}}
-  dev:wasm:chrome:
+  dev:wasm-chrome:
     desc: go dev wasm in chrome with .CLI_ARGS support.
     cmds:
       - echo ''
@@ -283,34 +285,10 @@ tasks:
 
 ### bin
 
-  bin:
-    desc: build binary
-    cmds:
-      #- task go:mod:work
-      - echo ''
-      - echo 'bin'
-      - echo GO_VAR_SRC_MAIN_PATH:'{{.GO_VAR_SRC_MAIN_PATH}}'
-      - echo
-
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
-      - echo ''
-    silent: false
   bin:del:
+    desc: deletes the .bin folder fully.
     cmds:
-      - rm -f {{.GO_VAR_BIN_NATIVE_PATH}}
-
-  bin:wasm:
-    desc: build go wasm
-    cmds:
-      - echo ''
-      - echo 'bin'
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
-      - cp {{.GO_ENV_ROOT_PATH}}/lib/wasm/wasm_exec.js {{.BASE_BIN_PATH}}/wasm_exec.js
-      - echo ''
-  bin:wasm:del:
-    cmds:
-      - rm -f {{.GO_VAR_BIN_WASM_PATH}}
-      - rm -f {{.BASE_BIN_PATH}}/wasm_exec.js
+      - rm -rf {{.BASE_BIN_PATH}}
 
   bin:all:
     desc: build binary
@@ -332,9 +310,9 @@ tasks:
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=freebsd GOARCH=amd64 {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_{{.BASE_BINARY_FREEBSD_AMD64_EXTENSION}}
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=freebsd GOARCH=arm64 {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_{{.BASE_BINARY_FREEBSD_ARM64_EXTENSION}}
       # linux
-      - task go:bin:linux
+      - task go:bin:native:linux
       # windows
-      - task go:bin:windows
+      - task go:bin:native:windows
       - echo ''
     silent: false
 
@@ -345,7 +323,7 @@ tasks:
       - echo ''
       - echo 'bin darwin'
       # darwin
-      - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=darwin GOARCH=amd64 {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_{{.BASE_BINARY_DARWIN_AMD64_EXTENSION}}
+      #- cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=darwin GOARCH=amd64 {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_{{.BASE_BINARY_DARWIN_AMD64_EXTENSION}}
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=darwin GOARCH=arm64 {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_{{.BASE_BINARY_DARWIN_ARM64_EXTENSION}}
   bin:linux:
     desc: build linux
@@ -366,22 +344,46 @@ tasks:
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=windows GOARCH=amd64 {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_{{.BASE_BINARY_WINDOWS_AMD64_EXTENSION}}
       - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=windows GOARCH=arm64 {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.BASE_BIN_PATH}}/{{.GO_VAR_BIN_NAME}}_{{.BASE_BINARY_WINDOWS_ARM64_EXTENSION}}
 
+
+  bin:native:
+    desc: build binary
+    cmds:
+      #- task go:mod:work
+      - echo ''
+      - echo 'bin'
+      - echo GO_VAR_SRC_MAIN_PATH:'{{.GO_VAR_SRC_MAIN_PATH}}'
+      - echo GO_VAR_BIN_NAME:'{{.GO_VAR_BIN_NAME}}'
+      - echo
+
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && {{.GO_VAR_BIN_FLAG_PRE}} {{.GO_BIN_NAME}} build {{.GO_VAR_BIN_FLAG_POST}} -o {{.GO_VAR_BIN_NATIVE_PATH}}
+      - echo ''
+    silent: false
+  bin:native-del:
+    cmds:
+      - rm -f {{.GO_VAR_BIN_NATIVE_PATH}}
+
+  bin:wasm:
+    desc: build go wasm
+    cmds:
+      - echo ''
+      - echo 'bin'
+      - cd {{.GO_VAR_SRC_MAIN_PATH}} && GOOS=js GOARCH=wasm {{.GO_BIN_NAME}} build -o {{.GO_VAR_BIN_WASM_PATH}}
+      - cp {{.GO_ENV_ROOT_PATH}}/lib/wasm/wasm_exec.js {{.BASE_BIN_PATH}}/wasm_exec.js
+      - echo ''
+  bin:wasm-del:
+    cmds:
+      - rm -f {{.GO_VAR_BIN_WASM_PATH}}
+      - rm -f {{.BASE_BIN_PATH}}/wasm_exec.js
+
+  
 ### run
 
-  run:
+  run:native:
     desc: run with CLI_ARGS support.
     cmds:
       - echo ''
       - echo 'run'
       - '{{.GO_VAR_BIN_NATIVE_PATH}} {{.CLI_ARGS}}'
-      - echo ''
-    silent: false
-  run:help:
-    desc: run
-    cmds:
-      - echo ''
-      - echo 'run'
-      - '{{.GO_VAR_BIN_NATIVE_PATH}} -h'
       - echo ''
     silent: false
   run:web:

@@ -44,17 +44,27 @@ tasks:
       - echo ''
     silent: true
 
-  all:
+  all:git:
     cmds:
       - cd ajstarks__deck && task all
       - cd ajstarks__decksh && task all
       - cd ajstarks__deckviz && task all
       - cd ajstarks__ebcanvas && task all
       - cd ajstarks__font && task all
+
+  all:bin:
+    cmds:
+      - cd ajstarks__deck && task bin
+      - cd ajstarks__decksh && task bin
+      - cd ajstarks__deckviz && task bin
+      - cd ajstarks__ebcanvas && task bin
+      - cd ajstarks__font && task bin
       
+### pack ( the bins below into this level)
+
   pack:up:
     cmds:
-      # cp "up" using .bin pattern ! works :)
+      # works very well.
       - mkdir -p ./.bin
       - cp ./*/.bin/* ./{{.BASE_BIN_NAME}}
   pack:list:
@@ -64,9 +74,11 @@ tasks:
     cmds:
       - rm -f ./{{.BASE_BIN_NAME}}/*deck*
 
+### install ( not needed, as BASE_BIN_NAME works well )
+
   install:
     cmds:
-      # copy all of .bin into the go bin, so we have it on path. Imp to work this way
+      # copy all of .bin into the go bin, so we have it on path. easier to work this way
       - cp ./{{.BASE_BIN_NAME}}/*deck* {{.GO_ENV_BIN_PATH}}
       
   install:list:

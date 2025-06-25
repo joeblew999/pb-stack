@@ -1,0 +1,143 @@
+# Taskfile.yml — minimal but powerful live-reload workflow
+# Requires: Task >= v3.30, Go 1.22+, templ, goimports
+
+version: "3"
+
+# -------- Global defaults (override at CLI: APP_NAME=myapi task hot) ----------
+vars:
+  APP_NAME:   binrun
+  BIN_DIR:    bin
+  BIN_NAME:   "{{.APP_NAME}}"
+  VERSION:    v0.1.0
+
+interval: 200ms          # watcher polling interval
+env:
+  GO_ENV:   development  # overridden in prod task
+  CGO_ENABLED: "0"       # static binaries by default
+
+# -----------------------------------------------------------------------------  
+tasks:
+  # --- Dev tool bootstrap ----------------------------------------------------
+  tools:
+    desc: "Install Task, templ & goimports + NATS tooling"
+    cmds:
+      - go install github.com/go-task/task/v3/cmd/task@latest
+      - go install github.com/a-h/templ/cmd/templ@latest
+      - go install golang.org/x/tools/cmd/goimports@latest
+      - go install github.com/nats-io/natscli/nats@latest
+      - go install github.com/nats-io/nats-server/v2@latest
+      - go install filippo.io/mkcert@latest
+
+# --- Certificate generation ------------------------------------------------------------
+  certs:
+    desc: "Creates the Certs that NATS and Web needs so we are using https."
+    cmds:
+      - mkcert -install
+      # for NATS Certs
+      - mkdir -p {{.BIN_DIR}}//local_certs/
+      - mkcert -cert-file {{.BIN_DIR}}/local_certs/localhost+2.pem -key-file {{.BIN_DIR}}/local_certs/localhost+2-key.pem localhost ::1
+      # for WEB Certs
+      - cd {{.BIN_DIR}} && mkcert localhost
+  certs:test:
+    cmds:
+      # just to test our certs are good for standard nats server.
+      - nats-server --tls --tlscert={{.BIN_DIR}}/local_certs/localhost+2.pem --tlskey={{.BIN_DIR}}/local_certs/localhost+2-key.pem -ms 8222
+  
+# --- Formatting & tidying --------------------------------------------------
+  fmt:
+    desc: "Run goimports + gofmt"
+    cmds:
+      - goimports -w .
+      - gofmt -w -s .
+
+  tidy:
+    desc: "go mod tidy & verify"
+    cmds:
+      - go mod tidy && go mod verify
+
+  # --- Code generation -------------------------------------------------------
+  templ:
+    desc: "Generate *_templ.go"
+    sources: ["**/*.templ"]
+    generates: ["**/*_templ.go"]
+    cmds:
+      - templ generate .
+
+  # --- Build helpers ---------------------------------------------------------
+  build:
+    desc: "Build dev binary to {{.BIN_DIR}}/{{.BIN_NAME}}"
+    deps: [templ, fmt, tidy]
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - go build -o {{.BIN_DIR}}/{{.BIN_NAME}} ./cmd/{{.APP_NAME}}
+
+  # --- Process helpers -------------------------------------------------------
+  kill:
+    desc: "Kill running {{.BIN_NAME}} process (matching command line)"
+    silent: true
+    cmds:
+      # Use pkill -f to match the command path, more reliable than -x
+      - pkill -f "{{.BIN_DIR}}/{{.BIN_NAME}}" 2>/dev/null || true
+
+  # --- Hot-reload loop -------------------------------------------------------
+  hot:
+    desc: "Rebuild, restart, repeat — use with `task --watch hot`"
+    method: none
+    silent: true
+    sources:
+      - "**/*.go"
+      - "**/*.templ"
+      - "**/*.css"
+    deps: [kill, build]
+    cmds:
+      # The binary exposes nats server on https://127.0.0.1:1422, and web on https://localhost:8080
+      - "cd {{.BIN_DIR}} && HEADLESS=false SIM=false ./{{.BIN_NAME}}"
+
+  # --- NATS helpers  -------------------------------------------------------
+  
+  nats:server:test:
+    desc: "Check (in a separate terminal window) that the embedded nats server is up and running on port 1422"
+    cmds:
+      - lsof -i :4222
+  nats:cli:test:
+    desc: "Use the Nats CLI (in a separate terminal window) to test working with the embedded nats server"
+    cmds:
+      - nats --server nats://localhost:4222 pub event.orders.created '{"order_id":123,"status":"NEW"}'
+      - nats --server nats://localhost:4222 kv put sessions Alice '{"subscriptions":["event.orders.created"]}'
+
+
+  # --- Web helpers  -------------------------------------------------------
+  web:test:home:
+    desc: "Check (in a separate terminal window) that the web home page is up."
+    cmds:
+      - curl https://localhost:8080
+  web:test:sse:
+    desc: "Check (in a separate terminal window) that the web sse stream is up."
+    cmds:
+      - curl https://localhost:8080/ui
+
+
+  # --- Git helpers -----------------------------------------------------------
+  git:tag:
+    desc: "Create & push git tag {{.VERSION}}"
+    preconditions:
+      - sh: git diff --quiet
+        msg: "Working tree is dirty — commit first."
+      - sh: '[ "$(git rev-parse --abbrev-ref HEAD)" = "master" ]'
+        msg: "Tag only from master branch."
+    cmds:
+      - git tag {{.VERSION}}
+      - git push origin {{.VERSION}}
+
+  git:release:
+    desc: "Push master branch plus tag"
+    deps: [git:tag]
+    cmds:
+      - git push origin master
+
+  # --- Convenience aliases ---------------------------------------------------
+
+  default:
+    desc: "runs the hot reload server"
+    cmds:
+      - task -w hot

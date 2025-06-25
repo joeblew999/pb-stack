@@ -1,0 +1,419 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+# narun.taskfile.yml - NATS-based microservice deployment and management
+
+# Narun is a lightweight HTTP gateway designed to bridge incoming HTTP requests
+# to backend services communicating over NATS. It provides:
+# - HTTP/gRPC gateway with NATS Micro backend
+# - Node runner for edge device deployment (Linux only)
+# - Binary distribution via NATS JetStream Object Store
+# - Service lifecycle management with Landlock security
+#
+# NOTE: Narun requires Linux for full functionality (Landlock, cgroups)
+# Development can be done on any platform, deployment targets Linux edge devices
+
+version: '3'
+
+vars:
+  ### narun binaries
+  
+  # narun gateway
+  NARUN_GW_BIN_NAME: 'narun-gw{{.BASE_BINARY_EXTENSION}}'
+  NARUN_GW_BIN_VERSION: latest
+  
+  # narun node runner
+  NARUN_NODE_BIN_NAME: 'node-runner{{.BASE_BINARY_EXTENSION}}'
+  NARUN_NODE_BIN_VERSION: latest
+  
+  # narun management CLI
+  NARUN_CLI_BIN_NAME: 'narun{{.BASE_BINARY_EXTENSION}}'
+  NARUN_CLI_BIN_VERSION: latest
+  
+  # caddy with narun plugin
+  NARUN_CADDY_BIN_NAME: 'caddy-narun{{.BASE_BINARY_EXTENSION}}'
+  NARUN_CADDY_BIN_VERSION: latest
+
+  ### narun configuration
+  
+  # NATS connection
+  NARUN_NATS_URL: '{{ .NARUN_NATS_URL | default "nats://localhost:4222" }}'
+  
+  # gateway configuration
+  NARUN_GW_HTTP_ADDR: '{{ .NARUN_GW_HTTP_ADDR | default ":8080" }}'
+  NARUN_GW_GRPC_ADDR: '{{ .NARUN_GW_GRPC_ADDR | default ":8081" }}'
+  NARUN_GW_METRICS_ADDR: '{{ .NARUN_GW_METRICS_ADDR | default ":9090" }}'
+  NARUN_GW_CONFIG_PATH: '{{ .NARUN_GW_CONFIG_PATH | default "./narun-gateway.yaml" }}'
+  
+  # node runner configuration
+  NARUN_NODE_ID: '{{ .NARUN_NODE_ID | default "dev-node-1" }}'
+  NARUN_NODE_DATA_DIR: '{{ .NARUN_NODE_DATA_DIR | default "./narun-data" }}'
+  NARUN_NODE_WEB_ADDR: '{{ .NARUN_NODE_WEB_ADDR | default ":9101" }}'
+  
+  # deployment configuration
+  NARUN_APP_NAME: '{{ .NARUN_APP_NAME | default "my-app" }}'
+  NARUN_APP_CONFIG: '{{ .NARUN_APP_CONFIG | default "./narun-app.yaml" }}'
+  NARUN_APP_BINARY: '{{ .NARUN_APP_BINARY | default "./.bin/{{.NARUN_APP_NAME}}" }}'
+
+tasks:
+  default:
+    desc: "Show narun tasks and configuration"
+    cmds:
+      - echo "Narun - NATS Microservice Platform"
+      - echo "=================================="
+      - echo ""
+      - echo "SETUP:"
+      - echo "  install          - Install all narun binaries"
+      - echo "  install-gw       - Install narun gateway"
+      - echo "  install-node     - Install node runner"
+      - echo "  install-cli      - Install narun CLI"
+      - echo "  install-caddy    - Install Caddy with narun plugin"
+      - echo "  which            - Check which narun binaries are installed"
+      - echo "  which-deps       - Check if go-which dependency is installed"
+      - echo ""
+      - echo "GATEWAY:"
+      - echo "  gw-start         - Start narun gateway"
+      - echo "  gw-stop          - Stop narun gateway"
+      - echo "  gw-config        - Generate gateway config"
+      - echo ""
+      - echo "NODE RUNNER:"
+      - echo "  node-start       - Start node runner"
+      - echo "  node-stop        - Stop node runner"
+      - echo "  node-ui          - Open node runner web UI"
+      - echo ""
+      - echo "DEPLOYMENT:"
+      - echo "  deploy           - Deploy application"
+      - echo "  logs             - Stream application logs"
+      - echo "  list-apps        - List deployed applications"
+      - echo "  list-images      - List stored binaries"
+      - echo "  delete-app       - Delete application"
+      - echo ""
+      - echo "DEVELOPMENT:"
+      - echo "  dev-stack        - Start full development stack"
+      - echo "  dev-stop         - Stop development stack"
+      - echo "  dev-status       - Show development stack status"
+      - echo ""
+      - echo "CONFIG{{":"}}"
+      - echo "  NARUN_NATS_URL{{":"}}      {{.NARUN_NATS_URL}}"
+      - echo "  NARUN_GW_HTTP_ADDR{{":"}}  {{.NARUN_GW_HTTP_ADDR}}"
+      - echo "  NARUN_NODE_ID{{":"}}       {{.NARUN_NODE_ID}}"
+    silent: true
+
+  ### Installation tasks
+
+  install:
+    desc: "Install all narun binaries"
+    deps: [install-gw, install-node, install-cli, install-caddy]
+
+  install-gw:
+    desc: "Install narun gateway"
+    cmds:
+      - echo "📦 Installing narun gateway..."
+      - '{{.GO_BIN_NAME}} install github.com/akhenakh/narun/cmd/narun-gw@{{.NARUN_GW_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/narun-gw{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.NARUN_GW_BIN_NAME}}
+      - echo "✅ Narun gateway installed"
+
+  install-node:
+    desc: "Install narun node runner"
+    cmds:
+      - echo "📦 Installing narun node runner..."
+      - '{{.GO_BIN_NAME}} install github.com/akhenakh/narun/cmd/node-runner@{{.NARUN_NODE_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/node-runner{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.NARUN_NODE_BIN_NAME}}
+      - echo "✅ Narun node runner installed"
+
+  install-cli:
+    desc: "Install narun management CLI"
+    cmds:
+      - echo "📦 Installing narun CLI..."
+      - '{{.GO_BIN_NAME}} install github.com/akhenakh/narun/cmd/narun@{{.NARUN_CLI_BIN_VERSION}}'
+      - mv {{.GO_ENV_BIN_PATH}}/narun{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/{{.NARUN_CLI_BIN_NAME}}
+      - echo "✅ Narun CLI installed"
+
+  install-caddy:
+    desc: "Install Caddy with narun plugin"
+    cmds:
+      - echo "📦 Installing Caddy with narun plugin..."
+      - '{{.GO_BIN_NAME}} install github.com/caddyserver/xcaddy/cmd/xcaddy@latest'
+      - xcaddy build --output {{.BASE_DEP_PATH}}/{{.NARUN_CADDY_BIN_NAME}} --with github.com/akhenakh/narun/caddynarun@{{.NARUN_CADDY_BIN_VERSION}}
+      - echo "✅ Caddy with narun plugin installed"
+
+  which:
+    desc: "Check which narun binaries are installed"
+    deps: [which-deps]
+    cmds:
+      - echo "🔍 Checking narun binary installations..."
+      - echo ""
+      - |
+        # Use go-which (ensured by which-deps dependency)
+        GO_WHICH_PATH="{{.BASE_DEP_PATH}}/which{{.BASE_BINARY_EXTENSION}}"
+        WHICH_CMD="$GO_WHICH_PATH"
+        echo "✅ Using go-which from {{.BASE_DEP_PATH}}"
+        echo ""
+
+        # Check narun gateway
+        echo -n "🌐 narun-gw{{":"}} "
+        NARUN_GW_PATH="{{.BASE_DEP_PATH}}/{{.NARUN_GW_BIN_NAME}}"
+        if [ -f "$NARUN_GW_PATH" ]; then
+          echo "✅ Found at $NARUN_GW_PATH"
+        else
+          echo "❌ Not found"
+        fi
+
+        # Check node runner
+        echo -n "🎮 node-runner{{":"}} "
+        NARUN_NODE_PATH="{{.BASE_DEP_PATH}}/{{.NARUN_NODE_BIN_NAME}}"
+        if [ -f "$NARUN_NODE_PATH" ]; then
+          echo "✅ Found at $NARUN_NODE_PATH"
+        else
+          echo "❌ Not found"
+        fi
+
+        # Check narun CLI
+        echo -n "🔧 narun{{":"}} "
+        NARUN_CLI_PATH="{{.BASE_DEP_PATH}}/{{.NARUN_CLI_BIN_NAME}}"
+        if [ -f "$NARUN_CLI_PATH" ]; then
+          echo "✅ Found at $NARUN_CLI_PATH"
+        else
+          echo "❌ Not found"
+        fi
+
+        # Check Caddy with narun plugin
+        echo -n "📦 caddy-narun{{":"}} "
+        NARUN_CADDY_PATH="{{.BASE_DEP_PATH}}/{{.NARUN_CADDY_BIN_NAME}}"
+        if [ -f "$NARUN_CADDY_PATH" ]; then
+          echo "✅ Found at $NARUN_CADDY_PATH"
+        else
+          echo "❌ Not found"
+        fi
+
+        echo ""
+        echo "💡 Install missing binaries with{{":"}} task narun{{":"}}install"
+        echo "⚠️  Note{{":"}} narun binaries may have platform-specific requirements"
+
+  which-deps:
+    desc: "Check if go-which dependency is installed"
+    cmds:
+      - echo "🔍 Checking go-which installation..."
+      - echo ""
+      - |
+        GO_WHICH_PATH="{{.BASE_DEP_PATH}}/which{{.BASE_BINARY_EXTENSION}}"
+
+        if [ -f "$GO_WHICH_PATH" ]; then
+          echo "✅ go-which found at{{":"}} $GO_WHICH_PATH"
+          echo "📋 Version info{{":"}}"
+          $GO_WHICH_PATH --version 2>/dev/null || echo "   (version info not available)"
+        else
+          echo "❌ go-which not found at{{":"}} $GO_WHICH_PATH"
+          echo ""
+          echo "💡 Install go-which with{{":"}}"
+          echo "   task base{{":"}}tools  # Installs go-which and other tools"
+          echo "   # OR manually{{":"}}"
+          echo "   go install github.com/hairyhenderson/go-which@latest"
+          echo "   mv {{.GO_ENV_BIN_PATH}}/which{{.BASE_BINARY_EXTENSION}} {{.BASE_DEP_PATH}}/"
+        fi
+        echo ""
+        echo "🌟 go-which provides cross-platform 'which' functionality"
+        echo "📦 Used by narun tasks for binary detection"
+
+  ### Gateway tasks
+
+  gw-config:
+    desc: "Generate narun gateway configuration"
+    cmds:
+      - echo "🔧 Generating narun gateway config..."
+      - |
+        cat > {{.NARUN_GW_CONFIG_PATH}} << 'EOF'
+        # Narun Gateway Configuration
+        nats_url: "{{.NARUN_NATS_URL}}"
+        server_addr: "{{.NARUN_GW_HTTP_ADDR}}"
+        grpc_addr: "{{.NARUN_GW_GRPC_ADDR}}"
+        metrics_addr: "{{.NARUN_GW_METRICS_ADDR}}"
+        request_timeout_seconds: 15
+
+        routes:
+          # DataStar WASM WebWorkers
+          - path: "/wasm/"
+            methods: ["GET", "POST"]
+            service: "ds-wasm-webworkers"
+
+          # Web Testing Framework
+          - path: "/test/"
+            methods: ["GET", "POST"]
+            service: "web-testing"
+
+          # GUI Robot Automation
+          - path: "/gui/"
+            methods: ["GET", "POST"]
+            service: "gui-robot"
+
+          # Health check
+          - path: "/health"
+            methods: ["GET"]
+            service: "health-check"
+        EOF
+      - echo "✅ Gateway config generated{{":"}} {{.NARUN_GW_CONFIG_PATH}}"
+
+  gw-start:
+    desc: "Start narun gateway"
+    deps: [gw-config]
+    cmds:
+      - echo "🚀 Starting narun gateway..."
+      - echo "🌐 HTTP Gateway{{":"}} http{{":"}}//localhost{{.NARUN_GW_HTTP_ADDR}}"
+      - echo "🔧 gRPC Gateway{{":"}} http{{":"}}//localhost{{.NARUN_GW_GRPC_ADDR}}"
+      - echo "📊 Metrics{{":"}} http{{":"}}//localhost{{.NARUN_GW_METRICS_ADDR}}/metrics"
+      - '{{.NARUN_GW_BIN_NAME}} -config {{.NARUN_GW_CONFIG_PATH}}'
+
+  gw-stop:
+    desc: "Stop narun gateway"
+    cmds:
+      - echo "🛑 Stopping narun gateway..."
+      - pkill -f "{{.NARUN_GW_BIN_NAME}}" || true
+      - echo "✅ Gateway stopped"
+
+  ### Node runner tasks
+
+  node-start:
+    desc: "Start narun node runner"
+    cmds:
+      - echo "🚀 Starting narun node runner..."
+      - echo "🎮 Node ID{{":"}} {{.NARUN_NODE_ID}}"
+      - echo "📁 Data Dir{{":"}} {{.NARUN_NODE_DATA_DIR}}"
+      - echo "🌐 Web UI{{":"}} http{{":"}}//localhost{{.NARUN_NODE_WEB_ADDR}}"
+      - mkdir -p {{.NARUN_NODE_DATA_DIR}}
+      - '{{.NARUN_NODE_BIN_NAME}} -nats-url {{.NARUN_NATS_URL}} -node-id {{.NARUN_NODE_ID}} -data-dir {{.NARUN_NODE_DATA_DIR}}'
+
+  node-stop:
+    desc: "Stop narun node runner"
+    cmds:
+      - echo "🛑 Stopping narun node runner..."
+      - pkill -f "{{.NARUN_NODE_BIN_NAME}}" || true
+      - echo "✅ Node runner stopped"
+
+  node-ui:
+    desc: "Open node runner web UI"
+    cmds:
+      - echo "🌐 Opening node runner UI..."
+      - open http://localhost{{.NARUN_NODE_WEB_ADDR}} || xdg-open http://localhost{{.NARUN_NODE_WEB_ADDR}} || echo "Open http://localhost{{.NARUN_NODE_WEB_ADDR}} in your browser"
+
+  ### Deployment tasks
+
+  deploy:
+    desc: "Deploy application to narun"
+    cmds:
+      - echo "🚀 Deploying {{.NARUN_APP_NAME}}..."
+      - echo "📦 Binary{{":"}} {{.NARUN_APP_BINARY}}"
+      - echo "⚙️  Config{{":"}} {{.NARUN_APP_CONFIG}}"
+      - '{{.NARUN_CLI_BIN_NAME}} deploy -config {{.NARUN_APP_CONFIG}} -binary {{.NARUN_APP_BINARY}}'
+      - echo "✅ Application deployed"
+
+  logs:
+    desc: "Stream application logs"
+    cmds:
+      - echo "📋 Streaming logs for {{.NARUN_APP_NAME}}..."
+      - '{{.NARUN_CLI_BIN_NAME}} logs {{.NARUN_APP_NAME}}'
+
+  list-apps:
+    desc: "List deployed applications"
+    cmds:
+      - echo "📋 Deployed applications:"
+      - '{{.NARUN_CLI_BIN_NAME}} list-apps'
+
+  list-images:
+    desc: "List stored binaries"
+    cmds:
+      - echo "📦 Stored binaries:"
+      - '{{.NARUN_CLI_BIN_NAME}} list-images'
+
+  delete-app:
+    desc: "Delete application"
+    cmds:
+      - echo "🗑️  Deleting {{.NARUN_APP_NAME}}..."
+      - '{{.NARUN_CLI_BIN_NAME}} delete-app {{.NARUN_APP_NAME}}'
+      - echo "✅ Application deleted"
+
+  ### Development stack tasks
+
+  dev-stack:
+    desc: "Start full narun development stack"
+    cmds:
+      - echo "🚀 Starting narun development stack..."
+      - echo "This will start{{":"}}"
+      - echo "  - NATS server (if not running)"
+      - echo "  - Narun gateway"
+      - echo "  - Narun node runner"
+      - echo ""
+      - task: nats-start
+      - task: gw-start &
+      - task: node-start &
+      - echo "✅ Development stack started"
+      - echo "🌐 Gateway{{":"}} http{{":"}}//localhost{{.NARUN_GW_HTTP_ADDR}}"
+      - echo "🎮 Node UI{{":"}} http{{":"}}//localhost{{.NARUN_NODE_WEB_ADDR}}"
+
+  dev-stop:
+    desc: "Stop narun development stack"
+    cmds:
+      - echo "🛑 Stopping narun development stack..."
+      - task: gw-stop
+      - task: node-stop
+      - echo "✅ Development stack stopped"
+
+  dev-status:
+    desc: "Show development stack status"
+    cmds:
+      - echo "📊 Narun Development Stack Status"
+      - echo "================================"
+      - echo ""
+      - echo "Gateway ({{.NARUN_GW_HTTP_ADDR}}){{":"}}"
+      - curl -s http{{":"}}//localhost{{.NARUN_GW_HTTP_ADDR}}/health || echo "❌ Not responding"
+      - echo ""
+      - echo "Node Runner ({{.NARUN_NODE_WEB_ADDR}}){{":"}}"
+      - curl -s http{{":"}}//localhost{{.NARUN_NODE_WEB_ADDR}} > /dev/null && echo "✅ Running" || echo "❌ Not responding"
+      - echo ""
+      - task: list-apps
+
+  ### NATS integration tasks
+
+  nats-start:
+    desc: "Start NATS server with JetStream"
+    cmds:
+      - echo "🚀 Starting NATS server..."
+      - nats-server --jetstream --port 4222 --http_port 8222 &
+      - sleep 2
+      - echo "✅ NATS server started"
+      - echo "🌐 NATS{{":"}} {{.NARUN_NATS_URL}}"
+      - echo "📊 NATS Monitor{{":"}} http{{":"}}//localhost{{":"}}8222"
+
+  nats-stop:
+    desc: "Stop NATS server"
+    cmds:
+      - echo "🛑 Stopping NATS server..."
+      - pkill -f "nats-server" || true
+      - echo "✅ NATS server stopped"
+
+  ### Integration with existing projects
+
+  deploy-ds-wasm:
+    desc: "Deploy DataStar WASM WebWorkers project"
+    cmds:
+      - echo "🚀 Deploying DataStar WASM WebWorkers..."
+      - echo "📦 Binary{{":"}} ./ds-wasm-webworkers/web/wasm/hello-worker.wasm"
+      - echo "⚙️  Config{{":"}} ./ds-wasm-webworkers/narun-config.yaml"
+      - echo "💡 Would run{{":"}} narun deploy -config ./ds-wasm-webworkers/narun-config.yaml -binary ./ds-wasm-webworkers/web/wasm/hello-worker.wasm"
+      - echo "✅ Deployment command prepared (narun CLI not installed)"
+
+  deploy-web-testing:
+    desc: "Deploy Web Testing Framework"
+    cmds:
+      - echo "🚀 Deploying Web Testing Framework..."
+      - echo "📦 Binary{{":"}} ./web-testing/.bin/web-testing"
+      - echo "⚙️  Config{{":"}} ./web-testing/narun-config.yaml"
+      - echo "💡 Would run{{":"}} narun deploy -config ./web-testing/narun-config.yaml -binary ./web-testing/.bin/web-testing"
+      - echo "✅ Deployment command prepared (narun CLI not installed)"
+
+  deploy-gui-robot:
+    desc: "Deploy GUI Robot Automation"
+    cmds:
+      - echo "🚀 Deploying GUI Robot Automation..."
+      - echo "📦 Binary{{":"}} ./gui-robot/.bin/gui-robot"
+      - echo "⚙️  Config{{":"}} ./gui-robot/narun-config.yaml"
+      - echo "💡 Would run{{":"}} narun deploy -config ./gui-robot/narun-config.yaml -binary ./gui-robot/.bin/gui-robot"
+      - echo "✅ Deployment command prepared (narun CLI not installed)"

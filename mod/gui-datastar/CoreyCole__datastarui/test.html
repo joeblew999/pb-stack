@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Diff Output</title>
+	<style>
+		:root {
+            font-size: 150%;
+			--border: 1px solid black;
+		}
+		* {
+			box-sizing: border-box;
+		}
+		html {
+			padding: 0;
+			margin: 0;
+		}
+		body {
+			padding: 16px;
+			margin: 0;
+		}
+		table {
+			width: 100%;
+			border: var(--border);
+			border-radius: 4px;
+			border-collapse: collapse;
+		}
+		td {
+			border-left: 1px solid black;
+			margin: 0;
+		}
+		td:first-child {
+			border-left: inherit;
+		}
+		tr {
+			border-bottom: 1px solid black;
+		}
+		tr:last-child {
+			border-bottom: inherit;
+		}
+		th {
+			border-left: 1px solid black;
+			padding: 2px 6px;
+		}
+		th:first-child {
+			border-left: inherit;
+		}
+		.rem {
+			background-color: red;
+			color: white;
+		}
+		.add {
+            background-color: green;
+            color: white;
+		}
+		span {
+			margin: 0 1px;
+		}
+	</style>
+</head>
+<h1 id="context">Context</h1>
+<p>
+	Diff comparison for file <code>test.csv</code>
+</p>
+<h2 id="diff-heading">Differences Table</h2>
+<table>
+	<tr>
+		<th>#</th>
+		<th>A</th>
+		<th>B</th>
+		<th>Difference</th>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>a short string</td>
+		<td>another short string</td>
+		<td><span class="rem">a</span><span class="add">another</span> short string</td>
+	</tr>
+	<tr>
+		<td>2</td>
+		<td>something goes here</td>
+		<td>some thing goes here</td>
+		<td><span class="rem">something</span><span class="add">some</span> <span class="add">thing</span><span class="add"> </span>goes here</td>
+	</tr>
+	<tr>
+		<td>3</td>
+		<td>something; else</td>
+		<td>something else;</td>
+		<td>something<span class="rem">;</span> else<span class="add">;</span></td>
+	</tr>
+	<tr>
+		<td>4</td>
+		<td>a super long string that might just expand past the border of a cell</td>
+		<td>a super long string that might just expand past the border of this cell</td>
+		<td>a super long string that might just expand past the border of <span class="rem">a</span><span class="add">this</span> cell</td>
+	</tr>
+</table>
+</html>

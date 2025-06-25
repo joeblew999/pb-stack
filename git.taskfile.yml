@@ -1,16 +1,34 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 
+# https://taskfile.dev
+
 # git.taskfile.yml 
 
-### TODO: 
+# This Taskfile is used to manage git operations, including cloning, pulling, pushing,
+# and signing commits. 
+# It is designed to work with a root git repository and a source repository, allowing
+# for easy management of both, especially in a monorepo setup with multiple projects.
 
-# Check git is installed.
 
-# Can pass in COMMIT Message using 'ENV_VAR='commandline' task main' . https://medium.com/@TianchenW/demystification-of-taskfile-variables-29b751950393
+# The Taskfile uses variables to define paths, repository names, and other configurations,
+# making it flexible and adaptable to different environments.
 
-# Make some of this a golang AMP that base installs.
+# The tasks are organized to allow for easy execution of common git operations,
+# such as checking status, pulling changes, and pushing commits.
 
-## ssh config parser: https://github.com/kevinburke/ssh_config
+# It also includes tasks for managing SSH keys and signing commits, ensuring that
+# the git operations are secure and properly configured.
+
+
+# Include this is any Taskfile as:
+
+#includes:
+#  dev:
+#    taskfile: ./../../../dev-taskfile.yml
+#    flatten: true
+#  git:
+#    taskfile: ./git.taskfile.yml
+#    flatten: false
 
 version: '3'
 
@@ -282,12 +300,28 @@ tasks:
       - echo 'Deleting the src ...'
       - cd {{.BASE_SRC_PATH}} && rm -rf {{.GIT_VAR_SRC_REPO_NAME}}
       - cd {{.BASE_SRC_PATH}} && rm -f .gitignore
+
+  reset:
+    prompt: This is a dangerous command... Do you want to continue?
+    cmds:
+      - task git:dep
+      - echo 'hard resetting ...'
+      - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} reset --hard
+
+  reset:src:
+    prompt: This is a dangerous command... Do you want to continue?
+    cmds:
+      - task git:dep
+      - echo 'hard resetting ...'
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} reset --hard
+
   pull:
     desc: git pull
     cmds:
       - task git:dep
       - echo 'Pulling ...'
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} pull --rebase
+      
   pull:src:
      cmds:
       - task git:dep
@@ -298,6 +332,7 @@ tasks:
     desc: 'git push ( eg: COMMIT_MESSAGE=?? task git:push )'
     vars:
       COMMIT_MESSAGE: 'ci'
+    prompt: Are you sure you want to push? This will commit all changes.
     cmds:
       - task git:dep
       - echo 'Pushing ...'
@@ -308,6 +343,7 @@ tasks:
     desc: 'git push ( eg: COMMIT_MESSAGE=?? task git:push:src )'
     vars:
       COMMIT_MESSAGE: 'ci'
+    prompt: Are you sure you want to push? This will commit all changes.
     cmds:
       #- task git:dep
       - echo 'Pushing src ...'
@@ -404,7 +440,7 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program {{.GIT_SIGNING_PROGRAM}}
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format {{.GIT_SIGNING_FORMAT}}
   sign:set:src:
-    desc: git sign set, to set the signing up in your git config.
+    desc: src - git sign set, to set the signing up in your git config.
     cmds:
       - echo 'Setting signing up into your git config ...'
       - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local user.name {{.GIT_VAR_ROOT_SIGNING_USER_NAME}}
@@ -423,3 +459,13 @@ tasks:
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program
       - cd {{.GIT_VAR_ROOT_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format
 
+    
+  sign:get:src:
+    desc: src - git sign get, to see what settings you have in your git config.
+    cmds:
+      - echo 'Printing signing setup from your git config ...'
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --get user.name
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --get user.email
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local user.signingkey
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.program
+      - cd {{.GIT_VAR_SRC_REPO_PATH}} && {{.GIT_BIN_NAME}} config --local gpg.format

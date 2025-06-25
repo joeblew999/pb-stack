@@ -1,0 +1,21 @@
+{
+  "organization": "carapace-sh",
+  "repositories": [
+    {
+      "description": "Main carapace library",
+      "name": "carapace",
+      "version": "v1.8.3"
+    },
+    {
+      "description": "Multi-shell completion spec",
+      "name": "carapace-spec",
+      "version": "v1.1.3"
+    },
+    {
+      "description": "Binary completions",
+      "name": "carapace-bin",
+      "version": "v1.3.2"
+    }
+  ],
+  "version": "1"
+}

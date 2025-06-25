@@ -1,5 +1,6 @@
 # datastar
 
+
 A HTMX web system that uses SSE for real time Web GUI.
 
 There is no main.go for datastar. there could be If the runtime has typescript.

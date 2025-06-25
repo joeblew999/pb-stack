@@ -1,0 +1,11 @@
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/hack-pad/safejs v0.1.1 h1:d5qPO0iQ7h2oVtpzGnLExE+Wn9AtytxIfltcS2b9KD8=
+github.com/hack-pad/safejs v0.1.1/go.mod h1:HdS+bKF1NrE72VoXZeWzxFOVQVUSqZJAG0xNCnb+Tio=
+github.com/magodo/chanio v0.0.0-20230905063744-5f1bf45eacbc h1:OA/l08Abuwg0v3g6piwgnHzK8QcV+rgUwrmvKSSVT28=
+github.com/magodo/chanio v0.0.0-20230905063744-5f1bf45eacbc/go.mod h1:h8znBXxSpGVpiLc79RwAaMndx+d3DrnynGlmbxPWcX8=
+github.com/magodo/go-wasmww v0.0.0-20231019025343-1b7b5e534b52 h1:s4KnMNVFnod4El/DuWdplxyOfz/lxgZjow7jgcC08sE=
+github.com/magodo/go-wasmww v0.0.0-20231019025343-1b7b5e534b52/go.mod h1:3Da4y024Wt+xMHGKEdkLx8wBn4ZF0wC4XtzHKzNCLjA=
+github.com/magodo/go-webworkers v0.0.0-20230912130354-7cb7781df4ee h1:XaNsxpodBifEAUm5iFCT0oxFw+OVmlCRxwBfqOd/Gi8=
+github.com/magodo/go-webworkers v0.0.0-20230912130354-7cb7781df4ee/go.mod h1:75pYYUWzQZKwI7HXgCOD6CAqEvNhln+yyxV3vIJWxaE=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=

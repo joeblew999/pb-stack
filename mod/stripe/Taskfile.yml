@@ -1,0 +1,191 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+  STRIPE_CLI_BIN_NAME: stripe_cli
+  STRIPE_CLI_CONFIG_PATH: $HOME/.config/stripe/config.toml
+
+
+  STRIPE_CLI_CMD: '{{.STRIPE_CLI_BIN_NAME}} --project-name {{.STRIPE_CLI_VAR_PROJECT_NAME}}' 
+
+tasks:
+  default:
+    cmds:
+      - task  --list-all
+      - echo
+      - echo "{{.GREETING}}"
+      - echo "STRIPE_CLI_BIN_NAME             {{.STRIPE_CLI_BIN_NAME}}"
+      - echo "STRIPE_CLI_BIN_WHICH        "
+      - which {{.STRIPE_CLI_BIN_NAME}}
+      - echo
+      - echo "STRIPE_CLI_CONFIG_PATH          {{.STRIPE_CLI_CONFIG_PATH}}"
+      - echo
+      - echo "STRIPE_CLI_VAR_API_KEY          {{.STRIPE_CLI_VAR_API_KEY}}"
+      - echo "STRIPE_CLI_VAR_PROJECT_NAME     {{.STRIPE_CLI_VAR_PROJECT_NAME}}"
+      - echo
+      - echo "STRIPE_CLI_CMD                  {{.STRIPE_CLI_CMD}}"
+      
+    silent: true
+
+  dep:
+    cmds:
+      - go install github.com/stripe/stripe-cli/cmd/stripe@latest
+      - mv {{.GOPATH}}/bin/stripe {{.GOPATH}}/bin/{{.STRIPE_CLI_BIN_NAME}}
+
+### config
+### https://docs.stripe.com/cli/config
+
+  config:open:
+    desc: opens config in editor.
+    cmds:
+      - code {{.STRIPE_CLI_CONFIG_PATH}}
+  config:list:
+    desc: lists config in terminal.
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} config --list'
+
+
+  console:
+    desc: opens web console.
+    cmds:
+      - open https://dashboard.stripe.com/dashboard
+  
+### open: https://docs.stripe.com/cli/open
+
+  run:open:
+    cmds:
+      # stripe open 
+      - '{{.STRIPE_CLI_BIN_NAME}} open --live --list'
+  run:open:keys:
+    cmds:
+      # stripe open api keys
+      - '{{.STRIPE_CLI_BIN_NAME}} open dashboard/apikeys --live'
+
+
+  run:help:
+    cmds:
+      #- '{{.STRIPE_CLI_BIN_NAME}} v2 -h'
+      - '{{.STRIPE_CLI_BIN_NAME}} -h'
+    silent: true
+  run:version:
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} version'
+    silent: true
+
+### auth: https://docs.stripe.com/cli/logout
+
+  run:auth:login:general:
+    desc: Prompt you to log in from your browser and persist your API key locally
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} login'
+    silent: true
+  run:auth:login:project:
+    desc: Prompt you to log in from your browser and persist your API key locally
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} login --project-name={{.STRIPE_CLI_VAR_PROJECT_NAME}} login'
+    silent: true
+
+  run:auth:logout:all:
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} logout --all'
+    silent: true
+  run:auth:logout:project:
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} logout --project-name={{.STRIPE_CLI_VAR_PROJECT_NAME}}'
+
+
+### logs
+### tail: https://docs.stripe.com/cli/logs/tail
+# logs tail only supports displaying test mode request logs.
+
+  run:log:tail:
+    desc: blocks CLI and shows logs as they occur
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} logs tail'
+    silent: true
+
+### listen: https://docs.stripe.com/cli/listen
+
+  run:listen:
+    desc: blocks cli and listens for events
+    cmds:
+    - '{{.STRIPE_CLI_BIN_NAME}} listen'
+    silent: true
+
+### triggers: https://docs.stripe.com/cli/trigger
+
+  run:trigger:
+    desc: triggers an event
+    cmds:
+    - '{{.STRIPE_CLI_BIN_NAME}} trigger payment_intent.created'
+    silent: true
+
+
+### resend: https://docs.stripe.com/cli/events/resend
+
+  run:resend:
+    desc: resend an event. Must get the ID from the trigger
+    cmds:
+    - '{{.STRIPE_CLI_BIN_NAME}} events resend evt_3RTx7UABkTiOs5on0XOxFDhq'
+    silent: true
+
+### resources: https://docs.stripe.com/cli/resources
+
+# There are heaps and i only have a few below.
+
+  run:resources:list:
+    desc: lists resources, which are like command operations.
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} resources'
+    silent: true
+
+  run:resources:charges:list:
+    desc: lists charges as json
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} charges list -h'
+    silent: true
+
+  run:resources:bank_accounts:list:
+    desc: list bank accounts
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} bank_accounts list'
+    silent: true
+
+### samples: https://docs.stripe.com/cli/samples/create
+# pulls from https://github.com/stripe-samples
+
+  run:samples:help:
+    desc: samples help
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} samples -h'
+  run:samples:list:
+    desc: list samples
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} samples list'
+  run:samples:create:
+    desc: prompts for type and programming lang.
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} samples create accept-a-payment'
+
+
+  run:serve:
+    desc: serves the sample
+    # just a static server. no big deal:
+    # Start an HTTP server to serve static files. By default, the current working directory will be used.
+    cmds:
+      - '{{.STRIPE_CLI_BIN_NAME}} serve accept-a-payment'
+  
+
+
+
+
+
+  
+
+  
+
+
+
+

@@ -1,0 +1,36 @@
+{
+  "fonts": [
+    {
+      "name": "FiraSans-Regular-Test.ttf",
+      "displayName": "Fira Sans Regular (Test Copy)",
+      "url": "https://github.com/google/fonts/raw/main/ofl/firasans/FiraSans-Regular.ttf",
+      "family": "Fira Sans",
+      "weight": "400",
+      "style": "normal"
+    },
+    {
+      "name": "FiraMono-Bold-Test.ttf",
+      "displayName": "Fira Mono Bold (Test)",
+      "url": "https://github.com/google/fonts/raw/main/ofl/firamono/FiraMono-Bold.ttf",
+      "family": "Fira Mono",
+      "weight": "700",
+      "style": "normal"
+    },
+    {
+      "name": "LibreBaskerville-Bold-Test.ttf",
+      "displayName": "Libre Baskerville Bold (Test)",
+      "url": "https://github.com/google/fonts/raw/main/ofl/librebaskerville/LibreBaskerville-Bold.ttf",
+      "family": "Libre Baskerville",
+      "weight": "700",
+      "style": "normal"
+    },
+    {
+      "name": "Lato-Bold-Test.ttf",
+      "displayName": "Lato Bold (Test)",
+      "url": "https://github.com/google/fonts/raw/main/ofl/lato/Lato-Bold.ttf",
+      "family": "Lato",
+      "weight": "700",
+      "style": "normal"
+    }
+  ]
+}

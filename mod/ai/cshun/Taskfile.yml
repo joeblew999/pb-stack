@@ -1,0 +1,76 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+  # my test ones :)
+  IMAGE_DOCKER_CONTAINER: https://github.com/cshum/imagor/pkgs/container/imagor/
+  IMAGE_DOCKER_IMAGE: ghcr.io/cshum/imagor:1.5.5
+
+  VIDEO_DOCKER_CONTAINER: https://github.com/cshum/imagorvideo/pkgs/container/imagorvideo/
+  VIDEO_DOCKER_IMAGE: ghcr.io/cshum/imagorvideo:0.5.5
+
+  # reusable by jsut passing in this.
+  DOCKER_NAME_WHICH: 'imagor'
+  DOCKER_CONTAINER_WHICH: '{{.IMAGE_DOCKER_CONTAINER}}'
+  DOCKER_IMAGE_WHICH: '{{.IMAGE_DOCKER_IMAGE}}'
+
+tasks:
+  default:
+    cmds:
+      - task --list-all
+      - echo "{{.GREETING}}"
+      - echo "DOCKER_NAME_WHICH             {{.DOCKER_NAME_WHICH}}"
+      - echo "DOCKER_CONTAINER_WHICH        {{.DOCKER_CONTAINER_WHICH}}"
+      - echo "DOCKER_IMAGE_WHICH            {{.DOCKER_IMAGE_WHICH}}"
+    silent: true
+
+### docker: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+
+  docker:image:help:
+    desc: docker help
+    cmds:
+      - docker images
+  docker:image:delete:
+    desc: Remove image locally as needed.
+    cmds:
+      - docker rmi {{.DOCKER_IMAGE_WHICH}}
+
+  docker:image:open:
+    desc: opens browser to it.
+    cmds:
+      - open {{.DOCKER_CONTAINER_WHICH}}
+
+  docker:inspect:
+    desc: inspect docker image
+    cmds:
+      - docker inspect {{.DOCKER_IMAGE_WHICH}}
+
+  docker:pull:
+    desc: pull docker image
+    cmds:
+      - docker pull {{.DOCKER_IMAGE_WHICH}}
+
+  docker:run:
+    desc: run docker image in detached mode.
+    deps: [docker:stop, docker:rm]
+    cmds:
+      - docker run --name {{.DOCKER_NAME_WHICH}} -d {{.DOCKER_IMAGE_WHICH}}
+  docker:run:help:
+    desc: run docker image and call --help.
+    deps: [docker:rm]
+    cmds:
+      - docker run --name {{.DOCKER_NAME_WHICH}} {{.DOCKER_IMAGE_WHICH}} --help
+
+  docker:stop:
+    desc: stop docker container
+    cmds:
+      - docker stop {{.DOCKER_NAME_WHICH}}
+  docker:rm:
+    desc: stop docker container
+    cmds:
+      - docker rm {{.DOCKER_NAME_WHICH}}
+ 
+  

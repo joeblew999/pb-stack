@@ -1,0 +1,47 @@
+# https://taskfile.dev
+
+version: '3'
+
+includes:
+  dev: ./dev.taskfile.yml
+
+# Import common directory variables from dev/base
+vars:
+  BIN_DIR: '{{.DEV_BIN_DIR}}'
+  SRC_DIR: '{{.DEV_SRC_DIR}}'
+  TEST_DIR: '{{.DEV_TEST_DIR}}'
+  TMP_DIR: '{{.DEV_TMP_DIR}}'
+
+tasks:
+  default:
+    desc: "Lists all available tasks"
+    cmds:
+      - task dev:default
+    silent: true
+
+  init:
+    desc: "Initialize workspace directories"
+    cmds:
+      - task: dev:init
+
+  test:
+    desc: "Run all development tool tests"
+    cmds:
+      - task: dev:test
+
+  validate:
+    desc: "Validate all configurations"
+    cmds:
+      - task: dev:validate
+
+  update:
+    desc: "Update all development tools"
+    cmds:
+      - task: dev:update
+
+  status:
+    desc: "Show status of all development tools"
+    cmds:
+      - task: dev:status
+
+
